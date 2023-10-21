@@ -21,7 +21,6 @@ function LeftSidebar() {
                     const isActive = (pathname.includes(link.route) && link.route.length > 1) || (pathname === link.route);
                     
                     return (
-                    <div className="">
                         <Link 
                             href={link.route}
                             key={link.label}
@@ -35,11 +34,11 @@ function LeftSidebar() {
                             />
                             <p className="text-light-1 max-lg:hidden">{link.label}</p>
                         </Link>
-                    </div>)
+                    )
                 })}
             </div>
 
-            <div className="mt-10 px-10">
+            <div className="mt-10 px-12">
                 <SignedIn>
                     <SignOutButton signOutCallback={()=>{router.push('sign-in')}}>
                         <div className="flex cursor-pointer">
@@ -49,7 +48,7 @@ function LeftSidebar() {
                                 width={24}
                                 height={24}                               
                             />
-                            <p className="text-light-1 ml-3 max-lg:hidden">Logout</p>
+                            <p className="text-light-1 ml-4 max-lg:hidden">Logout</p>
                         </div>
                     </SignOutButton>
                 </SignedIn> 
