@@ -12,6 +12,7 @@ import LeftSidebar from '@/components/shared/LeftSidebar'
 import RightSidebar from '@/components/shared/RightSidebar'
 import Bottombar from '@/components/shared/Bottombar'
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
