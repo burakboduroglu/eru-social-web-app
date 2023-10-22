@@ -6,8 +6,6 @@ import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import {trTR} from '@clerk/localizations';
 
-
-
 export const metadata = {
     title: 'Eru Social Web',
     description: 'Erciyes University Social Web',
@@ -18,7 +16,6 @@ export const metadata = {
 }
 
  
-
 const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({
