@@ -144,11 +144,11 @@
 }
 
 .account-form_image-input {
-  @apply cursor-pointer border-none bg-transparent outline-none file:text-blue !important;
+  @apply !text-small-medium cursor-pointer border-none bg-transparent outline-none file:text-blue !important;
 }
 
 .account-form_input {
-  @apply border border-gray-900 bg-dark-3 text-white hover:bg-dark-4 transition-colors duration-200 ease-in-out shadow hover:shadow-lg !important;
+  @apply border border-gray-800 bg-dark-3 text-gray-300 hover:bg-dark-4 transition-colors duration-200 ease-in-out shadow hover:shadow-lg !important;
 }
 
 /* Comment Form */

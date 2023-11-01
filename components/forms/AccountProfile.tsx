@@ -65,7 +65,7 @@ export default function AccountProfile({ user }: Props) {
           control={form.control}
           name="profile_photo"
           render={({ field }) => (
-            <FormItem className="flex items-center gap-4">
+            <FormItem className="flex items-center gap-5">
               <FormLabel className="account-form_image-label">
                 {field.value ? (
                   <Image
@@ -105,7 +105,7 @@ export default function AccountProfile({ user }: Props) {
           name="name"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-light-2 pl-1">
                 İsminiz
               </FormLabel>
               <FormControl>
@@ -125,7 +125,7 @@ export default function AccountProfile({ user }: Props) {
           name="username"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-light-2 pl-1">
                 Kullanıcı Adınız
               </FormLabel>
               <FormControl>
@@ -145,7 +145,7 @@ export default function AccountProfile({ user }: Props) {
           name="bio"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-light-2 pl-1">
                 Profil açıklamanızı girin
               </FormLabel>
               <FormControl>
@@ -153,6 +153,7 @@ export default function AccountProfile({ user }: Props) {
                   rows={5}
                   className="account-form_input no-focus"
                   {...field}
+                  placeholder="Bir şeyler yazın..."
                 />
               </FormControl>
             </FormItem>

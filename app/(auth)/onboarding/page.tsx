@@ -1,7 +1,6 @@
 import { currentUser } from "@clerk/nextjs";
 
 import AccountProfile from "@/components/forms/AccountProfile";
-import Footer from "@/components/shared/Footer";
 
 async function Page() {
   const user = await currentUser(); // get the current user from Clerk
@@ -21,7 +20,7 @@ async function Page() {
 
   return (
     <div>
-      <main className="mx-auto flex max-w-4xl flex-col justify-start px-10 py-[35px] mb-5">
+      <main className="mx-auto flex max-w-4xl flex-col justify-start px-10 py-[35px]">
         <h1 className="head-text">Bilgilerini Tamamla</h1>
         <p className="mt-3 text-base-regular text-light-2">
           Profil bilgilerini güncelle.
@@ -30,7 +29,9 @@ async function Page() {
           <AccountProfile user={userData} />
         </section>
       </main>
-      <Footer />
+      <div className="bottom-0 w-full h-10 bg-gray-800 text-white flex justify-center items-center font-sans text-[12px]">
+        <p>© 2023 Burak Boduroglu </p>
+      </div>
     </div>
   );
 }
