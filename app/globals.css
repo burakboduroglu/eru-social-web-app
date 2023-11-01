@@ -5,7 +5,7 @@
 @layer components {
   /* main */
   .main-container {
-    @apply flex min-h-screen flex-1 flex-col items-center bg-dark-1 px-6 pb-10 pt-28 max-md:pb-32 sm:px-10;
+    @apply flex min-h-screen flex-1 flex-col items-center bg-dark-2 px-6 pb-10 pt-28 max-md:pb-32 sm:px-10;
   }
 
   /* Head Text */
@@ -148,7 +148,7 @@
 }
 
 .account-form_input {
-  @apply border border-dark-4 bg-dark-3 text-light-1 !important;
+  @apply border border-gray-900 bg-dark-3 text-white hover:bg-dark-4 transition-colors duration-200 ease-in-out shadow hover:shadow-lg !important;
 }
 
 /* Comment Form */
