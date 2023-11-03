@@ -1,7 +1,5 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-
 // Shadcn UI
 import {
   Form,
@@ -20,10 +18,22 @@ import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserValidation } from "@/lib/validations/user";
 import * as z from "zod";
+
 import Image from "next/image";
+
+// React
 import { ChangeEvent, useState } from "react";
+import { useForm } from "react-hook-form";
+
+// Utils
 import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
+
+// Actions
+import { updateUser } from "@/lib/actions/user.action";
+
+// Next
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   user: {
@@ -38,7 +48,10 @@ interface Props {
 
 export default function AccountProfile({ user }: Props) {
   const [files, setFiles] = useState<File[]>([]);
+  const [image, setImage] = useState<string | null>(null);
   const { startUpload } = useUploadThing("imageUploader");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm({
     resolver: zodResolver(UserValidation), // use for validation with Zod
@@ -83,7 +96,20 @@ export default function AccountProfile({ user }: Props) {
         values.profile_photo = imageResponse[0].url;
       }
     }
-    // TODO: Update user profile on server
+    await updateUser({
+      userId: user.id,
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      path: pathname,
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -188,6 +214,7 @@ export default function AccountProfile({ user }: Props) {
                   placeholder="Bir şeyler yazın..."
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
