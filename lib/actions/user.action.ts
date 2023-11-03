@@ -14,6 +14,7 @@ interface UserParams {
   path: string;
 }
 
+// Update user
 export async function updateUser({
   userId,
   username,
@@ -36,5 +37,15 @@ export async function updateUser({
     }
   } catch (error: any) {
     throw new Error(`Failed to update user: ${error.message}`);
+  }
+}
+
+// Get user
+export async function getUser(userId: string) {
+  try {
+    connectToDatabase();
+    return await User.findOne({ id: userId });
+  } catch (error: any) {
+    throw new Error(`Failed to get user: ${error.message}`);
   }
 }

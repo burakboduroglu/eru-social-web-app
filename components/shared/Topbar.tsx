@@ -5,10 +5,10 @@ import { OrganizationSwitcher, SignOutButton, SignedIn } from "@clerk/nextjs";
 
 function Topbar() {
   return (
-    <nav className="topbar min-w">
+    <nav className="topbar">
       <Link
         href="/"
-        className="flex items-center gap-4 px-5 py-2 sm:pl-6 md:-ml-2"
+        className="flex items-center gap-5 py-2 px-5 sm:pl-6 md:-ml-2"
       >
         <Image
           src="/assets/logo.svg"
