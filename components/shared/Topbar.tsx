@@ -17,10 +17,10 @@ function Topbar() {
           height={38}
           className="xs:w-[45px] xs:h-[45px] xs:mt-3 border-b-2 border-light-1"
         />
-        <p className="text-heading3-semibold text-[18px] text-light-1 hidden lg:block uppercase pt-3">
+        <div className="text-heading3-semibold text-[18px] text-light-1 hidden lg:block uppercase pt-3">
           Eru Social
           <p className="text-[14px] mx-auto text-center">Web</p>
-        </p>
+        </div>
       </Link>
       <div className="flex items-center gap-1">
         <div className="block md:hidden">
