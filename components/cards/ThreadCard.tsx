@@ -1,5 +1,9 @@
+"use client"
+
 import Link from "next/link";
 import Image from "next/image";
+import {useState} from "react";
+
 
 interface CardProps {
     id: string
@@ -36,6 +40,16 @@ const ThreadCard = ({
    comments,
    isComment,
 } : CardProps) => {
+    const [url, setUrl] = useState("http://localhost:3000/");
+    const handleCopy = async () => {
+        const url = "http://localhost:3000/thread/" + id;
+        await navigator.clipboard.writeText(url);
+        // Wait for the clipboard to be updated before calling the function recursively.
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        handleCopy();
+    };
+
+
     return (
         <article className="flex w-full flex-col rounded-xl bg-dark-2 p-7 mt-3">
             <div className="flex items-start justify-between">
@@ -74,7 +88,6 @@ const ThreadCard = ({
                                     <p className="mt-1 text-subtle-medium text-gray-1">{comments.length} yorum</p>
                                 </Link>
                             )}
-
                         </div>
                     </div>
                 </div>
