@@ -19,3 +19,13 @@ H
 lib/models/user.model.ts,4/3/4319ca2a41e4980e52a7a8fe8f866d004e038025
 G
 lib/validations/user.ts,2/f/2feb454e0ad6f1cc3e598831e90a487e8b47ba43
+T
+$components/cards/ThreadShareCard.tsx,8\a\8aba9d1418c8460dff335b0811266c06263f7b5f
+U
+%app/(root)/thread/share/[id]/page.tsx,7\4\747feefda89da6b64708d638d4f7ebf3eac2c290
+O
+app/(root)/thread/[id]/page.tsx,1\f\1fb7409dc126505b89bb999fff5b0ee13af7c54d
+Z
+*app/(auth)/sign-up/[[...sign-up]]/page.tsx,4\2\427b759ef390307b2a70d4706feb11483dd71d13
+L
+components/shared/Footer.tsx,0\0\004ff214a9cf74fa00fd8275598ef435fc54eb68

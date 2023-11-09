@@ -1,31 +1,39 @@
 "use client"
 
 import {AiOutlineWhatsApp, AiOutlineInstagram} from "react-icons/ai"
+import {FaPaperPlane} from "react-icons/fa6"
 import Link from "next/link";
-import {useState} from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Footer from "../shared/Footer";
 
-interface ShareCard{
+
+interface ShareCard {
     postId: string
 }
 
-export default async function ThreadShareCard({postId}: ShareCard) {
-    const [url, setUrl] = useState(`http:localhost:3000/thread/${postId}`)
-    const handleCopy = () => {
-        setUrl(`http:localhost:3000/thread/${postId}`)
-        navigator.clipboard.writeText(url)
-    }
-    return (
-        <div>
-            <h1 className="head-text">Share the post via</h1>
-            <div className="flex justify-center rounded-xl bg-dark-2 p-3 mt-3 text-zinc-100 gap-8">
-                <p className="flex items-center p-2 border border-white rounded-xl text-[.95em] text-red-300 ">{url}</p>
-                <p onClick={handleCopy} className="p-2 text-[.95em] rounded-xl border border-red-300 hover:bg-red-300 hover:cursor-pointer hover:text-black">
-                    Copy Link
-                </p>
-            </div>
+export default function ThreadShareCard({postId}: ShareCard) {
 
-            <article className="flex w-full flex-col  items-center rounded-xl bg-dark-2 p-7 mt-3 ">
+    const url=`http:localhost:3000/thread/${postId}`
+    const handleCopy = () => {
+        navigator.clipboard.writeText(url)
+        showToastMessage();
+    }
+    const showToastMessage = () => {
+        toast.success("Bağlantı Kopyalandı!", {
+            position: toast.POSITION.TOP_RIGHT,
+        });
+    };
+
+    return (
+        <div className="flex flex-col justify-center items-center text-white">
+            <h1 className="head-text">Gönderiyi Paylaş</h1>
+            <article className="flex w-full flex-col items-center rounded-xl bg-dark-2 p-7 mt-3 ">
                 <div className="flex hover:cursor-pointer gap-5">
+                    <p onClick={handleCopy}
+                       className=" flex flex-col justify-center gap-3  pl-2 pr-2 text-[.85em] rounded-xl border border-red-300 hover:bg-red-300 hover:cursor-pointer hover:text-black text-zinc-100 ">
+                        Kopyala
+                    </p>
                     <Link href="https://web.whatsapp.com/" target="_blank" className="text-green-500">
                         <AiOutlineWhatsApp size={48}/>
                     </Link>
@@ -35,6 +43,11 @@ export default async function ThreadShareCard({postId}: ShareCard) {
                     </Link>
                 </div>
             </article>
+            <div className="mt-20">
+                <FaPaperPlane size={108}/>
+            </div>
+            <ToastContainer limit={3} theme={"dark"} autoClose={1500}/>
+            <Footer />
         </div>
     )
 }
