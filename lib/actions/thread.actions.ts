@@ -4,8 +4,7 @@ import {connectToDatabase} from "@/lib/mongoose";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import {revalidatePath} from "next/cache";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
+
 
 interface ThreadParams {
     text: string,
