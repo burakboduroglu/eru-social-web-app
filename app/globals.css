@@ -57,9 +57,8 @@
   .searchbar_input {
     @apply border-none bg-dark-3 text-base-regular text-light-4 outline-none !important;
   }
-
   .topbar {
-    @apply fixed top-0 z-30 flex w-full items-center justify-between bg-dark-2 px-6;
+    @apply fixed xs:p-3 sm:pr-2 lg:pr-[7.1em] lg:pl-[8em] pr-28 pl-44 z-30 flex w-full items-center justify-between bg-black px-6 border border-black border-b-dark-4;
   }
 
   .bottombar {
@@ -75,7 +74,7 @@
   }
 
   .leftsidebar {
-    @apply sticky left-0 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-dark-4 bg-dark-2 pb-5 pt-28 max-md:hidden;
+    @apply sticky pl-40 top-4 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-dark-4 bg-black pb-10 pt-28 max-md:hidden;
   }
 
   .leftsidebar_link {
@@ -87,10 +86,29 @@
   }
 
   .rightsidebar {
-    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto border-l border-l-dark-4 bg-dark-2 px-10 pb-6 pt-28 max-xl:hidden;
+    @apply sticky pr-32 top-3 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto border-l border-l-dark-4 bg-black px-10 pb-6 pt-28 max-xl:hidden;
   }
 }
+/* Custom Scrollbar */
+body::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+  border-radius: 2px;
+}
 
+body::-webkit-scrollbar-track {
+  background: #09090a;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* For Left and Root */
 @layer utilities {
   .css-invert {
     @apply invert-[50%] brightness-200;
@@ -159,3 +177,4 @@
 .comment-form_btn {
   @apply rounded-3xl bg-primary-500 px-8 py-2 text-small-regular text-light-1 max-xs:w-full !important;
 }
+

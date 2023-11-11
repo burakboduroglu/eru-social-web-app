@@ -16,7 +16,7 @@ function LeftSidebar() {
 
   return (
     <section className="custom-scrollbar leftsidebar">
-      <div className="flex w-full flex-1 flex-col gap-1 px-10">
+      <div className="flex w-full flex-1 flex-col px-10">
         {sidebarLinks.map((link) => {
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||
@@ -36,7 +36,7 @@ function LeftSidebar() {
                 width={24}
                 height={24}
               />
-              <p className="text-light-1 max-lg:hidden text-[1.05em]">
+              <p className="text-light-1 max-lg:hidden text-[1.05em] pt-1">
                 {link.label}
               </p>
             </Link>
@@ -44,7 +44,7 @@ function LeftSidebar() {
         })}
       </div>
 
-      <div className="mt-10 px-12">
+      <div className="px-[3.5em]">
         <SignedIn>
           <SignOutButton
             signOutCallback={() => {

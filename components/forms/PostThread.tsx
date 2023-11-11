@@ -49,7 +49,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
       path: pathname,
     });
 
-    // After your logic, reset the form
+    // reset the form
     form.reset({
       thread: "",
     });
@@ -77,7 +77,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                 />
               </FormControl>
               <div className="flex items-center w-full justify-between">
-                <FormLabel className="text-amber-50 mb-3 ml-1 text-[0.85em]">
+                <FormLabel className="text-amber-50 mb-3 ml-1 pr-28 text-[0.85em]">
                   Merhaba, {capitalize(userName)} gönderi paylaşırken topluluk
                   kurallarına uyalım.😊 (Karakter sayısı max 550)
                 </FormLabel>

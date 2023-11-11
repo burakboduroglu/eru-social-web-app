@@ -6,10 +6,7 @@ import { OrganizationSwitcher, SignOutButton, SignedIn } from "@clerk/nextjs";
 function Topbar() {
   return (
     <nav className="topbar">
-      <Link
-        href="/"
-        className="flex items-center gap-5 py-2 px-5 sm:pl-6"
-      >
+      <Link href="/" className="flex items-center gap-5 py-2 px-5 sm:pl-6">
         <Image
           src="/assets/logo.svg"
           alt="logo"
@@ -17,9 +14,8 @@ function Topbar() {
           height={38}
           className="xs:w-[45px] xs:h-[45px] xs:mt-3 border-b-2 border-light-1"
         />
-        <div className="text-heading3-semibold text-[18px] text-light-1 hidden lg:block uppercase pt-3">
-          Eru Social
-          <p className="text-[14px] mx-auto text-center">Web</p>
+        <div className="text-heading3-semibold text-[18px] text-light-1 hidden lg:block uppercase pt-4">
+          Eru Social Web
         </div>
       </Link>
       <div className="flex items-center gap-1">

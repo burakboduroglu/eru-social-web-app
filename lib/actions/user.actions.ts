@@ -46,9 +46,22 @@ export async function updateUser({
 export async function getUser(userId: string) {
   try {
     connectToDatabase();
-    return await User.findOne({ id: userId });
-  } catch (error: any) {
-    throw new Error(`Failed to get user: ${error.message}`);
+
+    const user = await User.findOne({ id: userId });
+
+    const posts= await getUserPosts(userId)
+    const comments = await getUserComments(user)
+
+    const postsCount = posts.threads.length;
+    const commentsCount = comments.length;
+
+    return {
+      ...user._doc,
+      postsCount,
+      commentsCount,
+    };
+  } catch (e: any) {
+    throw new Error(`Error: ${e}`);
   }
 }
 
@@ -77,7 +90,7 @@ export async function getUserPosts(userId: string) {
   }
 }
 
-export async function getUserChildren(userId: string) {
+export async function getUserComments(userId: string) {
   try {
     connectToDatabase();
 

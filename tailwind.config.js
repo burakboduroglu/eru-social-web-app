@@ -172,6 +172,9 @@ module.exports = {
       ],
     },
     extend: {
+      backgroundImage: theme => ({
+        'gradient-custom': 'linear-gradient(109.6deg, rgba(0, 0, 0, 0.93) 11.2%, rgb(63, 61, 61) 78.9%)',
+      }),
       colors: {
         "primary-500": "#877EFF",
         "secondary-500": "#FFB620",

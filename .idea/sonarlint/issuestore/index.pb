@@ -75,13 +75,13 @@ O
 app/(root)/communities/page.tsx,7\0\7062a5c5935d866f8223987aa1f4c6f46b2e7a22
 N
 app/(root)/university/page.tsx,4\5\459ad5c386257575c6edffb6894398bb1754d3f8
-K
-app/(root)/profile/page.tsx,f\2\f26178e2cd5366a33d610fea7a3d4c5de98212ca
 P
  app/(root)/profile/[id]/page.tsx,1\6\16c19e89c1829abecc0c15a276f0f677c67be883
-S
-#components/shared/ProfileHeader.tsx,7\5\75ed51a388dad8e6ef0866204e71609ca7b88ae4
 T
 $components/profile/ProfileHeader.tsx,4\d\4dd1d51bca906d1fad57ec2ac99e31d9b25861bf
 Q
 !components/profile/ThreadsTab.tsx,3\f\3f8ad810a3b7383f77aa04e50c28dac58e57d9d4
+O
+components/shared/Bottombar.tsx,7\a\7a844b85b0b18eccfab05b7157160909b79f654a
+B
+tailwind.config.js,0\9\0918cbb76f2c44f223706cec9d31a32cd1177ce4

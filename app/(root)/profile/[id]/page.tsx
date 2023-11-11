@@ -7,7 +7,7 @@ import {profileTabs} from "@/constants";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 
-import {getUser, getUserChildren, getUserPosts} from "@/lib/actions/user.actions";
+import {getUser} from "@/lib/actions/user.actions";
 import ThreadsTab from "@/components/profile/ThreadsTab";
 
 async function Page({params}: Readonly<{
@@ -21,8 +21,6 @@ async function Page({params}: Readonly<{
     const userInfo = await getUser(params.id);
     if (!userInfo?.onboarded) redirect("/onboarding");
 
-    let posts = await getUserPosts(params.id);
-    let comments = await getUserChildren(userInfo);
     return (
         <section>
             <ProfileHeader
@@ -50,12 +48,12 @@ async function Page({params}: Readonly<{
 
                                 {tab.label === "Gönderiler" && (
                                     <p className='ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2'>
-                                        {posts.threads.length}
+                                        {userInfo.postsCount}
                                     </p>
                                 )}
                                 {tab.label === "Yanıtlar" && (
                                     <p className='ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2'>
-                                        {comments.length}
+                                        {userInfo.commentsCount}
                                     </p>
                                 )}
                             </TabsTrigger>
