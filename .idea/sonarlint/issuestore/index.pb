@@ -1,12 +1,10 @@
 
 9
 	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
-Q
-!app/(root)/create-thread/page.tsx,9\2\9227ef10ab3cb1280819553bb343511e99e9cff1
 O
 components/forms/PostThread.tsx,b\f\bf716b3fe6960fab3bf754e46282d20c098523ad
 S
-#components/forms/AccountProfile.tsx,0/f/0f1fbcc7637310e2b80a0a9269e40ec965b2061c
+#components/forms/AccountProfile.tsx,0\f\0f1fbcc7637310e2b80a0a9269e40ec965b2061c
 I
 lib/validations/thread.ts,8\e\8e603afb2b46d42f8ff71908bec56b45d2d03261
 M
@@ -33,8 +31,6 @@ K
 public/assets/community.svg,f\6\f643903bbec529352bcfe1521c317452d17de798
 F
 public/assets/home.svg,b\8\b87f97687be10c7b527902b8d1bdd11726affb65
-P
- public/assets/graduation-cap.svg,a\9\a90668fd9087ac53cde7c6de1c94f1fcb4c32d89
 G
 public/assets/heart.svg,1\4\145619e1ef936f6bff5bd171cafbfdb1dd4088e9
 F
@@ -45,8 +41,6 @@ K
 public/assets/education.svg,a\a\aa1da8185489614b773bed98475bc6fc51cf0d8b
 N
 public/assets/heart-filled.svg,6\6\66761379f76d437e4d60000c14d0a16225026b39
-W
-'public/assets/education-svgrepo-com.svg,a\f\af6547ac259c1cf1af43cc7a077000f397489506
 Q
 !components/shared/LeftSidebar.tsx,1\8\18299911aeb213c52a1fad84fa9f438744b7ff6e
 B
@@ -59,8 +53,6 @@ E
 app/(root)/layout.tsx,8\b\8b2a5c0593a681e9b54cde291fff27835ddef74a
 G
 public/assets/share.svg,0\b\0b3e376882f18ecaa5cf50d2b28a0f310a4c761e
-H
-public/assets/create.svg,5\9\591f69ad16d4147014ef05cf3ecb539f4afb2a6a
 ?
 app/globals.css,4\d\4dfa49b1332116153eb16507891285845e9ab86e
 L
@@ -69,3 +61,11 @@ R
 "components/shared/RightSidebar.tsx,a\5\a576a080d3df52cc871498a9bc84e3f855df5fbf
 <
 lib/utils.ts,a\8\a85a9c0c67fa0e2a77f6d0f1448fb126c61bbc18
+K
+app/api/uploadthing/core.ts,0\0\00d0fe9b7da2679a04c5d4673cbdfa268afaf086
+L
+app/api/uploadthing/route.ts,4\b\4b574809827df74bc2a248f4abcf2eb871f9f43d
+K
+components/forms/Comment.ts,c\7\c7df000bde8b7072ea5d8ad2fccd747a2079e51f
+L
+components/forms/Comment.tsx,2\6\26e3f282559ecce399bc7d8cabbe0b057b7942e2

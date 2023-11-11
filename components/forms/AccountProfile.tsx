@@ -7,7 +7,6 @@ import {
   FormLabel,
   FormMessage,
   FormField,
-  FormDescription,
   FormItem,
 } from "../ui/form";
 import { Input } from "../ui/input";
@@ -46,9 +45,8 @@ interface Props {
   };
 }
 
-export default function AccountProfile({ user }: Props) {
+export default function AccountProfile({ user }: Readonly<Props>) {
   const [files, setFiles] = useState<File[]>([]);
-  const [image, setImage] = useState<string | null>(null);
   const { startUpload } = useUploadThing("imageUploader");
   const router = useRouter();
   const pathname = usePathname();
@@ -78,7 +76,7 @@ export default function AccountProfile({ user }: Props) {
       if (!file.type.includes("image")) return;
 
       fileReader.onload = async (e) => {
-        const imageDataUrl = e?.target?.result?.toString() || "";
+        const imageDataUrl = e?.target?.result?.toString() ?? "";
         fieldChange(imageDataUrl);
       };
 

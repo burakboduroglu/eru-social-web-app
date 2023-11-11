@@ -5,7 +5,6 @@ import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import {revalidatePath} from "next/cache";
 
-
 interface ThreadParams {
     text: string,
     author: string,
@@ -67,7 +66,7 @@ export async function getPostById(id: string){
             .populate({
                 path: 'author',
                 model: User,
-                select: "_id id name image"
+                select: "_id id username name image"
             })
             .populate({
                 path: 'children',
@@ -75,7 +74,7 @@ export async function getPostById(id: string){
                     {
                         path: 'author',
                         model: User,
-                        select: "_id id name parentId image"
+                        select: "_id id name username parentId image"
                     },
                     {
                         path: 'children',
@@ -83,7 +82,7 @@ export async function getPostById(id: string){
                         populate: {
                             path: 'author',
                             model: User,
-                            select: "_id id name parentId image"
+                            select: "_id id name username parentId image"
                         }
                     }
                 ]
@@ -92,4 +91,26 @@ export async function getPostById(id: string){
     } catch (e: any) {
         throw new Error(`Error ${e}`)
     }
+}
+
+export async function addCommentToThread(threadId: string, comment: string, userId: string, path: string){
+    connectToDatabase();
+    try {
+        const mainThread = await Thread.findById(threadId);
+
+        const threadComment = new Thread({
+            text: comment,
+            author: userId,
+            parentId: threadId
+        })
+
+        const savedComment = await threadComment.save();
+        mainThread.children.push(savedComment._id);
+
+        await mainThread.save();
+        revalidatePath(path);
+    } catch (e: any) {
+        throw new Error(`Error: ${e}`)
+    }
+
 }

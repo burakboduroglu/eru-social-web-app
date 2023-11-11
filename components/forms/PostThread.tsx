@@ -37,11 +37,9 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
     resolver: zodResolver(ThreadValidation),
     defaultValues: {
       thread: "",
-      accountId: userId,
+      accountId: JSON.parse(userId),
     },
   });
-
-
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     await createThread({
@@ -71,12 +69,17 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
           render={({ field }) => (
             <FormItem className="flex w-full flex-col gap-3">
               <FormControl className="no-focus border border-dark-4 bg-dark-2 text-light-1">
-                <Textarea rows={3} {...field} placeholder="Gönderi paylaş" />
+                <Textarea
+                  {...field}
+                  placeholder="Gönderi paylaş"
+                  style={{minHeight:100, maxHeight:200}}
+                  maxLength={550}
+                />
               </FormControl>
               <div className="flex items-center w-full justify-between">
                 <FormLabel className="text-amber-50 mb-3 ml-1 text-[0.85em]">
-                  Merhaba, {capitalize(userName)} gönderi paylaşırken topluluk kurallarına
-                  uyalım.😊
+                  Merhaba, {capitalize(userName)} gönderi paylaşırken topluluk
+                  kurallarına uyalım.😊 (Karakter sayısı max 550)
                 </FormLabel>
                 <Button
                   type="submit"
