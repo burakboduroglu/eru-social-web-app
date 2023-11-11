@@ -1,13 +1,13 @@
 import * as z from 'zod';
 
-// For Thrad (Post)
+// For Thread (Post)
 export const ThreadValidation = z.object({
-    thread: z.string().min(3, {message: 'En az 3 karakter giriniz.'}),
+    thread: z.string().min(1).refine(value => value.trim().length >0),
     accountId: z.string()
 })
 
 // For Comments
 
 export const CommentValidation = z.object({
-    thread: z.string().min(3, {message: 'En az 3 karakter giriniz.'}),
+    thread: z.string().min(1),
 })

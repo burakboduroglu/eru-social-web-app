@@ -8,7 +8,7 @@ function Topbar() {
     <nav className="topbar">
       <Link
         href="/"
-        className="flex items-center gap-5 py-2 px-5 sm:pl-6 md:-ml-2"
+        className="flex items-center gap-5 py-2 px-5 sm:pl-6"
       >
         <Image
           src="/assets/logo.svg"
@@ -41,7 +41,7 @@ function Topbar() {
           appearance={{
             baseTheme: dark,
             elements: {
-              organizationSwitcherTrigger: "py-2 px-2",
+              organizationSwitcherTrigger: "py-2 px-1",
             },
           }}
         />

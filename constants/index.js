@@ -15,14 +15,14 @@ export const sidebarLinks = [
     label: "Aktiviteler",
   },
   {
-    imgURL: "/assets/create.svg",
-    route: "/create-thread",
-    label: "Thread Oluştur",
-  },
-  {
     imgURL: "/assets/community.svg",
     route: "/communities",
     label: "Topluluklar",
+  },
+  {
+    imgURL: "/assets/education.svg",
+    route: "/university",
+    label: "Üniversite",
   },
   {
     imgURL: "/assets/user.svg",
