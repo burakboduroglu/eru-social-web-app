@@ -37,7 +37,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
     resolver: zodResolver(ThreadValidation),
     defaultValues: {
       thread: "",
-      accountId: JSON.parse(userId),
+      accountId: userId,
     },
   });
 

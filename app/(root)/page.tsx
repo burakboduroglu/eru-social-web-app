@@ -17,7 +17,7 @@ export default async function Home() {
     <div className="xs:ml-2">
       <div className="border-b border-gray-600">
         <PostThread
-          userId={JSON.stringify(userInfo._id)}
+          userId={userInfo._id}
           userName={user.firstName ?? ""}
         />
       </div>

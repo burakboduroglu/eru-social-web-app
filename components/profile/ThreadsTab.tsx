@@ -1,6 +1,7 @@
 import {redirect} from "next/navigation";
 
-import {getUserPosts} from "@/lib/actions/user.actions";
+import {getUserPosts, getUserChildren, getUser} from "@/lib/actions/user.actions";
+
 
 import ThreadCard from "../cards/ThreadCard";
 
@@ -8,19 +9,24 @@ interface TabProps {
     currentUserId: string;
     profileId: string;
     profileType: string;
+    tabLabel: string
 }
 
-async function ThreadsTab({currentUserId, profileId, profileType}: Readonly<TabProps>) {
-    let result = await getUserPosts(profileId);
+async function ThreadsTab({currentUserId, profileId, profileType, tabLabel}: Readonly<TabProps>) {
+    let user = await getUser(profileId)
+    let posts = await getUserPosts(profileId);
+    let comments = await getUserChildren(user);
 
-    if (!result) {
+
+    if (!posts) {
         redirect("/");
     }
 
     return (
         <section className='mt-3 flex flex-col gap-3'>
-            {result.threads.slice(0)
-                .reverse().map((post: any) => (
+            {tabLabel==="Gönderiler"?(
+                posts.threads.slice(0)
+                    .reverse().map((post: any) => (
                     <ThreadCard
                         key={post._id}
                         id={post._id}
@@ -29,7 +35,7 @@ async function ThreadsTab({currentUserId, profileId, profileType}: Readonly<TabP
                         content={post.text}
                         author={
                             profileType === "User"
-                                ? {name: result.name, username: result.username, image: result.image, id: result.id}
+                                ? {name: posts.name, username: posts.username, image: posts.image, id: posts.id}
                                 : {
                                     name: post.author.name,
                                     username: post.author.userName,
@@ -41,7 +47,32 @@ async function ThreadsTab({currentUserId, profileId, profileType}: Readonly<TabP
                         createdAt={post.createdAt}
                         comments={post.children}
                     />
-                ))}
+                ))
+            ):(
+                comments.slice(0)
+                    .reverse().map((post: any) => (
+                    <ThreadCard
+                        key={post._id}
+                        id={post._id}
+                        currentUserId={currentUserId}
+                        parentId={post.parentId}
+                        content={post.text}
+                        author={
+                            profileType === "User"
+                                ? {name: posts.name, username: posts.username, image: posts.image, id: posts.id}
+                                : {
+                                    name: post.author.name,
+                                    username: post.author.userName,
+                                    image: post.author.image,
+                                    id: post.author.id,
+                                }
+                        }
+                        community={post.community} // TODO UPDATE COMMUNITY
+                        createdAt={post.createdAt}
+                        comments={post.children}
+                    />
+                ))
+            )}
         </section>
     );
 }

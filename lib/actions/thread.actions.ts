@@ -12,7 +12,7 @@ interface ThreadParams {
     path: string,
 }
 
-export async function createThread({text, author, communityId, path}: ThreadParams){
+export async function createThread({text, author, communityId, path}: ThreadParams) {
     try {
         connectToDatabase();
 
@@ -32,10 +32,10 @@ export async function createThread({text, author, communityId, path}: ThreadPara
     }
 }
 
-export async function getPosts(pageNumber=1, pageSize=20){
+export async function getPosts(pageNumber = 1, pageSize = 20) {
     connectToDatabase();
     // Post Skip Calculation
-    const skip = (pageNumber - 1)/ pageSize
+    const skip = (pageNumber - 1) / pageSize
 
     // Fetch the top-level threads
     const queryForPosts = Thread.find({parentId: {$in: [null, undefined]}})
@@ -58,7 +58,7 @@ export async function getPosts(pageNumber=1, pageSize=20){
     return {posts, isNext};
 }
 
-export async function getPostById(id: string){
+export async function getPostById(id: string) {
     connectToDatabase();
 
     try {
@@ -93,7 +93,7 @@ export async function getPostById(id: string){
     }
 }
 
-export async function addCommentToThread(threadId: string, comment: string, userId: string, path: string){
+export async function addCommentToThread(threadId: string, comment: string, userId: string, path: string) {
     connectToDatabase();
     try {
         const mainThread = await Thread.findById(threadId);

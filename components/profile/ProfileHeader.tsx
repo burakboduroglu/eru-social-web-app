@@ -28,7 +28,7 @@ const ProfileHeader = ({profileId, authUserId, name, username, imgUrl, bio}: Rea
                         <h2 className="text-left text-heading3-bold text-light-1">
                             {capitalize(name)}
                         </h2>
-                        <p className="text-base-medium text-gray-1">@{capitalize(username)}</p>
+                        <p className="text-base-medium text-gray-1">@{username}</p>
                     </div>
                 </div>
             </div>
