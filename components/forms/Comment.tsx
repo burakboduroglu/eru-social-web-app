@@ -1,10 +1,10 @@
 "use client";
 
-import { z } from "zod";
+import {z} from "zod";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { usePathname } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {usePathname} from "next/navigation";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 import {
     Form,
@@ -14,11 +14,11 @@ import {
     FormLabel,
 } from "@/components/ui/form";
 
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import {Input} from "../ui/input";
+import {Button} from "../ui/button";
 
-import { CommentValidation } from "@/lib/validations/thread";
-import { addCommentToThread } from "@/lib/actions/thread.actions";
+import {CommentValidation} from "@/lib/validations/thread";
+import {addCommentToThread} from "@/lib/actions/thread.actions";
 
 interface CommentProps {
     threadId: string;
@@ -26,7 +26,7 @@ interface CommentProps {
     userId: string;
 }
 
-function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
+function Comment({threadId, userImg, userId}: Readonly<CommentProps>) {
     const pathname = usePathname();
 
     const form = useForm<z.infer<typeof CommentValidation>>({
@@ -53,7 +53,7 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                 <FormField
                     control={form.control}
                     name='thread'
-                    render={({ field }) => (
+                    render={({field}) => (
                         <FormItem className='flex w-full items-center gap-3'>
                             <FormLabel>
                                 <Image
@@ -64,7 +64,7 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                                     className='rounded-full object-cover'
                                 />
                             </FormLabel>
-                            <FormControl className='border-none bg-transparent'>
+                            <FormControl className='border-none bg-transparent pt-1'>
                                 <Input
                                     type='text'
                                     {...field}
@@ -75,7 +75,6 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                         </FormItem>
                     )}
                 />
-
                 <Button type='submit' className='comment-form_btn'>
                     Gönder
                 </Button>

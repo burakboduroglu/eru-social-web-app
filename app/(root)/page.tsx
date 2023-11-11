@@ -16,7 +16,10 @@ export default async function Home() {
   return (
     <div className="xs:ml-2">
       <div className="border-b border-gray-600">
-        <PostThread userId={JSON.stringify(userInfo._id)} userName={user.firstName ?? ""} />
+        <PostThread
+          userId={JSON.stringify(userInfo._id)}
+          userName={user.firstName ?? ""}
+        />
       </div>
       <section className="mt-3 flex flex-col gap-10">
         {result.posts.length === 0 ? (
