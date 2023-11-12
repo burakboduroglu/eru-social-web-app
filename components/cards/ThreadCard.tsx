@@ -106,13 +106,6 @@ const ThreadCard = ({
                     className="cursor-pointer object-contain"
                   />
                 </Link>
-                <Image
-                  src="/assets/repost.svg"
-                  alt="repost"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
-                />
                 <Link href={`/thread/share/${id}`}>
                   <Image
                     src="/assets/share.svg"
