@@ -44,7 +44,7 @@ async function page({ params }: { params: { id: string } }) {
         />
       </div>
 
-      <div className="mt-10 px-10">
+      <div className="mt-10 px-10 xs:px-3">
         {thread.children.map((childItem: any) => (
           <div className="mt-6">
             <ThreadCard
