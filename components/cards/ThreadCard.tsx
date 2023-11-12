@@ -77,12 +77,12 @@ const ThreadCard = ({
             <Link href={`/thread/${id}`}>
               <p className="mt-3 text-small-regular text-light-2">
                 {path === "/" && content.length > 150 ? (
-                  <p>
+                  <>
                     {content.substring(0, content.indexOf(" ", 125))}
                     <span className="text-blue pl-1">
                       ...devamını görüntüleyin.
                     </span>
-                  </p>
+                  </>
                 ) : (
                   content
                 )}

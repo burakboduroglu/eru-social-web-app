@@ -25,7 +25,7 @@ function Bottombar() {
               href={link.route}
               key={link.label}
               className={`bottombar_link ${isActive && "bg-[#312e81]"} ${
-                link.route === "/notifications" ? "xs:hidden" : ""
+                link.route === "/notifications" ? "hidden" : ""
               }`}
             >
               <Image

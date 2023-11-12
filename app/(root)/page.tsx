@@ -15,7 +15,7 @@ export default async function Home() {
 
   return (
     <div>
-      <div className="border-b border-gray-600">
+      <div className=" -mt-3 border-b border-gray-600">
         <PostThread
           userId={userInfo._id.toString()}
           userName={user.firstName ?? ""}
