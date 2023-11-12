@@ -72,15 +72,18 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                 <Textarea
                   {...field}
                   placeholder="Gönderi paylaş"
-                  style={{minHeight:100, maxHeight:200}}
+                  style={{ minHeight: 100, maxHeight: 200 }}
                   maxLength={550}
                 />
               </FormControl>
               <div className="flex items-center w-full justify-between">
-                <FormLabel className="text-amber-50 mb-3 ml-1 pr-28 text-[0.85em]">
-                  Merhaba, {capitalize(userName)} gönderi paylaşırken topluluk
-                  kurallarına uyalım.😊 (Karakter sayısı max 550)
-                </FormLabel>
+                <div>
+                  {field.value.length >= 550 && (
+                    <p className="text-red-600 pb-3">
+                      Max karakter sınırına ulaşıldı.
+                    </p>
+                  )}
+                </div>
                 <Button
                   type="submit"
                   className="bg-primary-500 w-[8em] mb-3"
