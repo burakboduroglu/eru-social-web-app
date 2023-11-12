@@ -19,7 +19,7 @@ function Topbar() {
         </div>
       </Link>
       <div className="flex items-center gap-1">
-        <div className="block md:hidden">
+        <div className="flex items-center md:hidden">
           <SignedIn>
             <SignOutButton>
               <div className="flex cursor-pointer p-2 hover:bg-[#312e81] rounded-lg transition duration-300">
@@ -31,6 +31,14 @@ function Topbar() {
                 />
               </div>
             </SignOutButton>
+            <Link href="/notifications" className="pr-3 pl-3">
+              <Image
+                src="/assets/heart.svg"
+                alt="notifications"
+                width={24}
+                height={24}
+              />
+            </Link>
           </SignedIn>
         </div>
         <OrganizationSwitcher
