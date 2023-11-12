@@ -164,3 +164,31 @@ export async function getAllUsers({
     throw new Error(`Error: ${e}`);
   }
 }
+
+export async function getActivity(userId: string) {
+  try {
+    connectToDatabase();
+
+    // all threads which user created
+    const threads = await Thread.find({ author: userId });
+
+    // get all comments which user created
+    const childThreadIds = threads.reduce((acc, thread) => {
+      return acc.concat(thread.children);
+    }, []);
+
+    const comments = await Thread.find({
+      _id: { $in: childThreadIds },
+      author: { $ne: userId },
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    }).populate({
+      path: "author",
+      model: User,
+      select: "name image id",
+    });
+    return comments;
+  } catch (e: any) {
+    revalidatePath("/");
+    throw new Error(`Error: ${e}`);
+  }
+}

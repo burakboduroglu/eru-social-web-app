@@ -20,7 +20,7 @@ export default async function Page() {
 
   return (
     <section>
-      <div className="flex flex-col mt-14 gap-9">
+      <div className="flex flex-col mt-14">
         {allUsers.users.length === 0 ? (
           <p className="no-result">Kullanıcı bulunamadı</p>
         ) : (

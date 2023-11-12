@@ -85,7 +85,9 @@ O
 components/shared/Bottombar.tsx,7\a\7a844b85b0b18eccfab05b7157160909b79f654a
 B
 tailwind.config.js,0\9\0918cbb76f2c44f223706cec9d31a32cd1177ce4
-J
-app/communities/layout.tsx,a\3\a3874de8c20a0883df6fed9572c4b1b6a2708b0c
 M
 components/cards/UserCard.tsx,f\a\fa3006f073ceac3158093f8ddf069e0a04316795
+P
+ lib/actions/community.actions.ts,c\d\cdf3939f7be8f5fcaebb6fe6924f0740e9c09784
+N
+lib/models/community.models.ts,0\9\09ffde55424757e998d0c02afeed748f066762f3
