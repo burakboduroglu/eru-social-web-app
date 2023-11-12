@@ -57,8 +57,10 @@
   .searchbar_input {
     @apply border-none bg-dark-3 text-base-regular text-light-4 outline-none !important;
   }
+
   .topbar {
-    @apply fixed xs:p-3 sm:pr-2 lg:pr-[7.1em] lg:pl-[8em] pr-28 pl-44 z-30 flex w-full items-center justify-between bg-black px-6 border border-black border-b-dark-4;
+    @apply fixed z-30 flex w-full items-center justify-between bg-black border border-black border-b-dark-4;
+    @apply xs:p-3 sm:pr-2 lg:pr-[7.1em] lg:pl-[8em] pr-28 pl-44 md:pr-12 md:pl-[6.25rem];
   }
 
   .bottombar {
@@ -74,13 +76,13 @@
   }
 
   .leftsidebar {
-    @apply sticky pl-40 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-dark-4 bg-black pb-12 pt-28 max-md:hidden;
+    @apply sticky top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-dark-4 bg-black pt-28 max-md:hidden;
+    @apply pl-40 md:pl-20 lg:pl-40 pb-12 md:pb-6 lg:pb-12;
   }
 
   .leftsidebar_link {
     @apply relative flex justify-start gap-4 rounded-lg p-4;
   }
-
   .pagination {
     @apply mt-10 flex w-full items-center justify-center gap-5;
   }
