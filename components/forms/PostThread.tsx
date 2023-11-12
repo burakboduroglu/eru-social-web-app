@@ -60,14 +60,14 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
   return (
     <Form {...form}>
       <form
-        className="mt-3 flex flex-col gap-3 items-end"
+        className="flex flex-col gap-3 items-end"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
           name="thread"
           render={({ field }) => (
-            <FormItem className="flex w-full flex-col gap-3">
+            <FormItem className="flex w-full flex-col gap-2">
               <FormControl className="no-focus border border-dark-4 bg-dark-2 text-light-1">
                 <Textarea
                   {...field}
@@ -86,7 +86,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                 </div>
                 <Button
                   type="submit"
-                  className="bg-primary-500 w-[8em] mb-3"
+                  className="bg-primary-500 w-[8em] mb-4"
                   disabled={!field.value.length || !field.value.trim()}
                 >
                   Yayınla

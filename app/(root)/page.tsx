@@ -21,7 +21,7 @@ export default async function Home() {
           userName={user.firstName ?? ""}
         />
       </div>
-      <section className="mt-3 flex flex-col gap-10">
+      <section className="flex flex-col gap-10">
         {result.posts.length === 0 ? (
           <p className="no-result">Hiç gönderi bulunamadı.</p>
         ) : (
