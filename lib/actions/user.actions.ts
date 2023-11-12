@@ -6,6 +6,7 @@ import Thread from "../models/thread.model";
 
 // MongoDB
 import { connectToDatabase } from "../mongoose";
+import { FilterQuery, SortOrder } from "mongoose";
 
 interface UserParams {
   userId: string;
@@ -49,8 +50,8 @@ export async function getUser(userId: string) {
 
     const user = await User.findOne({ id: userId });
 
-    const posts= await getUserPosts(userId)
-    const comments = await getUserComments(user)
+    const posts = await getUserPosts(userId);
+    const comments = await getUserComments(user);
 
     const postsCount = posts.threads.length;
     const commentsCount = comments.length;
@@ -105,10 +106,56 @@ export async function getUserComments(userId: string) {
     });
 
     // Extract only the children from each thread
-    const children = threads.flatMap(thread => thread.children);
+    const children = threads.flatMap((thread) => thread.children);
 
     return children;
   } catch (e: any) {
     throw new Error(`Error: ${e}`);
+  }
+}
+
+export async function getAllUsers({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  pageSize = 20,
+  sortBy = "desc",
+}: Readonly<{
+  userId: string;
+  searchString?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: SortOrder;
+}>) {
+  try {
+    connectToDatabase();
+
+    const skipAmount = (pageNumber - 1) * pageSize;
+    const regex = new RegExp(searchString, "i");
+
+    const query: FilterQuery<typeof User> = {
+      id: { $ne: userId },
+    };
+
+    if (searchString.trim() !== "") {
+      query.$or = [
+        { username: { $regex: regex } },
+        { name: { $regex: regex } },
+      ];
+    }
+
+    const sort = { createdAt: sortBy };
+    const usersQuery = User.find(query)
+      .sort(sort)
+      .skip(skipAmount)
+      .limit(pageSize);
+
+    const totalUsersCount = await User.countDocuments(query);
+    const users = await usersQuery.exec();
+
+    const isNext = totalUsersCount > skipAmount + users.length;
+    return { users, isNext }
+  } catch (e: any) {
+      throw new Error(`Error: ${e}`)
   }
 }
