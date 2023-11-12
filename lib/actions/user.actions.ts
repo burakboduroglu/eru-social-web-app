@@ -50,18 +50,7 @@ export async function getUser(userId: string) {
     connectToDatabase();
 
     const user = await User.findOne({ id: userId });
-
-    const posts = await getUserPosts(userId);
-    const comments = await getUserComments(user);
-
-    const postsCount = posts.threads.length;
-    const commentsCount = comments.length;
-
-    return {
-      ...user._doc,
-      postsCount,
-      commentsCount,
-    };
+    return user;
   } catch (e: any) {
     revalidatePath("/");
     throw new Error(`Error: ${e}`);
