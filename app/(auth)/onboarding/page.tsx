@@ -1,11 +1,15 @@
 import { currentUser } from "@clerk/nextjs";
 
 import AccountProfile from "@/components/forms/AccountProfile";
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/actions/user.actions";
 
 async function Page() {
   const user = await currentUser(); // get the current user from Clerk
+  if (!user) return null; // to avoid typescript warnings
 
-  const userInfo = {}; // get the user info from your database (not entegrated yet)
+  const userInfo = await getUser(user.id);
+  if (userInfo?.onboarded) redirect("/");
 
   // userInfo fetch from database
   // user fetch from clerk
