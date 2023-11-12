@@ -7,7 +7,11 @@ import { profileTabs } from "@/constants";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { getUser } from "@/lib/actions/user.actions";
+import {
+  getUser,
+  getUserComments,
+  getUserPosts,
+} from "@/lib/actions/user.actions";
 import ThreadsTab from "@/components/profile/ThreadsTab";
 
 async function Page({
@@ -22,6 +26,9 @@ async function Page({
 
   const userInfo = await getUser(params.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
+
+  const posts = await getUserPosts(params.id);
+  const comments = await getUserComments(userInfo._id);
 
   return (
     <section>
@@ -50,12 +57,12 @@ async function Page({
 
                 {tab.label === "Gönderiler" && (
                   <p className="ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2">
-                    {userInfo.postsCount}
+                    {posts.threads.length}
                   </p>
                 )}
                 {tab.label === "Yanıtlar" && (
                   <p className="ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2">
-                    {userInfo.commentsCount}
+                    {comments.length}
                   </p>
                 )}
               </TabsTrigger>

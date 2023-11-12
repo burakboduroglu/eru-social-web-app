@@ -50,6 +50,7 @@ export async function getUser(userId: string) {
     connectToDatabase();
 
     const user = await User.findOne({ id: userId });
+
     return user;
   } catch (e: any) {
     revalidatePath("/");
