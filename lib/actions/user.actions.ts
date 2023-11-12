@@ -39,6 +39,7 @@ export async function updateUser({
       revalidatePath(path); //revalidatePath use for revalidate data associated with a specific path
     }
   } catch (error: any) {
+    revalidatePath("/");
     throw new Error(`Failed to update user: ${error.message}`);
   }
 }
@@ -62,6 +63,7 @@ export async function getUser(userId: string) {
       commentsCount,
     };
   } catch (e: any) {
+    revalidatePath("/");
     throw new Error(`Error: ${e}`);
   }
 }
@@ -87,6 +89,7 @@ export async function getUserPosts(userId: string) {
 
     return posts;
   } catch (e: any) {
+    revalidatePath("/");
     throw new Error(`Error: ${e}`);
   }
 }
@@ -110,6 +113,7 @@ export async function getUserComments(userId: string) {
 
     return children;
   } catch (e: any) {
+    revalidatePath("/");
     throw new Error(`Error: ${e}`);
   }
 }
@@ -154,8 +158,9 @@ export async function getAllUsers({
     const users = await usersQuery.exec();
 
     const isNext = totalUsersCount > skipAmount + users.length;
-    return { users, isNext }
+    return { users, isNext };
   } catch (e: any) {
-      throw new Error(`Error: ${e}`)
+    revalidatePath("/");
+    throw new Error(`Error: ${e}`);
   }
 }
