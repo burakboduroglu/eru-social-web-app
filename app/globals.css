@@ -60,7 +60,7 @@
 
   .topbar {
     @apply fixed z-30 flex w-full items-center justify-between bg-black border border-black border-b-dark-4;
-    @apply xs:p-3 sm:pr-2 lg:pr-[7.1em] lg:pl-[8em] pr-28 pl-44 md:pr-12 md:pl-[1.25rem];
+    @apply sm:pr-2 lg:pr-[7.1em] lg:pl-[8em] md:pr-12 md:pl-[1.25rem];
   }
 
   .bottombar {
