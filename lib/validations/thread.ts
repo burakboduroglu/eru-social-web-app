@@ -13,5 +13,9 @@ export const ThreadValidation = z.object({
 // For Comments
 
 export const CommentValidation = z.object({
-  thread: z.string().min(1),
+  thread: z
+    .string()
+    .min(1)
+    .max(350)
+    .refine((value) => value.trim().length > 0),
 });
