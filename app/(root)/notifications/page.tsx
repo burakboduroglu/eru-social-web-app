@@ -27,15 +27,15 @@ export default async function Page() {
               <section className="flex flex-col mt-5 text-[12px]">
                 <Link key={item._id} href={`/thread/${item.parentId}`}>
                   <article className="activity-card flex justify-between">
-                    <div>
+                    <div className="flex">
                       <Image
                         src={item.author.image}
                         alt="profile photo"
-                        width={20}
-                        height={20}
-                        className="rounded-full"
+                        width={24}
+                        height={24}
+                        className="rounded-full mr-1"
                       />
-                      <p className="text-light-2 mt-1">
+                      <p className="text-light-2 mt-1 inline-block pl-3">
                         <span className="mr-2 text-primary-500">
                           {item.author.name}
                         </span>
