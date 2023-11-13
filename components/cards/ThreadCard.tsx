@@ -66,10 +66,10 @@ const ThreadCard = ({
                 href={`/profile/${author.id}`}
                 className="flex items-center"
               >
-                <p className="cursor-pointer text-base-semibold text-amber-100">
+                <p className="cursor-pointer text-base-semibold text-amber-100 xs:text-[0.85em]">
                   {capitalize(author.name)}
                 </p>
-                <span className="pl-2 text-gray-400 text-[0.70em]">
+                <span className="pl-2 text-gray-400 text-[0.60em] xs:text-sm">
                   @{username}
                 </span>
               </Link>
