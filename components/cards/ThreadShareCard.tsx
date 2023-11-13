@@ -18,6 +18,7 @@ export default function ThreadShareCard({ postId }: Readonly<ShareCard>) {
     navigator.clipboard.writeText(url);
     showToastMessage();
   };
+
   const showToastMessage = () => {
     toast.success("Bağlantı Kopyalandı!", {
       position: toast.POSITION.TOP_RIGHT,

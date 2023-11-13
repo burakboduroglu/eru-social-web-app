@@ -34,6 +34,9 @@ import { updateUser } from "@/lib/actions/user.actions";
 // Next
 import { usePathname, useRouter } from "next/navigation";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 interface Props {
   user: {
     id: string;
@@ -86,28 +89,39 @@ export default function AccountProfile({ user }: Readonly<Props>) {
 
   // Form submit
   const onSubmit = async (values: z.infer<typeof UserValidation>) => {
-    const blob = values.profile_photo;
-    const hasImageChanged = isBase64Image(blob);
-    if (hasImageChanged) {
-      const imageResponse = await startUpload(files);
-      if (imageResponse && imageResponse[0].url) {
-        values.profile_photo = imageResponse[0].url;
+    try {
+      const blob = values.profile_photo;
+      const hasImageChanged = isBase64Image(blob);
+      if (hasImageChanged) {
+        const imageResponse = await startUpload(files);
+        if (imageResponse && imageResponse[0].url) {
+          values.profile_photo = imageResponse[0].url;
+        }
       }
-    }
-    await updateUser({
-      userId: user.id,
-      username: values.username,
-      name: values.name,
-      bio: values.bio,
-      image: values.profile_photo,
-      path: pathname,
-    });
+      await updateUser({
+        userId: user.id,
+        username: values.username,
+        name: values.name,
+        bio: values.bio,
+        image: values.profile_photo,
+        path: pathname,
+      });
 
-    if (pathname === "/profile/edit") {
-      router.back();
-    } else {
-      router.push("/");
+      if (pathname === "/profile/edit") {
+        router.back();
+      } else {
+        router.push(`profile/${user.id}`);
+      }
+    } catch (error) {
+      console.log(error);
+      showToastMessage();
     }
+  };
+
+  const showToastMessage = () => {
+    toast.error("İşleminiz gerçekleştirilemedi!", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
   };
 
   return (
@@ -218,9 +232,10 @@ export default function AccountProfile({ user }: Readonly<Props>) {
         />
 
         <Button type="submit" className="bg-primary-500">
-          Devam Et
+          Kaydet
         </Button>
       </form>
+      <ToastContainer limit={3} theme={"dark"} autoClose={1500} />
     </Form>
   );
 }

@@ -66,10 +66,10 @@ const ThreadCard = ({
                 href={`/profile/${author.id}`}
                 className="flex items-center"
               >
-                <p className="cursor-pointer text-base-semibold text-amber-100 xs:text-[14px] md:text-[14px]">
+                <p className="cursor-pointer text-base-semibold text-amber-100">
                   {capitalize(author.name)}
                 </p>
-                <span className="pl-2 text-gray-400 text-[0.70em] xs:text-[12px]">
+                <span className="pl-2 text-gray-400 text-[0.70em]">
                   @{username}
                 </span>
               </Link>
@@ -88,21 +88,21 @@ const ThreadCard = ({
                 )}
               </p>
             </Link>
-            <div className="mt-5 flex flex-col">
-              <div className="flex items-center gap-2">
+            <div className="mt-5 flex flex-col gap-3">
+              <div className="flex gap-3.5">
                 <Image
                   src="/assets/heart-gray.svg"
                   alt="begen"
-                  width={22}
-                  height={22}
+                  width={24}
+                  height={24}
                   className="cursor-pointer object-contain"
                 />
                 <Link href={`/thread/${id}`}>
                   <Image
                     src="/assets/reply.svg"
                     alt="yorum"
-                    width={22}
-                    height={22}
+                    width={24}
+                    height={24}
                     className="cursor-pointer object-contain"
                   />
                 </Link>
@@ -110,8 +110,8 @@ const ThreadCard = ({
                   <Image
                     src="/assets/share.svg"
                     alt="paylas"
-                    width={22}
-                    height={22}
+                    width={24}
+                    height={24}
                     className="cursor-pointer object-contain"
                   />
                 </Link>

@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { capitalize } from "@/lib/utils";
+import React from "react";
 
 interface ProfileProps {
   profileId: string;
@@ -8,6 +10,7 @@ interface ProfileProps {
   username: string;
   imgUrl: string;
   bio: string;
+  type?: string;
 }
 
 const ProfileHeader = ({
@@ -17,6 +20,7 @@ const ProfileHeader = ({
   username,
   imgUrl,
   bio,
+  type,
 }: Readonly<ProfileProps>) => {
   return (
     <div className="flex w-full flex-col justify-start">
@@ -37,6 +41,20 @@ const ProfileHeader = ({
             <p className="text-base-medium text-gray-1">@{username}</p>
           </div>
         </div>
+        {profileId === authUserId && type !== "Community" && (
+          <Link href="/profile/edit">
+            <div className="flex cursor-pointer gap-3 rounded-lg bg-dark-3 px-4 py-2">
+              <Image
+                src="/assets/edit.svg"
+                alt="logout"
+                width={16}
+                height={16}
+              />
+
+              <p className="text-light-2 max-sm:hidden">Edit</p>
+            </div>
+          </Link>
+        )}
       </div>
       {/* TODO COMMUNITIES WILL ADD HERE */}
 
