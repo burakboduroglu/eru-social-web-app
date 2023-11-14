@@ -43,9 +43,9 @@ export default function RootLayout({
             <RightSidebar />
           </main>
           <Bottombar />
+          <Analytics />
         </body>
       </html>
-      <Analytics />
     </ClerkProvider>
   );
 }

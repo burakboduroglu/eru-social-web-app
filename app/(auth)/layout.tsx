@@ -28,9 +28,11 @@ export default function RootLayout({
     <ClerkProvider localization={trTR}>
       <html lang="en">
         <link rel="icon" href="../favicon.ico" sizes="any" />
-        <body className={`${inter.className} bg-dark-1`}>{children}</body>
+        <body className={`${inter.className} bg-dark-1`}>
+          {children}
+          <Analytics />
+        </body>
       </html>
-      <Analytics />
     </ClerkProvider>
   );
 }
