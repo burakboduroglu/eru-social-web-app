@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs";
+import { UserProfile, currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/actions/user.actions";
