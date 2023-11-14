@@ -41,3 +41,41 @@ export const communityTabs = [
   { value: "members", label: "Members", icon: "/assets/members.svg" },
   { value: "requests", label: "Requests", icon: "/assets/request.svg" },
 ];
+
+export const universityTabs = [
+  {
+    imgURL: "/assets/erudm.svg",
+    route: "https://erudm.erciyes.edu.tr/",
+    label: "Ders Materyalleri Portalı",
+  },
+  {
+    imgURL: "/assets/obisis.svg",
+    route: "https://obisis2.erciyes.edu.tr/",
+    label: "Öğrenci Bilgi Sistemi",
+  },
+  {
+    imgURL: "/assets/mail.svg",
+    route: "https://webmail.erciyes.edu.tr/",
+    label: "ERÜ e-Posta Sistemi",
+  },
+  {
+    imgURL: "/assets/map.svg",
+    route: "",
+    label: "ERÜ Öğrenci İşleri",
+  },
+  {
+    imgURL: "/assets/map.svg",
+    route: "https://ogrisl.erciyes.edu.tr/tr/a-t/akademik-takvim",
+    label: "Akademik Takvim",
+  },
+  {
+    imgURL: "/assets/map.svg",
+    route: "",
+    label: "Üniversite Duyuruları",
+  },
+  {
+    imgURL: "/assets/map.svg",
+    route: "",
+    label: "ERÜ Kampüs Rehberi",
+  },
+];
