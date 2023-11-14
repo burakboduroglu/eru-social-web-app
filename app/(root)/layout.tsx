@@ -12,8 +12,6 @@ import LeftSidebar from "@/components/shared/LeftSidebar";
 import RightSidebar from "@/components/shared/RightSidebar";
 import Bottombar from "@/components/shared/Bottombar";
 
-import { Analytics } from "@vercel/analytics/react";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -43,7 +41,6 @@ export default function RootLayout({
             <RightSidebar />
           </main>
           <Bottombar />
-          <Analytics />
         </body>
       </html>
     </ClerkProvider>

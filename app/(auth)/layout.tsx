@@ -6,8 +6,6 @@ import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { trTR } from "@clerk/localizations";
 
-import { Analytics } from "@vercel/analytics/react";
-
 export const metadata = {
   title: "Eru Social Web",
   description: "Erciyes University Social Web",
@@ -28,10 +26,7 @@ export default function RootLayout({
     <ClerkProvider localization={trTR}>
       <html lang="en">
         <link rel="icon" href="../favicon.ico" sizes="any" />
-        <body className={`${inter.className} bg-dark-1`}>
-          {children}
-          <Analytics />
-        </body>
+        <body className={`${inter.className} bg-dark-1`}>{children}</body>
       </html>
     </ClerkProvider>
   );
