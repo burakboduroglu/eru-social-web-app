@@ -2,25 +2,21 @@
 9
 	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
 O
-components/forms/PostThread.tsx,b\f\bf716b3fe6960fab3bf754e46282d20c098523ad
+components/forms/PostThread.tsx,b/f/bf716b3fe6960fab3bf754e46282d20c098523ad
 S
 #components/forms/AccountProfile.tsx,0\f\0f1fbcc7637310e2b80a0a9269e40ec965b2061c
 I
 lib/validations/thread.ts,8\e\8e603afb2b46d42f8ff71908bec56b45d2d03261
 M
-lib/actions/thread.actions.ts,5\d\5dcc83718c72a974c130d0d0fc70701bf43ed1c2
+lib/actions/thread.actions.ts,5/d/5dcc83718c72a974c130d0d0fc70701bf43ed1c2
 K
-lib/actions/user.actions.ts,a\8\a88103d87014c6124c52e1dcd9d6f70413e16b9e
+lib/actions/user.actions.ts,a/8/a88103d87014c6124c52e1dcd9d6f70413e16b9e
 J
-lib/models/thread.model.ts,b\b\bb93fb5ae3a4a8f7d106ffaed2df47215abd9cc8
+lib/models/thread.model.ts,b/b/bb93fb5ae3a4a8f7d106ffaed2df47215abd9cc8
 H
-lib/models/user.model.ts,4\3\4319ca2a41e4980e52a7a8fe8f866d004e038025
+lib/models/user.model.ts,4/3/4319ca2a41e4980e52a7a8fe8f866d004e038025
 G
 lib/validations/user.ts,2/f/2feb454e0ad6f1cc3e598831e90a487e8b47ba43
-T
-$components/cards/ThreadShareCard.tsx,8\a\8aba9d1418c8460dff335b0811266c06263f7b5f
-U
-%app/(root)/thread/share/[id]/page.tsx,7\4\747feefda89da6b64708d638d4f7ebf3eac2c290
 O
 app/(root)/thread/[id]/page.tsx,1\f\1fb7409dc126505b89bb999fff5b0ee13af7c54d
 Z
@@ -37,8 +33,6 @@ F
 public/assets/edit.svg,6\e\6e61bcac62203476bf172679525bb111ac5df4e5
 H
 public/assets/logout.svg,6\7\6795e3fc9c4f2e28389223a8c13357271b3e38a8
-K
-public/assets/education.svg,a\a\aa1da8185489614b773bed98475bc6fc51cf0d8b
 N
 public/assets/heart-filled.svg,6\6\66761379f76d437e4d60000c14d0a16225026b39
 Q
@@ -65,29 +59,9 @@ K
 app/api/uploadthing/core.ts,0\0\00d0fe9b7da2679a04c5d4673cbdfa268afaf086
 L
 app/api/uploadthing/route.ts,4\b\4b574809827df74bc2a248f4abcf2eb871f9f43d
-L
-components/forms/Comment.tsx,2\6\26e3f282559ecce399bc7d8cabbe0b057b7942e2
-K
-app/(root)/explore/page.tsx,4\3\434c3732544b4ce5c90c796453f7c57f9949ac0d
-N
-app/(root)/activities/page.tsx,0\0\0051210a56e08eb140e9855201bdd0a9eff77bc3
-O
-app/(root)/communities/page.tsx,7\0\7062a5c5935d866f8223987aa1f4c6f46b2e7a22
-N
-app/(root)/university/page.tsx,4\5\459ad5c386257575c6edffb6894398bb1754d3f8
-P
- app/(root)/profile/[id]/page.tsx,1\6\16c19e89c1829abecc0c15a276f0f677c67be883
-T
-$components/profile/ProfileHeader.tsx,4\d\4dd1d51bca906d1fad57ec2ac99e31d9b25861bf
-Q
-!components/profile/ThreadsTab.tsx,3\f\3f8ad810a3b7383f77aa04e50c28dac58e57d9d4
 O
 components/shared/Bottombar.tsx,7\a\7a844b85b0b18eccfab05b7157160909b79f654a
 B
 tailwind.config.js,0\9\0918cbb76f2c44f223706cec9d31a32cd1177ce4
-M
-components/cards/UserCard.tsx,f\a\fa3006f073ceac3158093f8ddf069e0a04316795
-P
- lib/actions/community.actions.ts,c\d\cdf3939f7be8f5fcaebb6fe6924f0740e9c09784
-N
-lib/models/community.models.ts,0\9\09ffde55424757e998d0c02afeed748f066762f3
+<
+package.json,7/0/7030d0b2f71b999ff89a343de08c414af32fc93a
