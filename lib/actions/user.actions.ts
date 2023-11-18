@@ -7,6 +7,7 @@ import Thread from "../models/thread.model";
 // MongoDB
 import { connectToDatabase } from "../mongoose";
 import { FilterQuery, SortOrder } from "mongoose";
+import { auth } from "@clerk/nextjs";
 
 interface UserParams {
   userId: string;
@@ -85,22 +86,43 @@ export async function getUserComments(userId: string) {
   try {
     connectToDatabase();
 
-    const threads = await Thread.find({ author: userId }).populate({
+    // comments on user's posts
+    const comments = await Thread.find({
+      threads: userId,
+      author: { $ne: userId },
+    }).populate({
       path: "children",
-      model: Thread,
+      match: { author: userId },
       populate: {
         path: "author",
         model: User,
-        select: "name username, image, id",
+        select: "name, username, image, id",
+      },
+    });
+
+    // self comments
+    const threads = await Thread.find({ author: userId }).populate({
+      path: "children",
+      model: Thread,
+      match: { author: userId },
+      populate: {
+        path: "author",
+        model: User,
+        select: "name, username, image, id",
       },
     });
 
     // Extract only the children from each thread
-    const children = threads.flatMap((thread) => thread.children);
+    const selfComments = threads.flatMap((thread) => thread.children);
 
-    return children;
+    // Extract only the children from each thread
+    const userComments = comments.flatMap((comment) => comment.children);
+
+    console.log(threads);
+    return [...userComments, ...selfComments];
   } catch (e: any) {
-    throw new Error(`Error: ${e}`);
+    console.error(`Error: ${e}`);
+    throw e;
   }
 }
 

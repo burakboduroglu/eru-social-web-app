@@ -40,7 +40,6 @@ const ThreadCard = ({
   isComment,
   path,
 }: CardProps) => {
-  const username = author.username;
   return (
     <article
       className={`flex w-full flex-col rounded-xl mt-3 ${
@@ -66,10 +65,10 @@ const ThreadCard = ({
               className="flex-col items-start"
             >
               <p className="cursor-pointer text-amber-100 xs:text-[0.95em] leading-tight">
-                {capitalize(author.name)}
+                {author.name}
               </p>
               <span className="text-gray-400 xs:text-[0.75em] leading-tight">
-                @{username}
+                @{author.username}
               </span>
             </Link>
             <Link href={`/thread/${id}`}>
