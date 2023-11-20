@@ -8,19 +8,12 @@ import { useForm } from "react-hook-form";
 import { useOrganization } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
 // shadcn ui
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
-import { capitalize } from "@/lib/utils";
 
 interface ThreadProps {
   userId: string;
@@ -42,6 +35,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
   });
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    console.log(organization?.id);
     await createThread({
       text: values.thread,
       author: userId,

@@ -72,7 +72,7 @@ export async function createThread({
     const createdThread = await Thread.create({
       text,
       author,
-      community: communityIdObject, // Assign communityId if provided, or leave it null for personal account
+      community: communityIdObject || null, // Assign communityId if provided, or leave it null for personal account
     });
 
     // Update User model
