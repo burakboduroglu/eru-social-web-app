@@ -2,6 +2,7 @@ import UserCard from "@/components/cards/UserCard";
 import { getAllUsers, getUser } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import UserPlaceholder from "public/assets/user.svg";
 
 export default async function Page() {
   const user = await currentUser();
@@ -20,7 +21,7 @@ export default async function Page() {
 
   return (
     <section>
-      <div className="flex flex-col mt-14">
+      <div className="flex flex-col mt-18">
         {allUsers.users.length === 0 ? (
           <p className="no-result">Kullanıcı bulunamadı</p>
         ) : (
@@ -32,7 +33,7 @@ export default async function Page() {
                   id={user.id}
                   name={user.name}
                   username={user.username}
-                  imgUrl={user.image}
+                  imgUrl={user.image || UserPlaceholder}
                   personType="User"
                 />
               );

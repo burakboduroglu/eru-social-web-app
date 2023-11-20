@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import UserPlaceholder from "public/assets/user.svg";
 
 export default async function Page() {
   const user = await currentUser();
@@ -29,7 +30,11 @@ export default async function Page() {
                   <article className="activity-card flex justify-between">
                     <div className="flex">
                       <Image
-                        src={item.author.image}
+                        src={
+                          item.author.image === ""
+                            ? UserPlaceholder
+                            : item.author.image
+                        }
                         alt="profile photo"
                         width={24}
                         height={24}
@@ -42,11 +47,6 @@ export default async function Page() {
                         gönderine yorum yaptı.
                       </p>
                     </div>
-                    <p className=" text-light-2">
-                      {item.createdAt
-                        .toLocaleString([], { hour12: false })
-                        .replace(/:\d{2}$/, "")}
-                    </p>
                   </article>
                 </Link>
               </section>

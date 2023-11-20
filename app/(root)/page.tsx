@@ -26,23 +26,20 @@ export default async function Home() {
           <p className="no-result">Hiç gönderi bulunamadı.</p>
         ) : (
           <div>
-            {result.posts
-              .slice(0)
-              .reverse()
-              .map((post) => (
-                <ThreadCard
-                  key={post._id}
-                  id={post._id}
-                  currentUserId={user?.id || ""}
-                  parentId={post.parentId}
-                  content={post.text}
-                  author={post.author}
-                  community={post.community}
-                  createdAt={post.createdAt}
-                  comments={post.children}
-                  path="/"
-                />
-              ))}
+            {result.posts.map((post) => (
+              <ThreadCard
+                key={post._id}
+                id={post._id}
+                currentUserId={user?.id || ""}
+                parentId={post.parentId}
+                content={post.text}
+                author={post.author}
+                community={post.community}
+                createdAt={post.createdAt}
+                comments={post.children}
+                path={"/"}
+              />
+            ))}
           </div>
         )}
       </section>
