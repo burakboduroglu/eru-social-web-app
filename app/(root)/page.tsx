@@ -6,10 +6,11 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/actions/user.actions";
 
 export default async function Home() {
-  const result = await getPosts(1, 30);
+  const posts = await getPosts();
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
+  let i = 0;
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
@@ -22,24 +23,27 @@ export default async function Home() {
         />
       </div>
       <section className="flex flex-col gap-10">
-        {result.posts.length === 0 ? (
+        {posts.length === 0 ? (
           <p className="no-result">Hiç gönderi bulunamadı.</p>
         ) : (
           <div>
-            {result.posts.map((post) => (
-              <ThreadCard
-                key={post._id}
-                id={post._id}
-                currentUserId={user?.id || ""}
-                parentId={post.parentId}
-                content={post.text}
-                author={post.author}
-                community={post.community}
-                createdAt={post.createdAt}
-                comments={post.children}
-                path={"/"}
-              />
-            ))}
+            {posts
+              .slice(0)
+              .reverse()
+              .map((post) => (
+                <ThreadCard
+                  key={post._id}
+                  id={post._id}
+                  currentUserId={user?.id || ""}
+                  parentId={post.parentId}
+                  content={post.text}
+                  author={post.author}
+                  community={post.community}
+                  createdAt={post.createdAt}
+                  comments={post.children}
+                  path="/"
+                />
+              ))}
           </div>
         )}
       </section>

@@ -218,7 +218,6 @@ export async function getUserComments(userId: string) {
     // Extract only the children from each thread
     const userComments = comments.flatMap((comment) => comment.children);
 
-    console.log(threads);
     return [...userComments, ...selfComments];
   } catch (e: any) {
     console.error(`Error: ${e}`);
