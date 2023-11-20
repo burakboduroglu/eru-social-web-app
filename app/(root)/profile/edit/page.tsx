@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/actions/user.actions";
 import AccountProfile from "@/components/forms/AccountProfile";
+import UserPlaceholder from "public/assets/user.svg";
 
 // Copy paste most of the code as it is from the /onboarding
 
@@ -19,7 +20,7 @@ async function Page() {
     username: userInfo ? userInfo?.username : user.username,
     name: userInfo ? userInfo?.name : user.firstName ?? "",
     bio: userInfo ? userInfo?.bio : "",
-    image: userInfo ? userInfo?.image : user.imageUrl,
+    image: UserPlaceholder || userInfo?.image,
   };
 
   return (

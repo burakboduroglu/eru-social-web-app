@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { capitalize, formatDateString } from "@/lib/utils";
-import { format } from "path";
+import { formatDateString } from "@/lib/utils";
 import DeleteThread from "../forms/DeleteThread";
 
 interface CardProps {
@@ -69,7 +68,10 @@ const ThreadCard = ({
               </h4>
             </Link>
 
-            <p className="mt-2 text-small-regular text-light-2">
+            <Link
+              href={`/thread/${id}`}
+              className="mt-2 text-small-regular text-light-2"
+            >
               {path === "/" && content.length > 150 ? (
                 <>
                   {content.substring(0, content.indexOf(" ", 125))}
@@ -80,7 +82,7 @@ const ThreadCard = ({
               ) : (
                 content
               )}
-            </p>
+            </Link>
 
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               <div className="flex gap-3.5">
@@ -100,13 +102,15 @@ const ThreadCard = ({
                     className="cursor-pointer object-contain"
                   />
                 </Link>
-                <Image
-                  src="/assets/share.svg"
-                  alt="heart"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
-                />
+                <Link href={`/thread/share/${id}`}>
+                  <Image
+                    src="/assets/share.svg"
+                    alt="heart"
+                    width={24}
+                    height={24}
+                    className="cursor-pointer object-contain"
+                  />
+                </Link>
               </div>
 
               <Link

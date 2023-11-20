@@ -1,46 +1,63 @@
-import UserCard from "@/components/cards/UserCard";
-import { getAllUsers, getUser } from "@/lib/actions/user.actions";
-import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs";
+
+import UserCard from "@/components/cards/UserCard";
+import Searchbar from "@/components/shared/Searchbar";
+import Pagination from "@/components/shared/Pagination";
+
+import { getUser, getAllUsers } from "@/lib/actions/user.actions";
 import UserPlaceholder from "public/assets/user.svg";
 
-export default async function Page() {
+async function Page({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) {
   const user = await currentUser();
   if (!user) return null;
 
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  // Get all users
-  const allUsers = await getAllUsers({
+  const result = await getAllUsers({
     userId: user.id,
-    searchString: "",
-    pageNumber: 1,
+    searchString: searchParams.q,
+    pageNumber: searchParams?.page ? +searchParams.page : 1,
     pageSize: 25,
   });
 
   return (
     <section>
-      <div className="flex flex-col mt-18">
-        {allUsers.users.length === 0 ? (
-          <p className="no-result">Kullanıcı bulunamadı</p>
+      <h1 className="head-text mb-5">Search</h1>
+
+      <Searchbar routeType="explore" />
+
+      <div className="mt-5 flex flex-col gap-9">
+        {result.users.length === 0 ? (
+          <p className="no-result">No Result</p>
         ) : (
-          <div>
-            {allUsers.users.map((user) => {
-              return (
-                <UserCard
-                  key={user.id}
-                  id={user.id}
-                  name={user.name}
-                  username={user.username}
-                  imgUrl={user.image || UserPlaceholder}
-                  personType="User"
-                />
-              );
-            })}
-          </div>
+          <>
+            {result.users.map((person) => (
+              <UserCard
+                key={person.id}
+                id={person.id}
+                name={person.name}
+                username={person.username}
+                imgUrl={person.image || UserPlaceholder}
+                personType="User"
+              />
+            ))}
+          </>
         )}
       </div>
+
+      <Pagination
+        path="explore"
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        isNext={result.isNext}
+      />
     </section>
   );
 }
+
+export default Page;

@@ -13,6 +13,7 @@ import {
   getUserPosts,
 } from "@/lib/actions/user.actions";
 import ThreadsTab from "@/components/profile/ThreadsTab";
+import UserPlaceholder from "public/assets/user.svg";
 
 async function Page({
   params,
@@ -37,7 +38,7 @@ async function Page({
         authUserId={user.id}
         name={userInfo.name}
         username={userInfo.username}
-        imgUrl={userInfo.image}
+        imgUrl={userInfo.image || UserPlaceholder}
         bio={userInfo.bio}
       />
 
