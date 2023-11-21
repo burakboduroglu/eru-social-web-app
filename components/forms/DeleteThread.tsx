@@ -24,6 +24,8 @@ function DeleteThread({
   const pathname = usePathname();
   const router = useRouter();
 
+  if (currentUserId !== authorId || pathname === "/") return null;
+
   return (
     <Image
       src="/assets/delete.svg"
