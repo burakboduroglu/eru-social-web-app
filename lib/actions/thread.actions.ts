@@ -102,7 +102,7 @@ export async function deleteThread(id: string, path: string): Promise<void> {
       throw new Error("Thread not found");
     }
 
-    // Fetch all child threads and their descendants recursively
+    // Fetch all child threads (comments) and their descendants recursively
     const descendantThreads = await getAllChildThreads(id);
 
     // Get all descendant thread IDs including the main thread ID and child thread IDs
@@ -111,7 +111,7 @@ export async function deleteThread(id: string, path: string): Promise<void> {
       ...descendantThreads.map((thread) => thread._id),
     ];
 
-    // Extract the authorIds and communityIds to update User and Community models respectively
+    // Extract the authorIds and communityIds to update User and Community models
     const uniqueAuthorIds = new Set(
       [
         ...descendantThreads.map((thread) => thread.author?._id?.toString()), // Use optional chaining to handle possible undefined values

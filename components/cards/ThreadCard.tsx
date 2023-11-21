@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
+import DeleteThread from "../forms/DeleteThread";
+import { ToastContainer, toast } from "react-toastify";
 
 interface CardProps {
   id: string;
@@ -127,6 +129,16 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
+
+        {/* Delete Thread */}
+        <DeleteThread
+          threadId={JSON.stringify(id)}
+          currentUserId={currentUserId}
+          authorId={author.id}
+          parentId={parentId}
+          isComment={isComment}
+        />
+
         {!isComment && community && (
           <Link
             href={`/communities/${community.id}`}
