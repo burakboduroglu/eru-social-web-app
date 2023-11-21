@@ -183,3 +183,27 @@ body::-webkit-scrollbar-thumb:hover {
 .comment-form_btn {
   @apply rounded-3xl bg-primary-500 px-8 py-2 text-small-regular text-light-1 max-xs:w-full max-xs:text-[12px] !important;
 }
+
+/* Clerk Sign In */
+.cl-internal-17ydaof {
+  box-sizing: inherit;
+  display: flex;
+  flex-flow: column;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  -webkit-box-pack: start;
+  justify-content: flex-start;
+  gap: 1rem;
+  will-change: transform, opacity, height;
+  border-radius: 1rem;
+  background-color: white;
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
+  transition-duration: 200ms;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 24px 48px;
+  border: 1px solid transparent;
+  width: 20rem;
+  max-width: calc(100vw - 5rem);
+  margin: 0px 1rem;
+  padding: 2rem 2rem 1.5rem;
+}
