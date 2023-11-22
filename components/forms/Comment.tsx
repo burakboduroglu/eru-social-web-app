@@ -61,7 +61,7 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                   alt="current_user"
                   width={48}
                   height={48}
-                  className="rounded-full object-cover"
+                  className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black relative w-12 h-11"
                 />
               </FormLabel>
               <FormControl className="border-none bg-transparent pt-1">

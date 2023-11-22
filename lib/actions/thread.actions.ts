@@ -29,8 +29,8 @@ export async function getPosts() {
       },
     });
 
-  const posts = await postsQuery.exec();
-
+  const unfilteredPosts = await postsQuery.exec();
+  const posts = unfilteredPosts.filter((post) => post.parentId === undefined);
   return posts;
 }
 
