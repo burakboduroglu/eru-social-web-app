@@ -45,3 +45,8 @@ export function formatThreadCount(count: number): string {
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function findUrlsInText(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.match(urlRegex);
+}
