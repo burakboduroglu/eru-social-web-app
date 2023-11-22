@@ -21,7 +21,7 @@ export function formatDateString(dateString: string) {
   };
 
   const date = new Date(dateString);
-  const formattedDate = date.toLocaleDateString(undefined, options);
+  const formattedDate = date.toLocaleDateString("tr-TR", options);
 
   const time = date.toLocaleTimeString([], {
     hour: "numeric",
