@@ -127,7 +127,7 @@ const ThreadCard = ({
                   {comments.slice(0, 2).map((comment, index) => (
                     <Image
                       key={index}
-                      src={comment.author.image || UserPlaceholder}
+                      src={comment.author?.image || UserPlaceholder}
                       alt={`user_${index}`}
                       width={22}
                       height={22}
