@@ -28,13 +28,13 @@ async function Page({
 
   return (
     <section>
-      <h1 className="head-text mb-5">Search</h1>
+      <h1 className="head-text mb-5">Topluluğu Keşfet</h1>
 
       <Searchbar routeType="explore" />
 
       <div className="mt-5 flex flex-col gap-9">
         {result.users.length === 0 ? (
-          <p className="no-result">No Result</p>
+          <p className="no-result">Sonuç yok</p>
         ) : (
           <>
             {result.users.map((person) => (

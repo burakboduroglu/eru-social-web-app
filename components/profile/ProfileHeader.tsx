@@ -31,7 +31,7 @@ const ProfileHeader = ({
               src={imgUrl}
               alt="profile photo"
               fill
-              className="rounded-full object-cover shadow-2xl"
+              className="rounded-full object-cover shadow-2xl border border-gray-1 p-2"
             />
           </div>
           <div className="flex-1">

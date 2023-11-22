@@ -60,7 +60,7 @@ const ThreadCard = ({
                 src={author?.image || UserPlaceholder}
                 alt="Profil Resmi"
                 fill
-                className="cursor-pointer rounded-full"
+                className="cursor-pointer rounded-full border border-gray-1 p-1"
               />
             </Link>
             <div className="thread-card_bar" />
@@ -119,12 +119,29 @@ const ThreadCard = ({
                   />
                 </Link>
               </div>
+              <p className="text-subtle-medium text-gray-1 mt-3">
+                {formatDateString(createdAt)}
+              </p>
               {comments.length > 0 && (
-                <Link href={`/thread/${id}`}>
-                  <p className="mt-1 text-subtle-medium text-gray-1">
-                    {comments.length} yorum
-                  </p>
-                </Link>
+                <div className="mt-3 flex items-center gap-2">
+                  {comments.slice(0, 2).map((comment, index) => (
+                    <Image
+                      key={index}
+                      src={comment.author.image || UserPlaceholder}
+                      alt={`user_${index}`}
+                      width={22}
+                      height={22}
+                      className={`${
+                        index !== 0 && "-ml-5"
+                      } rounded-full object-cover border border-gray-1 p-0.5 relative w-5 h-5`}
+                    />
+                  ))}
+                  <Link href={`/thread/${id}`}>
+                    <p className="mt-1 text-subtle-medium text-gray-1">
+                      {comments.length} yorum
+                    </p>
+                  </Link>
+                </div>
               )}
             </div>
           </div>
@@ -152,7 +169,7 @@ const ThreadCard = ({
               alt="Topluluk Resmi"
               width={14}
               height={14}
-              className="ml-1 object-cover"
+              className="ml-1 object-cover border border-gray-1 p-1"
             />
           </Link>
         )}

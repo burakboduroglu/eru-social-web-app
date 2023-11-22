@@ -28,12 +28,12 @@ const UserCard = ({
         <Image
           src={imgUrl}
           alt="photo"
-          width={28}
-          height={28}
-          className="rounded-full"
+          width={24}
+          height={24}
+          className="cursor-pointer rounded-full border border-gray-1 p-1 relative h-8 w-8"
         />
         <div className="flex-1 text-ellipsis">
-          <h4 className="text-base-semibold text-light-1">
+          <h4 className="text-base-semibold text-amber-100">
             {capitalize(name)}
           </h4>
           <p className="text-small-medium text-gray-1">@{username}</p>

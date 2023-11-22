@@ -38,7 +38,7 @@ export default async function Page() {
                         alt="profile photo"
                         width={24}
                         height={24}
-                        className="rounded-full mr-1"
+                        className="rounded-full mr-1 border border-gray-1 p-0.5"
                       />
                       <p className="text-light-2 mt-1 inline-block pl-3">
                         <span className="mr-2 text-primary-500">
