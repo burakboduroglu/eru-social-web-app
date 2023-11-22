@@ -23,7 +23,7 @@ export function formatDateString(dateString: string) {
   const date = new Date(dateString);
   const formattedDate = date.toLocaleDateString("tr-TR", options);
 
-  const time = date.toLocaleTimeString([], {
+  const time = date.toLocaleTimeString("tr-TR", {
     hour: "numeric",
     minute: "2-digit",
   });

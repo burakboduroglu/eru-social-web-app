@@ -60,7 +60,7 @@ const ThreadCard = ({
                 src={author?.image || UserPlaceholder}
                 alt="Profil Resmi"
                 fill
-                className="cursor-pointer rounded-full border border-gray-1 p-1"
+                className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black"
               />
             </Link>
             <div className="thread-card_bar" />
@@ -133,7 +133,7 @@ const ThreadCard = ({
                       height={22}
                       className={`${
                         index !== 0 && "-ml-5"
-                      } rounded-full object-cover border border-gray-1 p-0.5 relative w-5 h-5`}
+                      } rounded-full object-cover border border-gray-1 p-0.5 relative w-5 h-5 bg-black`}
                     />
                   ))}
                   <Link href={`/thread/${id}`}>
@@ -169,7 +169,7 @@ const ThreadCard = ({
               alt="Topluluk Resmi"
               width={14}
               height={14}
-              className="ml-1 object-cover border border-gray-1 p-1"
+              className="ml-1 object-cover border border-gray-1 p-1 bg-black"
             />
           </Link>
         )}

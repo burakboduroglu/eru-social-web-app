@@ -30,7 +30,7 @@ const UserCard = ({
           alt="photo"
           width={24}
           height={24}
-          className="cursor-pointer rounded-full border border-gray-1 p-1 relative h-8 w-8"
+          className="cursor-pointer rounded-full border border-gray-1 p-1 relative h-8 w-8 bg-black"
         />
         <div className="flex-1 text-ellipsis">
           <h4 className="text-base-semibold text-amber-100">

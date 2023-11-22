@@ -130,7 +130,7 @@ export default function AccountProfile({ user }: Readonly<Props>) {
                     width={96}
                     height={96}
                     priority
-                    className="rounded-full object-contain"
+                    className="rounded-full object-contain bg-black"
                   />
                 ) : (
                   <Image
