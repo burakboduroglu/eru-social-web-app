@@ -1,12 +1,7 @@
 import { z } from "zod";
 
 export const UserValidation = z.object({
-  profile_photo: z
-    .string()
-    .url()
-    .refine((value) => value.length > 0, {
-      message: "Profil fotoğrafı URL'si en az 1 karakter olmalıdır",
-    }),
+  profile_photo: z.string().url().optional(),
   name: z
     .string()
     .min(3, {

@@ -3,7 +3,6 @@ import Image from "next/image";
 import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
-import { ToastContainer, toast } from "react-toastify";
 
 interface CardProps {
   id: string;
