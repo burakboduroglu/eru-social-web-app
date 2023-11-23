@@ -60,10 +60,9 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                 <Image
                   src={userImg || UserPlaceholder}
                   alt="current_user"
-                  width={42}
-                  height={34}
-                  style={{ width: "auto", height: "auto" }}
-                  className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black relative w-11 h-11"
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover border border-gray-1 p-1"
                 />
               </FormLabel>
               <FormControl className="border-none bg-transparent pt-1">
