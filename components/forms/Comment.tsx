@@ -59,8 +59,9 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                 <Image
                   src={userImg}
                   alt="current_user"
-                  width={48}
-                  height={48}
+                  width={42}
+                  height={34}
+                  style={{ width: 42, height: 34 }}
                   className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black relative w-12 h-11"
                 />
               </FormLabel>

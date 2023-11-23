@@ -60,7 +60,7 @@ export const universityTabs = [
   },
   {
     imgURL: "/assets/map.svg",
-    route: "",
+    route: "https://ogrisl.erciyes.edu.tr/",
     label: "ERÜ Öğrenci İşleri",
   },
   {
@@ -70,12 +70,12 @@ export const universityTabs = [
   },
   {
     imgURL: "/assets/map.svg",
-    route: "",
+    route: "https://ogrisl.erciyes.edu.tr/",
     label: "Üniversite Duyuruları",
   },
   {
     imgURL: "/assets/map.svg",
-    route: "",
+    route: "https://ogrisl.erciyes.edu.tr/",
     label: "ERÜ Kampüs Rehberi",
   },
 ];

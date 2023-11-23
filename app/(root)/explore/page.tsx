@@ -3,7 +3,6 @@ import { currentUser } from "@clerk/nextjs";
 
 import UserCard from "@/components/cards/UserCard";
 import Searchbar from "@/components/shared/Searchbar";
-import Pagination from "@/components/shared/Pagination";
 
 import { getUser, getAllUsers } from "@/lib/actions/user.actions";
 import UserPlaceholder from "public/assets/user.svg";
@@ -32,7 +31,7 @@ async function Page({
 
       <Searchbar routeType="explore" />
 
-      <div className="mt-5 flex flex-col gap-9">
+      <div className="mt-8 flex flex-col gap-8">
         {result.users.length === 0 ? (
           <p className="no-result">Sonuç yok</p>
         ) : (
@@ -50,12 +49,6 @@ async function Page({
           </>
         )}
       </div>
-
-      <Pagination
-        path="explore"
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
-        isNext={result.isNext}
-      />
     </section>
   );
 }

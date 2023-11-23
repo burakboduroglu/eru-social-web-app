@@ -58,7 +58,7 @@ const ThreadCard = ({
               <Image
                 src={author?.image || UserPlaceholder}
                 alt="Profil Resmi"
-                fill
+                fill={true}
                 className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black"
               />
             </Link>

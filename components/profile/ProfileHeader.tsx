@@ -30,7 +30,8 @@ const ProfileHeader = ({
             <Image
               src={imgUrl}
               alt="profile photo"
-              fill
+              height={100}
+              width={100}
               className="rounded-full object-cover shadow-2xl border border-gray-1 p-2 bg-black"
             />
           </div>
@@ -49,6 +50,7 @@ const ProfileHeader = ({
                 alt="logout"
                 width={16}
                 height={16}
+                style={{ width: 16, height: 16 }}
               />
 
               <p className="text-light-2 max-sm:hidden">Edit</p>

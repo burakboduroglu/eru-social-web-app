@@ -23,7 +23,7 @@ const UserCard = ({
   const router = useRouter();
 
   return (
-    <article className="user-card mt-5">
+    <article className="user-card">
       <div className="user-card_avatar">
         <Image
           src={imgUrl}
