@@ -73,7 +73,7 @@ const ThreadCard = ({
                 {author?.name}
               </p>
               <span className="text-gray-400 xs:text-[0.75em] leading-tight">
-                {isComment ? `@${author?.username}` : ""}
+                {author?.username ? `@${author?.username}` : ""}
               </span>
             </Link>
             <Link href={`/thread/${id}`}>

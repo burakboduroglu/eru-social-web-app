@@ -58,7 +58,7 @@ export async function updateUser({
       revalidatePath(path);
     }
   } catch (error: any) {
-    throw new Error(`Failed to create/update user: ${error.message}`);
+    console.log(`Failed to create/update user: ${error.message}`);
   }
 }
 

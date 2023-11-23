@@ -155,28 +155,28 @@ export async function getThreadById(threadId: string) {
       .populate({
         path: "author",
         model: User,
-        select: "_id id name image",
-      }) // Populate the author field with _id and username
+        select: "_id id username name image",
+      })
       .populate({
         path: "community",
         model: Community,
-        select: "_id id name image",
-      }) // Populate the community field with _id and name
+        select: "_id id username name image",
+      })
       .populate({
         path: "children", // Populate the children field
         populate: [
           {
             path: "author", // Populate the author field within children
             model: User,
-            select: "_id id name parentId image", // Select only _id and username fields of the author
+            select: "_id id username name parentId image",
           },
           {
             path: "children", // Populate the children field within children
             model: Thread, // The model of the nested children (assuming it's the same "Thread" model)
             populate: {
-              path: "author", // Populate the author field within nested children
+              path: "author",
               model: User,
-              select: "_id id name parentId image", // Select only _id and username fields of the author
+              select: "_id id username name parentId image",
             },
           },
         ],

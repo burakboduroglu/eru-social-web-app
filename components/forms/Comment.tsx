@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import UserPlaceholder from "public/assets/user.svg";
 
 import {
   Form,
@@ -57,12 +58,12 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
             <FormItem className="flex w-full items-center gap-3">
               <FormLabel>
                 <Image
-                  src={userImg}
+                  src={userImg || UserPlaceholder}
                   alt="current_user"
                   width={42}
                   height={34}
-                  style={{ width: 42, height: 34 }}
-                  className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black relative w-12 h-11"
+                  style={{ width: "auto", height: "auto" }}
+                  className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black relative w-11 h-11"
                 />
               </FormLabel>
               <FormControl className="border-none bg-transparent pt-1">

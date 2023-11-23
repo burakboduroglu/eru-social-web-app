@@ -30,8 +30,7 @@ const ProfileHeader = ({
             <Image
               src={imgUrl}
               alt="profile photo"
-              height={100}
-              width={100}
+              fill
               className="rounded-full object-cover shadow-2xl border border-gray-1 p-2 bg-black"
             />
           </div>
@@ -48,9 +47,9 @@ const ProfileHeader = ({
               <Image
                 src="/assets/edit.svg"
                 alt="logout"
-                width={16}
-                height={16}
-                style={{ width: 16, height: 16 }}
+                width={20}
+                height={20}
+                style={{ width: 20, height: 20 }}
               />
 
               <p className="text-light-2 max-sm:hidden">Edit</p>

@@ -21,6 +21,8 @@ import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { updateUser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 interface Props {
   user: {
@@ -87,14 +89,19 @@ const AccountProfile = ({ user }: Props) => {
       }
     }
 
-    await updateUser({
-      name: values.name,
-      path: pathname,
-      username: values.username,
-      userId: user.id,
-      bio: values.bio,
-      image: values.profile_photo || "",
-    });
+    try {
+      await updateUser({
+        name: values.name,
+        path: pathname,
+        username: values.username,
+        userId: user.id,
+        bio: values.bio,
+        image: values.profile_photo || "",
+      });
+      toast.success("Başarıyla güncellendi");
+    } catch (error) {
+      toast.error("Bir hata oluştu");
+    }
 
     if (pathname === "/profile/edit") {
       router.back();
@@ -105,6 +112,7 @@ const AccountProfile = ({ user }: Props) => {
 
   return (
     <Form {...form}>
+      <ToastContainer limit={3} theme={"dark"} autoClose={1500} />
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col justify-start gap-10"

@@ -19,6 +19,7 @@ async function page({ params }: { params: { id: string } }) {
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const thread = await getThreadById(params.id);
+  console.log(thread.children);
 
   return (
     <section className="relative">
@@ -43,7 +44,6 @@ async function page({ params }: { params: { id: string } }) {
           userId={JSON.stringify(userInfo._id)}
         />
       </div>
-
       <div className="mt-10 px-10 xs:px-3">
         {thread.children.map((childItem: any) => (
           <div className="mt-6">
