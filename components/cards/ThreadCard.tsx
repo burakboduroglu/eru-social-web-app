@@ -46,7 +46,7 @@ const ThreadCard = ({
 }: CardProps) => {
   return (
     <article
-      className={`flex w-full flex-col rounded-xl mt-3 max-w-2xl ${
+      className={`flex w-full flex-col rounded-xl mt-3 ${
         isComment ? "px-0 xs:px-7" : "bg-dark-2 p-7"
       }`}
     >
@@ -80,8 +80,8 @@ const ThreadCard = ({
             </Link>
             <Link href={`/thread/${id}`}>
               <div className="mt-3 text-small-regular text-light-2">
-                {<YouTubeCard url={content} content={content} /> ? (
-                  <YouTubeCard url={content} content={content} />
+                {<YouTubeCard url={content} content={content} path={path} /> ? (
+                  <YouTubeCard url={content} content={content} path={path} />
                 ) : (
                   content
                 )}

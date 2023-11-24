@@ -15,7 +15,7 @@ export default async function Home() {
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   return (
-    <div className="flex flex-col max-w-2xl mx-auto">
+    <div className="flex flex-col max-w-md lg:max-w-2xl mx-auto">
       <div className=" -mt-3 border-b border-gray-600">
         <PostThread
           userId={userInfo._id.toString()}

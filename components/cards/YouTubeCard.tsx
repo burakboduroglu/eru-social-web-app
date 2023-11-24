@@ -5,9 +5,11 @@ import YouTube from "react-youtube";
 export default function YouTubeCard({
   url,
   content,
+  path,
 }: {
   url: string;
   content: string;
+  path: string;
 }) {
   const [videoId, setVideoId] = useState<string | false>(false);
   const [contentWithoutLinks, setContentWithoutLinks] = useState<string>("");
@@ -26,13 +28,26 @@ export default function YouTubeCard({
 
   const opts = {
     height: "250",
-    width: "450",
+    width: "100%",
   };
 
   return (
-    <p className="xs:max-w-1 sm:max-w-full md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
-      {contentWithoutLinks && <p className="mb-3">{contentWithoutLinks}</p>}
-      {videoId && <YouTube videoId={videoId} opts={opts} />}
-    </p>
+    <div>
+      {contentWithoutLinks && (
+        <p className="mb-3">
+          {path === "/" && content.length > 150 ? (
+            <>
+              {content.substring(0, content.indexOf(" ", 125))}
+              <span className="text-blue pl-1">...devamını görüntüleyin.</span>
+            </>
+          ) : (
+            contentWithoutLinks
+          )}
+        </p>
+      )}
+      {videoId && (
+        <YouTube videoId={videoId} opts={opts} className="xl:w-[32rem]" />
+      )}
+    </div>
   );
 }
