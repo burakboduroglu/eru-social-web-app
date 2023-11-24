@@ -3,7 +3,10 @@ import Image from "next/image";
 import { findUrlsInText, formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
+import { Youtube } from "lucide-react";
+import YouTubeCard from "./YouTubeCard";
 
+// ... rest of your code
 interface CardProps {
   id: string;
   currentUserId: string;
@@ -77,18 +80,13 @@ const ThreadCard = ({
               </span>
             </Link>
             <Link href={`/thread/${id}`}>
-              <p className="mt-3 text-small-regular text-light-2">
-                {path === "/" && content.length > 150 ? (
-                  <>
-                    {content.substring(0, content.indexOf(" ", 125))}
-                    <span className="text-blue pl-1">
-                      ...devamını görüntüleyin.
-                    </span>
-                  </>
+              <div className="mt-3 text-small-regular text-light-2">
+                {<YouTubeCard url={content} content={content} /> ? (
+                  <YouTubeCard url={content} content={content} />
                 ) : (
                   content
                 )}
-              </p>
+              </div>
             </Link>
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">

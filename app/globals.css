@@ -207,3 +207,10 @@ body::-webkit-scrollbar-thumb:hover {
   margin: 0px 1rem;
   padding: 2rem 2rem 1.5rem;
 }
+
+.scrollTop {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
