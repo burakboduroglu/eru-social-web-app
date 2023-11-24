@@ -1,9 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { findUrlsInText, formatDateString } from "@/lib/utils";
+import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
-import { Youtube } from "lucide-react";
 import YouTubeCard from "./YouTubeCard";
 
 // ... rest of your code
