@@ -25,12 +25,12 @@ export default function YouTubeCard({
   }, [url, content]);
 
   const opts = {
-    height: "200",
-    width: "300",
+    height: "250",
+    width: "450",
   };
 
   return (
-    <p className="xs:max-w-1">
+    <p className="xs:max-w-1 sm:max-w-full md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
       {contentWithoutLinks && <p className="mb-3">{contentWithoutLinks}</p>}
       {videoId && <YouTube videoId={videoId} opts={opts} />}
     </p>
