@@ -27,12 +27,12 @@ export default function YouTubeCard({
   }, [url, content]);
 
   const opts = {
-    height: "250",
+    height: "200",
     width: "100%",
   };
 
   return (
-    <div>
+    <div className="max-w-xl mx-auto sm:max-w-full">
       {contentWithoutLinks && (
         <p className="mb-3">
           {path === "/" && content.length > 150 ? (
@@ -46,7 +46,11 @@ export default function YouTubeCard({
         </p>
       )}
       {videoId && (
-        <YouTube videoId={videoId} opts={opts} className="xl:w-[32rem]" />
+        <YouTube
+          videoId={videoId}
+          opts={opts}
+          className="w-full xs:min-h-96 lg:min-w-[26rem]"
+        />
       )}
     </div>
   );
