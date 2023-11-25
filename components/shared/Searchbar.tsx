@@ -42,7 +42,7 @@ function Searchbar({ routeType }: Props) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Arama yap"
-        className="no-focus searchbar_input"
+        className="no-focus searchbar_input pb-5"
       />
     </div>
   );

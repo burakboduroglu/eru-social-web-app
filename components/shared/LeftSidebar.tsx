@@ -15,8 +15,8 @@ function LeftSidebar() {
   const { userId } = useAuth();
 
   return (
-    <section className="custom-scrollbar leftsidebar">
-      <div className="flex w-full flex-1 flex-col px-10">
+    <section className="custom-scrollbar leftsidebar pr-10">
+      <div className="flex w-full flex-1 flex-col px-3 mx-auto">
         {sidebarLinks.map((link) => {
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||
@@ -45,7 +45,7 @@ function LeftSidebar() {
         })}
       </div>
 
-      <div className="px-[3.5em]">
+      <div className="px-[1.5rem]">
         <SignedIn>
           <SignOutButton
             signOutCallback={() => {
