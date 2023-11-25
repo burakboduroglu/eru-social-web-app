@@ -24,7 +24,7 @@ export default async function CommunityPageCard({
 }: Props) {
   const user = await getUserByMongoId(createdBy || "");
   return (
-    <article className="flex flex-col mt-5 gap-3 border border-b-gray-500 p-5 rounded-xl">
+    <article className="flex flex-col mt-5 gap-3 border border-b-gray-500 p-5 rounded-xl bg-dark-2">
       <div className="flex flex-wrap items-center gap-5">
         <Link href={`/communities/${id}`} className="relative h-10 w-10">
           <Image

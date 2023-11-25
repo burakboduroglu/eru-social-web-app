@@ -4,7 +4,7 @@ import { universityTabs } from "@/constants";
 
 const UniversityCard = () => {
   return (
-    <article className="flex flex-col gap-4 text-lime-100 mx-auto  max-w-md lg:max-w-2xl">
+    <article className="flex flex-col gap-4 text-lime-100 mx-auto  max-w-md lg:max-w-2xl bg-dark-2">
       {universityTabs.map((tab) => (
         <Link
           href={tab.route}
