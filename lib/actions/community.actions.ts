@@ -275,3 +275,16 @@ export async function deleteCommunity(communityId: string) {
     throw error;
   }
 }
+
+export async function getAllCommunities() {
+  try {
+    connectToDatabase();
+
+    const communities = await Community.find().populate("members");
+
+    return communities;
+  } catch (error) {
+    console.error("Error fetching all communities:", error);
+    throw error;
+  }
+}
