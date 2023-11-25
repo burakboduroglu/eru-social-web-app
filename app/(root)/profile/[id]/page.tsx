@@ -32,7 +32,7 @@ async function Page({
   const comments = await getUserComments(userInfo._id);
 
   return (
-    <section>
+    <section className="flex flex-col max-w-md lg:max-w-2xl mx-auto">
       <ProfileHeader
         profileId={userInfo.id}
         authUserId={user.id}
