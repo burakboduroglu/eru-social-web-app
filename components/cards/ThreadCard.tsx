@@ -142,33 +142,35 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
-
-        {/* Delete Thread */}
-        <DeleteThread
-          threadId={JSON.stringify(id)}
-          currentUserId={currentUserId}
-          authorId={author.id}
-          parentId={parentId}
-          isComment={isComment}
-        />
-
-        {!isComment && community && (
-          <Link
-            href={`/communities/${community.id}`}
-            className="mt-5 flex items-center"
-          >
-            <p className="text-subtle-medium text-gray-1">
-              {formatDateString(createdAt)}- {community.name} Topluluğu
-            </p>
-            <Image
-              src={community.image}
-              alt="Topluluk Resmi"
-              width={14}
-              height={14}
-              className="ml-1 object-cover border border-gray-1 p-1 bg-black"
+        <div className="flex flex-col items-end">
+          {!isComment && community && (
+            <Link
+              href={`/communities/${community.id}`}
+              className="flex items-center"
+            >
+              <p className="text-subtle-medium text-gray-1">
+                {community.name} Topluluğu
+              </p>
+              <Image
+                src={community.image}
+                alt="Topluluk Resmi"
+                width={24}
+                height={24}
+                className=" object-cover rounded-full"
+              />
+            </Link>
+          )}
+          <div className={community ? "mt-28" : "mt-0"}>
+            {/* Delete Thread */}
+            <DeleteThread
+              threadId={JSON.stringify(id)}
+              currentUserId={currentUserId}
+              authorId={author.id}
+              parentId={parentId}
+              isComment={isComment}
             />
-          </Link>
-        )}
+          </div>
+        </div>
       </div>
     </article>
   );
