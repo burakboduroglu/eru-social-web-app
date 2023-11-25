@@ -52,6 +52,8 @@ export async function fetchCommunityDetails(id: string) {
 
     const communityDetails = await Community.findOne({ id }).populate([
       "createdBy",
+      "bio",
+      "_id",
       {
         path: "members",
         model: User,
@@ -285,6 +287,27 @@ export async function getAllCommunities() {
     return communities;
   } catch (error) {
     console.error("Error fetching all communities:", error);
+    throw error;
+  }
+}
+
+// update comminity bio
+export async function updateCommunityBio(communityId: string, bio: string) {
+  try {
+    connectToDatabase();
+
+    const updatedCommunity = await Community.findOneAndUpdate(
+      { id: communityId },
+      { bio }
+    );
+
+    if (!updatedCommunity) {
+      throw new Error("Community not found");
+    }
+
+    return updatedCommunity;
+  } catch (error) {
+    console.error("Error updating community bio:", error);
     throw error;
   }
 }

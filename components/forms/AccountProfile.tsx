@@ -40,6 +40,7 @@ const AccountProfile = ({ user }: Props) => {
   const { startUpload } = useUploadThing("imageUploader");
   const router = useRouter();
   const pathname = usePathname();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -98,7 +99,11 @@ const AccountProfile = ({ user }: Props) => {
         bio: values.bio,
         image: values.profile_photo || "",
       });
-      toast.success("Başarıyla güncellendi");
+      setTimeout(() => {
+        toast.success("Başarıyla güncellendi");
+      }, 3000);
+      setIsSubmitting(true);
+      router.push(`/${user.id}`);
     } catch (error) {
       toast.error("Bir hata oluştu");
     }
@@ -109,7 +114,6 @@ const AccountProfile = ({ user }: Props) => {
       router.push("/");
     }
   };
-
   return (
     <Form {...form}>
       <ToastContainer limit={3} theme={"dark"} autoClose={1500} />
@@ -217,7 +221,13 @@ const AccountProfile = ({ user }: Props) => {
         />
 
         {/* */}
-        <Button type="submit" className="bg-primary-500">
+        <Button
+          type="submit"
+          className="bg-primary-500"
+          onClick={() => {
+            toast.info("Profilin güncelleniyor");
+          }}
+        >
           Kaydet
         </Button>
       </form>

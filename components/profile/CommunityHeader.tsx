@@ -1,5 +1,7 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
+
 import { capitalize } from "@/lib/utils";
 import React from "react";
 
@@ -41,6 +43,19 @@ const CommunityHeader = ({
             <p className="text-base-medium text-gray-1">@{username}</p>
           </div>
         </div>
+        <Link href="/communities/edit">
+          <div className="flex cursor-pointer gap-3 rounded-lg bg-dark-3 px-4 py-2">
+            <Image
+              src="/assets/edit.svg"
+              alt="logout"
+              width={20}
+              height={20}
+              style={{ width: 20, height: 20 }}
+            />
+
+            <p className="text-light-2 max-sm:hidden">Edit</p>
+          </div>
+        </Link>
       </div>
 
       <p className="mt-8 ml-1 max-2-lg text-base-regular text-light-2">{bio}</p>
