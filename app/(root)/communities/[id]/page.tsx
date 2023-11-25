@@ -10,16 +10,17 @@ import Image from "next/image";
 import { communityTabs, profileTabs } from "@/constants";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CommunityTab from "@/components/profile/CommunityTab";
 
 async function Page({ params }: { params: { id: string } }) {
   const user = await currentUser();
   if (!user) return null;
 
   const communityDetails = await fetchCommunityDetails(params.id);
-  const communityPosts = await fetchCommunityPosts(communityDetails._id);
+  const communityPosts = await fetchCommunityPosts(communityDetails.id);
 
   return (
-    <div>
+    <div className="flex flex-col max-w-md lg:max-w-2xl mx-auto">
       <CommunityHeader
         communityId={communityDetails.id}
         authUserId={user.id}
@@ -61,6 +62,20 @@ async function Page({ params }: { params: { id: string } }) {
               </TabsTrigger>
             ))}
           </TabsList>
+          {communityTabs.map((tab) => (
+            <TabsContent
+              key={`content-${tab.label}`}
+              value={tab.value}
+              className="w-full text-light-1"
+            >
+              <CommunityTab
+                currentUserId={user.id}
+                communityId={communityDetails.id}
+                profileType="community"
+                tabLabel={tab.label}
+              />
+            </TabsContent>
+          ))}
         </Tabs>
       </div>
     </div>

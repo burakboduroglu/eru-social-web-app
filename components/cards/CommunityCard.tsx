@@ -13,7 +13,7 @@ interface Props {
 
 function CommunityCard({ id, name, username, imgUrl }: Props) {
   return (
-    <article className="community-card pl-5">
+    <article className="community-card pl-5 ">
       <div className="flex flex-wrap items-center gap-5">
         <Link href={`/communities/${id}`} className="relative h-10 w-10">
           <Image

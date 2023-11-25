@@ -27,7 +27,7 @@ async function Page({
 
   return (
     <section>
-      <h1 className="head-text mb-5">Topluluğu Keşfet</h1>
+      <h1 className="head-text mb-5">Keşfet</h1>
 
       <Searchbar routeType="explore" />
 

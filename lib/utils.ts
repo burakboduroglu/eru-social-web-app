@@ -50,3 +50,10 @@ export function findUrlsInText(text: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.match(urlRegex);
 }
+
+// Random Community
+export function getRandomCommunities(communities: any, count: any) {
+  const shuffled = communities.sort(() => 0.5 - Math.random());
+
+  return shuffled.slice(0, count);
+}

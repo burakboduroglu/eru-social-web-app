@@ -60,7 +60,8 @@ export const universityTabs = [
   },
   {
     imgURL: "/assets/map.svg",
-    route: "https://ogrisl.erciyes.edu.tr/",
+    route:
+      "https://eru-social-web-app.vercel.app/communities/org_2YfM3op85qZef0ZFVwD7A9LE7wi",
     label: "ERÜ Öğrenci İşleri",
   },
   {
