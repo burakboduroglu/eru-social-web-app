@@ -28,9 +28,7 @@ async function CommunityTab({
   tabLabel,
 }: Readonly<TabProps>) {
   let community = await fetchCommunityDetails(communityId);
-  let communityPosts = await fetchCommunityPosts(
-    "org_2YfM3op85qZef0ZFVwD7A9LE7wi"
-  );
+  let communityPosts = await fetchCommunityPosts(communityId);
 
   if (!community) {
     redirect("/");
