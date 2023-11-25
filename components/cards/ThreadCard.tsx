@@ -115,9 +115,31 @@ const ThreadCard = ({
                   />
                 </Link>
               </div>
-              <p className="text-subtle-medium text-gray-1 mt-3">
-                {formatDateString(createdAt)}
-              </p>
+              <div className="flex-col mt-3 text-subtle-medium">
+                <p className="text-subtle-medium text-gray-1">
+                  {formatDateString(createdAt)}
+                </p>
+                {!isComment && community && (
+                  <div className="text-amber-600 mt-2">
+                    <Link
+                      href={`/communities/${community.id}`}
+                      className="flex items-center"
+                    >
+                      <p className="text-subtle-medium pr-3">
+                        {community.name} Topluluğu
+                      </p>
+                      <Image
+                        src={community.image}
+                        alt="Topluluk Resmi"
+                        width={24}
+                        height={24}
+                        className=" object-cover rounded-full p-1 border border-gray-500 relative w-6 h-6"
+                      />
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               {comments.length > 0 && (
                 <div className="mt-3 flex items-center gap-2">
                   {comments.slice(0, 2).map((comment, index) => (
@@ -142,35 +164,14 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end">
-          {!isComment && community && (
-            <Link
-              href={`/communities/${community.id}`}
-              className="flex items-center"
-            >
-              <p className="text-subtle-medium text-gray-1">
-                {community.name} Topluluğu
-              </p>
-              <Image
-                src={community.image}
-                alt="Topluluk Resmi"
-                width={24}
-                height={24}
-                className=" object-cover rounded-full pl-1"
-              />
-            </Link>
-          )}
-          <div className={community ? "mt-28" : "mt-0"}>
-            {/* Delete Thread */}
-            <DeleteThread
-              threadId={JSON.stringify(id)}
-              currentUserId={currentUserId}
-              authorId={author.id}
-              parentId={parentId}
-              isComment={isComment}
-            />
-          </div>
-        </div>
+        {/* Delete Thread */}
+        <DeleteThread
+          threadId={JSON.stringify(id)}
+          currentUserId={currentUserId}
+          authorId={author.id}
+          parentId={parentId}
+          isComment={isComment}
+        />
       </div>
     </article>
   );

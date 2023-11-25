@@ -23,7 +23,7 @@ const UserCard = ({
   const router = useRouter();
 
   return (
-    <article className="user-card w-full pl-3 pr-3 border border-gray-500 p-3 rounded-lg">
+    <article className="user-card w-full pl-3 pr-3 border border-gray-500 p-3 rounded-lg -mt-3">
       <div className="user-card_avatar">
         <Image
           src={imgUrl}
