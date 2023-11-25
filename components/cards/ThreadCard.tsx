@@ -156,7 +156,7 @@ const ThreadCard = ({
                 alt="Topluluk Resmi"
                 width={24}
                 height={24}
-                className=" object-cover rounded-full"
+                className=" object-cover rounded-full pl-1"
               />
             </Link>
           )}

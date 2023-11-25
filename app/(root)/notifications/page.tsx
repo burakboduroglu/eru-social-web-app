@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <section>
-      <h1 className="head-text mt-3">Bildirimler</h1>
+      <h1 className="head-text">Bildirimler</h1>
 
       {activty.length > 0 ? (
         <>

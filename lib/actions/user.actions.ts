@@ -22,6 +22,19 @@ export async function getUser(userId: string) {
   }
 }
 
+export async function getUserByMongoId(userId: string) {
+  try {
+    connectToDatabase();
+
+    return await User.findOne({ _id: userId }).populate({
+      path: "communities",
+      model: Community,
+    });
+  } catch (error: any) {
+    throw new Error(`Failed to fetch user: ${error.message}`);
+  }
+}
+
 interface Params {
   userId: string;
   username: string;
