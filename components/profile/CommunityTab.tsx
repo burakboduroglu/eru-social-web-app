@@ -75,7 +75,7 @@ async function CommunityTab({
           </div>
         )
       ) : tabLabel === "Üyeler" ? (
-        <div className="flex justify-center mt-5 text-white">
+        <div className="flex flex-col justify-center mt-5 gap-5 text-white">
           {community.members.map((member: any) => (
             <UserCard
               key={member._id}

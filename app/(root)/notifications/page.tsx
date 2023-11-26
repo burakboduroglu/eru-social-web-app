@@ -38,9 +38,9 @@ export default async function Page() {
                         alt="profile photo"
                         width={24}
                         height={24}
-                        className="rounded-full mr-1 border border-gray-1 p-0.5 relative"
+                        className="rounded-full mr-1 border border-gray-1 p-0.5 relative w-8 h-8"
                       />
-                      <p className="text-light-2 mt-1 inline-block pl-3">
+                      <p className="text-light-2 mt-1 inline-block pl-3 ">
                         <span className="mr-2 text-primary-500">
                           {item.author.name}
                         </span>

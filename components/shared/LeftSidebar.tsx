@@ -37,7 +37,7 @@ function LeftSidebar() {
                 height={24}
                 style={{ width: 24, height: 24 }}
               />
-              <p className="text-light-1 max-lg:hidden text-[1.05em] pt-1">
+              <p className="text-light-1 max-lg:hidden text-[1.05em] pr-5">
                 {link.label}
               </p>
             </Link>

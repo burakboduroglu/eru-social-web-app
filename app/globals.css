@@ -77,7 +77,7 @@
 
   .leftsidebar {
     @apply sticky top-0 z-20 flex h-screen w-fit flex-col justify-between border-r border-r-dark-4 bg-black pt-28 max-md:hidden;
-    @apply md:pl-0 lg:pl-48 pb-12 md:pb-6 lg:pb-12 px-24;
+    @apply md:pl-0 lg:pl-48 pb-12 md:pb-6 lg:pb-12 px-10;
   }
 
   .leftsidebar_link {

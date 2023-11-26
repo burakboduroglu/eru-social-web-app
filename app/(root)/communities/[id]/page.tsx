@@ -18,7 +18,6 @@ async function Page({ params }: { params: { id: string } }) {
 
   const communityDetails = await fetchCommunityDetails(params.id);
   const communityPosts = await fetchCommunityPosts(communityDetails.id);
-
   return (
     <div className="flex flex-col max-w-md lg:max-w-2xl mx-auto">
       <CommunityHeader
@@ -29,6 +28,7 @@ async function Page({ params }: { params: { id: string } }) {
         imgUrl={communityDetails.image}
         bio={communityDetails.bio}
         type={"Community"}
+        admin={communityDetails.createdBy.id}
       />
       <div className="mt-5">
         <Tabs defaultValue="threads" className="w-full">
