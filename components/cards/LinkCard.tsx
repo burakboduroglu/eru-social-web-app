@@ -48,11 +48,14 @@ export default function YouTubeCard({
   return (
     <div className="max-w-xl mx-auto sm:max-w-full">
       {videoId ? (
-        <YouTube
-          videoId={videoId}
-          opts={opts}
-          className="w-full xs:min-h-96 lg:min-w-[26rem]"
-        />
+        <div>
+          <div className="pb-3">{contentWithoutLinks}</div>
+          <YouTube
+            videoId={videoId}
+            opts={opts}
+            className="w-full xs:min-h-96 lg:min-w-[26rem]"
+          />
+        </div>
       ) : (
         contentWithoutLinks && (
           <p className="mb-3">
