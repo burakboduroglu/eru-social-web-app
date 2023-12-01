@@ -3,8 +3,7 @@ import Image from "next/image";
 import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
-import YouTubeCard from "./YouTubeCard";
-import { Spotify } from "react-spotify-embed";
+import YouTubeCard from "./LinkCard";
 
 // ... rest of your code
 interface CardProps {
@@ -83,8 +82,6 @@ const ThreadCard = ({
               <div className="mt-3 text-small-regular text-light-2">
                 {<YouTubeCard url={content} content={content} path={path} /> ? (
                   <YouTubeCard url={content} content={content} path={path} />
-                ) : /(open.spotify.com\/track\/)([^#\&\?]*).*/.test(content) ? (
-                  <Spotify link="/(open.spotify.com\/track\/)([^#\&\?]*).*/.test(content)" />
                 ) : (
                   content
                 )}
@@ -144,7 +141,7 @@ const ThreadCard = ({
               </div>
 
               {comments.length > 0 && (
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-3 flex items-center gap-2 max-w-[1">
                   {comments.slice(0, 2).map((comment, index) => (
                     <Image
                       key={index}

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import YouTube from "react-youtube";
+import { Spotify } from "react-spotify-embed";
 
 export default function YouTubeCard({
   url,
@@ -23,7 +24,12 @@ export default function YouTubeCard({
     };
 
     setVideoId(getVideoId(url));
-    setContentWithoutLinks(content.replace(/(https?:\/\/[^\s]+)/g, ""));
+    setContentWithoutLinks(
+      content.replace(
+        /(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/g,
+        ""
+      )
+    );
   }, [url, content]);
 
   const opts = {
@@ -31,15 +37,20 @@ export default function YouTubeCard({
     width: "100%",
   };
 
+  const spotifyLink = content.match(
+    /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+)\b/
+  );
   return (
     <div className="max-w-xl mx-auto sm:max-w-full">
       {contentWithoutLinks && (
         <p className="mb-3">
           {path === "/" && content.length > 150 ? (
             <>
-              {content.substring(0, content.indexOf(" ", 125))}
+              {content.substring(0, content.indexOf("", 125))}
               <span className="text-blue pl-1">...devamını görüntüleyin.</span>
             </>
+          ) : spotifyLink ? (
+            <Spotify link={spotifyLink[0]} className="h-64 w-96" />
           ) : (
             contentWithoutLinks
           )}
