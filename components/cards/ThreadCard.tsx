@@ -3,7 +3,7 @@ import Image from "next/image";
 import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
-import YouTubeCard from "./LinkCard";
+import LinkCard from "./LinkCard";
 
 // ... rest of your code
 interface CardProps {
@@ -80,11 +80,7 @@ const ThreadCard = ({
             </Link>
             <Link href={`/thread/${parentId || id}`}>
               <div className="mt-3 text-small-regular text-light-2">
-                {<YouTubeCard url={content} content={content} path={path} /> ? (
-                  <YouTubeCard url={content} content={content} path={path} />
-                ) : (
-                  content
-                )}
+                <LinkCard url={content} content={content} path={path} />
               </div>
             </Link>
             <div className="mt-5 flex flex-col gap-3">

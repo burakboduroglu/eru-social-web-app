@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import YouTube from "react-youtube";
 import { Spotify } from "react-spotify-embed";
+import Link from "next/link";
 
 export default function YouTubeCard({
   url,
@@ -40,31 +41,46 @@ export default function YouTubeCard({
   const spotifyLink = content.match(
     /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+)\b/
   );
+
+  const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
+  const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
+
   return (
     <div className="max-w-xl mx-auto sm:max-w-full">
-      {contentWithoutLinks && (
-        <p className="mb-3">
-          {path === "/" && content.length > 150 ? (
-            <>
-              {content.substring(0, content.indexOf("", 125))}
-              <span className="text-blue pl-1">...devamını görüntüleyin.</span>
-            </>
-          ) : spotifyLink ? (
-            <Spotify
-              link={spotifyLink[0]}
-              className="md:h-64 md:w-96 xs:w-80 xs:h-48 -mb-8"
-            />
-          ) : (
-            contentWithoutLinks
-          )}
-        </p>
-      )}
-      {videoId && (
+      {videoId ? (
         <YouTube
           videoId={videoId}
           opts={opts}
           className="w-full xs:min-h-96 lg:min-w-[26rem]"
         />
+      ) : (
+        contentWithoutLinks && (
+          <p className="mb-3">
+            {path === "/" && withoutLink.length > 150 ? (
+              <>
+                {withoutLink.slice(0, 149)}
+                <span className="text-blue pl-1">
+                  ...devamını görüntüleyin.
+                </span>
+              </>
+            ) : spotifyLink ? (
+              <Spotify
+                link={spotifyLink[0]}
+                className="md:h-64 md:w-96 xs:w-80 xs:h-48 -mb-8"
+              />
+            ) : contentUrl ? (
+              <div>
+                {withoutLink}
+                <Link href={contentUrl[0]} className="text-sm text-blue">
+                  {contentUrl[0].slice(0, 25)}
+                  ...
+                </Link>
+              </div>
+            ) : (
+              contentWithoutLinks
+            )}
+          </p>
+        )
       )}
     </div>
   );
