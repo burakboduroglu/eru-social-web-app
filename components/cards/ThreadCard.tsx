@@ -78,7 +78,7 @@ const ThreadCard = ({
                 {author?.username ? `@${author?.username}` : ""}
               </span>
             </Link>
-            <Link href={`/thread/${id}`}>
+            <Link href={`/thread/${parentId || id}`}>
               <div className="mt-3 text-small-regular text-light-2">
                 {<YouTubeCard url={content} content={content} path={path} /> ? (
                   <YouTubeCard url={content} content={content} path={path} />
