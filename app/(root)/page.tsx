@@ -4,6 +4,7 @@ import { currentUser } from "@clerk/nextjs";
 import PostThread from "@/components/forms/PostThread";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/actions/user.actions";
+import UpdateButton from "@/components/shared/UpdateButton";
 
 export default async function Home() {
   const posts = await getPosts();
@@ -16,12 +17,13 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col max-w-md lg:max-w-2xl mx-auto">
-      <div className=" -mt-3 border-b border-gray-600">
+      <div className=" -mt-3 ">
         <PostThread
           userId={userInfo._id.toString()}
           userName={user.firstName ?? ""}
         />
       </div>
+      <UpdateButton />
       <section className="flex flex-col gap-10">
         {posts.length === 0 ? (
           <p className="no-result">Hiç gönderi bulunamadı.</p>

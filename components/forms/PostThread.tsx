@@ -15,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
 
+import Link from "next/link";
+import Image from "next/image";
+
 interface ThreadProps {
   userId: string;
   userName: string;
@@ -71,12 +74,30 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                 />
               </FormControl>
               <div className="flex items-center w-full justify-between">
-                <div>
-                  {field.value.length >= 550 && (
-                    <p className="text-red-600 pb-3">
-                      Max karakter sınırına ulaşıldı.
-                    </p>
-                  )}
+                <div className="mb-3 pl-1">
+                  <div className="flex gap-3.5 mb-1">
+                    <Image
+                      src="/assets/share-image.svg"
+                      alt="image"
+                      width={24}
+                      height={24}
+                      className="cursor-pointer object-contain"
+                    />
+                    <Image
+                      src="/assets/gif.svg"
+                      alt="yorum"
+                      width={24}
+                      height={24}
+                      className="cursor-pointer object-contain"
+                    />
+                  </div>
+                  <div>
+                    {field.value.length >= 550 && (
+                      <p className="text-red-600 pb-3">
+                        Max karakter sınırına ulaşıldı.
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <Button
                   type="submit"
