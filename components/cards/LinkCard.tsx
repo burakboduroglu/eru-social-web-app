@@ -26,7 +26,7 @@ export default function YouTubeCard({
     setVideoId(getVideoId(url));
     setContentWithoutLinks(
       content.replace(
-        /(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/g,
+        /(https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^\s]+)/g,
         ""
       )
     );
@@ -50,7 +50,10 @@ export default function YouTubeCard({
               <span className="text-blue pl-1">...devamını görüntüleyin.</span>
             </>
           ) : spotifyLink ? (
-            <Spotify link={spotifyLink[0]} className="h-64 w-96" />
+            <Spotify
+              link={spotifyLink[0]}
+              className="md:h-64 md:w-96 xs:w-80 xs:h-48 -mb-8"
+            />
           ) : (
             contentWithoutLinks
           )}

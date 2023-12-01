@@ -21,7 +21,7 @@ async function page({ params }: { params: { id: string } }) {
   const thread = await getThreadById(params.id);
 
   return (
-    <section className="relative">
+    <section className="relative overflow-hidden">
       <div>
         <ThreadCard
           id={thread._id}
@@ -43,7 +43,7 @@ async function page({ params }: { params: { id: string } }) {
           userId={JSON.stringify(userInfo._id)}
         />
       </div>
-      <div className="mt-10 px-10 xs:px-3">
+      <div className="mt-10 px-10 xs:px-3 overflow-hidden wrap">
         {thread.children.map((childItem: any) => (
           <div className="mt-6">
             <ThreadCard
