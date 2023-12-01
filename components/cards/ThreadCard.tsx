@@ -4,6 +4,7 @@ import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
 import YouTubeCard from "./YouTubeCard";
+import { Spotify } from "react-spotify-embed";
 
 // ... rest of your code
 interface CardProps {
@@ -82,6 +83,8 @@ const ThreadCard = ({
               <div className="mt-3 text-small-regular text-light-2">
                 {<YouTubeCard url={content} content={content} path={path} /> ? (
                   <YouTubeCard url={content} content={content} path={path} />
+                ) : /(open.spotify.com\/track\/)([^#\&\?]*).*/.test(content) ? (
+                  <Spotify link="/(open.spotify.com\/track\/)([^#\&\?]*).*/.test(content)" />
                 ) : (
                   content
                 )}
