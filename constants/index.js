@@ -44,39 +44,39 @@ export const communityTabs = [
 
 export const universityTabs = [
   {
-    imgURL: "/assets/erudm.svg",
+    imgURL: "/assets/book.svg",
     route: "https://erudm.erciyes.edu.tr/",
-    label: "Ders Materyalleri Portalı",
+    label: "ERUDM",
   },
   {
-    imgURL: "/assets/obisis.svg",
+    imgURL: "/assets/exam.svg",
     route: "https://obisis2.erciyes.edu.tr/",
-    label: "Öğrenci Bilgi Sistemi",
+    label: "OBİSİS",
   },
   {
     imgURL: "/assets/mail.svg",
     route: "https://webmail.erciyes.edu.tr/",
-    label: "ERÜ e-Posta Sistemi",
+    label: "Webmail",
   },
   {
-    imgURL: "/assets/map.svg",
+    imgURL: "/assets/student.svg",
     route:
       "https://eru-social-web-app.vercel.app/communities/org_2YfM3op85qZef0ZFVwD7A9LE7wi",
-    label: "ERÜ Öğrenci İşleri",
+    label: "Öğrenci İşleri",
   },
   {
-    imgURL: "/assets/map.svg",
+    imgURL: "/assets/calendar.svg",
     route: "https://ogrisl.erciyes.edu.tr/tr/a-t/akademik-takvim",
     label: "Akademik Takvim",
   },
   {
-    imgURL: "/assets/map.svg",
-    route: "https://ogrisl.erciyes.edu.tr/",
-    label: "Üniversite Duyuruları",
+    imgURL: "/assets/announcement.svg",
+    route: "https://ogrisl.erciyes.edu.tr/tr/duyuru/tum-duyurular",
+    label: "Duyurular",
   },
   {
-    imgURL: "/assets/map.svg",
+    imgURL: "/assets/campus.svg",
     route: "https://ogrisl.erciyes.edu.tr/",
-    label: "ERÜ Kampüs Rehberi",
+    label: "Kampüs",
   },
 ];

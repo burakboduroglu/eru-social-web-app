@@ -53,7 +53,7 @@ export default function YouTubeCard({
           <YouTube
             videoId={videoId}
             opts={opts}
-            className="w-full xs:min-h-96 lg:min-w-[26rem]"
+            className="w-full xs:min-h-96"
           />
         </div>
       ) : (
@@ -69,7 +69,7 @@ export default function YouTubeCard({
             ) : spotifyLink ? (
               <Spotify
                 link={spotifyLink[0]}
-                className="md:h-64 md:w-96 xs:w-80 xs:h-48 -mb-8"
+                className="md:h-64 md:w-96 xs:w-64 xs:h-40 -mb-8"
               />
             ) : contentUrl ? (
               <div>
