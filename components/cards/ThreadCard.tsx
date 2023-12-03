@@ -4,6 +4,7 @@ import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
 import LinkCard from "./LinkCard";
+import LikeButton from "../shared/LikeButton";
 
 // ... rest of your code
 interface CardProps {
@@ -30,6 +31,7 @@ interface CardProps {
   }[];
   isComment?: boolean;
   path: string;
+  postLike?: Number | null;
 }
 
 const ThreadCard = ({
@@ -43,6 +45,7 @@ const ThreadCard = ({
   comments,
   isComment,
   path,
+  postLike,
 }: CardProps) => {
   return (
     <article
@@ -85,20 +88,14 @@ const ThreadCard = ({
             </Link>
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
-                <Image
-                  src="/assets/heart-gray.svg"
-                  alt="begen"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
-                />
+                <LikeButton threadId={id} postLike={postLike || null} />
                 <Link href={`/thread/${id}`}>
                   <Image
                     src="/assets/reply.svg"
                     alt="yorum"
                     width={24}
                     height={24}
-                    className="cursor-pointer object-contain"
+                    className="cursor-pointer object-contain hover:bg-red-300 transition-colors duration-100 ease-in-out rounded-full"
                   />
                 </Link>
                 <Link href={`/thread/share/${id}`}>
@@ -107,7 +104,7 @@ const ThreadCard = ({
                     alt="paylas"
                     width={24}
                     height={24}
-                    className="cursor-pointer object-contain"
+                    className="cursor-pointer object-contain hover:bg-red-300 transition-colors duration-100 ease-in-out rounded-full"
                   />
                 </Link>
               </div>

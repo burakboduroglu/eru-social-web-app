@@ -230,27 +230,52 @@ export async function addCommentToThread(
 }
 
 // handle the "like" action
-async function likeThread(threadId: string, userId: string) {
+export async function likeThread(threadId: string) {
   connectToDatabase();
 
   try {
     const thread = await Thread.findById(threadId);
-
     if (!thread) {
       throw new Error("Thread not found");
     }
 
-    const index = thread.likes.indexOf(userId);
-
-    if (index === -1) {
-      thread.likes.push(userId);
-    } else {
-      thread.likes.splice(index, 1);
-    }
-
+    thread.likes += 1;
     await thread.save();
   } catch (err) {
-    console.error("Error while liking/unliking thread:", err);
-    throw new Error("Unable to like/unlike thread");
+    console.error("Error while liking thread:", err);
+    throw new Error("Unable to like thread");
+  }
+}
+
+export async function unlikeThread(threadId: string) {
+  connectToDatabase();
+
+  try {
+    const thread = await Thread.findById(threadId);
+    if (!thread) {
+      throw new Error("Thread not found");
+    }
+
+    thread.likes -= 1;
+    await thread.save();
+  } catch (err) {
+    console.error("Error while unliking thread:", err);
+    throw new Error("Unable to unlike thread");
+  }
+}
+
+export async function getLikeCount(threadId: string) {
+  connectToDatabase();
+
+  try {
+    const thread = await Thread.findById(threadId);
+    if (!thread) {
+      throw new Error("Thread not found");
+    }
+
+    return thread.likes;
+  } catch (err) {
+    console.error("Error while getting like count:", err);
+    throw new Error("Unable to get like count");
   }
 }
