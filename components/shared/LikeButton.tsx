@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { getLikeCount, likeThread } from "@/lib/actions/thread.actions";
-import { set } from "mongoose";
+import { likeThread } from "@/lib/actions/thread.actions";
 
-export default async function LikeButton({
+export default function LikeButton({
   threadId,
   postLike,
 }: {
@@ -27,7 +26,7 @@ export default async function LikeButton({
           className="cursor-pointer object-contain hover:bg-red-800 transition-colors duration-100 ease-in-out rounded-full"
         />
         {postLike && (
-          <span className="text-gray-400 xs:text-[0.75em] leading-tight">
+          <span className="text-gray-400 xs:text-[0.65em] leading-tight ">
             {postLike.toString()}
           </span>
         )}
