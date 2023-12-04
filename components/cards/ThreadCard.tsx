@@ -4,7 +4,10 @@ import { formatDateString } from "@/lib/utils";
 import UserPlaceholder from "public/assets/user.svg";
 import DeleteThread from "../forms/DeleteThread";
 import LinkCard from "./LinkCard";
-import LikeButton from "../shared/LikeButton";
+import LikeButton from "../buttons/LikeButton";
+import ReplyButton from "../buttons/ReplyButton";
+import { Share } from "next/font/google";
+import ShareButton from "../buttons/ShareButton";
 
 // ... rest of your code
 interface CardProps {
@@ -87,29 +90,13 @@ const ThreadCard = ({
               </div>
             </Link>
             <div className="mt-5 flex flex-col gap-3">
-              <div className="flex gap-3.5">
+              <div className="flex gap-4">
                 <LikeButton
                   threadId={JSON.stringify(id)}
                   postLike={postLike || null}
                 />
-                <Link href={`/thread/${id}`}>
-                  <Image
-                    src="/assets/reply.svg"
-                    alt="yorum"
-                    width={24}
-                    height={24}
-                    className="cursor-pointer object-contain hover:bg-red-300 transition-colors duration-100 ease-in-out rounded-full"
-                  />
-                </Link>
-                <Link href={`/thread/share/${id}`}>
-                  <Image
-                    src="/assets/share.svg"
-                    alt="paylas"
-                    width={24}
-                    height={24}
-                    className="cursor-pointer object-contain hover:bg-red-300 transition-colors duration-100 ease-in-out rounded-full"
-                  />
-                </Link>
+                <ReplyButton id={JSON.stringify(id)} />
+                <ShareButton id={JSON.stringify(id)} />
               </div>
               <div className="flex-col mt-3 text-subtle-medium">
                 <p className="text-subtle-medium text-gray-1">

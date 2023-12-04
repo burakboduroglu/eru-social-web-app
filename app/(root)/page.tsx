@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs";
 import PostThread from "@/components/forms/PostThread";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/actions/user.actions";
-import UpdateButton from "@/components/shared/UpdateButton";
+import UpdateButton from "@/components/buttons/UpdateButton";
 import { getLikeCount, likeThread } from "@/lib/actions/thread.actions";
 
 export default async function Home() {
