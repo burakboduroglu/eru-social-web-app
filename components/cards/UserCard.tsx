@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import { capitalize } from "@/lib/utils";
 import { Button } from "../ui/button";
