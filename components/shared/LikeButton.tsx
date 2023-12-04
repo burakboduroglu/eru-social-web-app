@@ -1,9 +1,11 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { getLikeCount, likeThread } from "@/lib/actions/thread.actions";
+import { set } from "mongoose";
 
-export default function LikeButton({
+export default async function LikeButton({
   threadId,
   postLike,
 }: {
