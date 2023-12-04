@@ -25,8 +25,11 @@ export default async function Page() {
             .slice(0)
             .reverse()
             .map((item) => (
-              <section className="flex flex-col mt-5 text-[12px]">
-                <Link key={item._id} href={`/thread/${item.parentId}`}>
+              <section
+                className="flex flex-col mt-5 text-[12px]"
+                key={item._id}
+              >
+                <Link href={`/thread/${item.parentId}`}>
                   <article className="activity-card flex justify-between">
                     <div className="flex">
                       <Image
@@ -40,12 +43,17 @@ export default async function Page() {
                         height={24}
                         className="rounded-full mr-1 border border-gray-1 p-0.5 relative w-8 h-8"
                       />
-                      <p className="text-light-2 mt-1 inline-block pl-3 ">
+                      <div className="inline-flex w-full text-light-2 mt-2 pl-3">
                         <span className="mr-2 text-primary-500">
                           {item.author.name}
                         </span>
-                        gönderine yorum yaptı.
-                      </p>
+                        <p>gönderine yorum yaptı.</p>
+                        <span className="pl-20">
+                          {item.createdAt.toLocaleString("tr-TR", {
+                            hour12: false,
+                          })}
+                        </span>
+                      </div>
                     </div>
                   </article>
                 </Link>

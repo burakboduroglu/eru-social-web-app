@@ -58,14 +58,14 @@ export default function YouTubeCard({
         </div>
       ) : (
         contentWithoutLinks && (
-          <p className="mb-3">
+          <div className="mb-3">
             {path === "/" && withoutLink.length > 150 ? (
-              <>
+              <div>
                 {withoutLink.slice(0, 149)}
                 <span className="text-blue pl-1">
                   ...devamını görüntüleyin.
                 </span>
-              </>
+              </div>
             ) : spotifyLink ? (
               <Spotify
                 link={spotifyLink[0]}
@@ -82,7 +82,7 @@ export default function YouTubeCard({
             ) : (
               contentWithoutLinks
             )}
-          </p>
+          </div>
         )
       )}
     </div>
