@@ -11,7 +11,7 @@ export default function LikeButton({
   postLike: Number | null;
 }) {
   const handleLike = () => {
-    likeThread(threadId);
+    likeThread(JSON.parse(threadId));
   };
 
   return (

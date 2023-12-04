@@ -88,7 +88,10 @@ const ThreadCard = ({
             </Link>
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
-                <LikeButton threadId={id} postLike={postLike || null} />
+                <LikeButton
+                  threadId={JSON.stringify(id)}
+                  postLike={postLike || null}
+                />
                 <Link href={`/thread/${id}`}>
                   <Image
                     src="/assets/reply.svg"
