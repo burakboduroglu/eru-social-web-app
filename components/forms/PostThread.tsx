@@ -15,7 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
 
-import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+
 import Image from "next/image";
 
 interface ThreadProps {
@@ -38,24 +39,32 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
   });
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-    console.log(organization?.id);
-    await createThread({
-      text: values.thread,
-      author: userId,
-      communityId: organization ? organization.id : null,
-      path: pathname,
-    });
+    try {
+      console.log(organization?.id);
+      await createThread({
+        text: values.thread,
+        author: userId,
+        communityId: organization ? organization.id : null,
+        path: pathname,
+      });
 
-    // reset the form
-    form.reset({
-      thread: "",
-    });
+      // reset the form
+      form.reset({
+        thread: "",
+      });
 
-    router.push("/");
+      router.push("/");
+      window.location.reload();
+      toast.success("Gönderi başarıyla paylaşıldı.");
+    } catch (error) {
+      toast.error("Gönderi paylaşılırken bir hata oluştu.");
+    }
   };
 
   return (
     <Form {...form}>
+      <ToastContainer limit={3} theme={"dark"} autoClose={10} />
+
       <form
         className="flex flex-col gap-3 items-end"
         onSubmit={form.handleSubmit(onSubmit)}

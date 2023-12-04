@@ -27,19 +27,24 @@ function DeleteThread({
   if (currentUserId !== authorId || pathname === "/") return null;
 
   return (
-    <Image
-      src="/assets/delete.svg"
-      alt="delte"
-      width={18}
-      height={18}
-      className="cursor-pointer object-contain"
-      onClick={async () => {
-        await deleteThread(JSON.parse(threadId), pathname);
-        if (!parentId || !isComment) {
-          router.push(`/profile/${currentUserId}`);
-        }
-      }}
-    />
+    <div>
+      <ToastContainer limit={3} theme={"dark"} autoClose={3500} />
+
+      <Image
+        src="/assets/delete.svg"
+        alt="delte"
+        width={18}
+        height={18}
+        className="cursor-pointer object-contain"
+        onClick={async () => {
+          await deleteThread(JSON.parse(threadId), pathname);
+          if (!parentId || !isComment) {
+            router.push(`/profile/${currentUserId}`);
+            toast.info("Gönderi siliniyor");
+          }
+        }}
+      />
+    </div>
   );
 }
 
