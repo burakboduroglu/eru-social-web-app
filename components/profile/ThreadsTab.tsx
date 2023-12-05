@@ -13,6 +13,7 @@ interface TabProps {
   profileId: string;
   profileType: string;
   tabLabel: string;
+  postLike?: Number | null;
 }
 
 async function ThreadsTab({
@@ -20,6 +21,7 @@ async function ThreadsTab({
   profileId,
   profileType,
   tabLabel,
+  postLike,
 }: Readonly<TabProps>) {
   let user = await getUser(profileId);
   let posts = await getUserPosts(profileId);
@@ -62,6 +64,7 @@ async function ThreadsTab({
                 createdAt={post.createdAt}
                 comments={post.children}
                 path={post.path}
+                postLike={post.likes}
               />
             ))
         ) : (
