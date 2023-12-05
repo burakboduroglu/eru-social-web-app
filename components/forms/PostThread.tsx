@@ -51,10 +51,10 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
       // reset the form
       form.reset({
         thread: "",
+        accountId: userId,
       });
 
       router.push("/");
-      window.location.reload();
       toast.success("Gönderi başarıyla paylaşıldı.");
     } catch (error) {
       toast.error("Gönderi paylaşılırken bir hata oluştu.");

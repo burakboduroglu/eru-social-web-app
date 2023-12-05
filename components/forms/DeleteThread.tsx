@@ -28,8 +28,6 @@ function DeleteThread({
 
   return (
     <div>
-      <ToastContainer limit={3} theme={"dark"} autoClose={3500} />
-
       <Image
         src="/assets/delete.svg"
         alt="delte"
@@ -44,6 +42,7 @@ function DeleteThread({
           }
         }}
       />
+      <ToastContainer limit={3} theme={"dark"} autoClose={2500} />
     </div>
   );
 }
