@@ -42,7 +42,7 @@ function DeleteThread({
           }
         }}
       />
-      <ToastContainer limit={3} theme={"dark"} autoClose={2500} />
+      <ToastContainer limit={3} theme={"dark"} autoClose={2000} />
     </div>
   );
 }

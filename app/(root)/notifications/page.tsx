@@ -26,7 +26,7 @@ export default async function Page() {
             .reverse()
             .map((item) => (
               <section
-                className="flex flex-col mt-5 text-[12px]"
+                className="flex flex-col mt-5 text-[0.80rem]"
                 key={item._id}
               >
                 <Link href={`/thread/${item.parentId}`}>
@@ -43,18 +43,17 @@ export default async function Page() {
                         height={24}
                         className="rounded-full mr-1 border border-gray-1 p-0.5 relative w-8 h-8"
                       />
-                      <div className="inline-flex w-full text-light-2 mt-2 pl-3">
+                      <div className="flex items-center  text-light-2 pl-2">
                         <span className="mr-1 text-primary-500">
                           {item.author.name}
                         </span>
-                        <p>
-                          <span className="pr-3">gönderine yorum yaptı.</span>
-                          <span className="text-[0.65rem] pt-1 text-gray-400">
-                            {item.createdAt.toLocaleString("tr-TR", {
-                              hour12: false,
-                            })}
-                          </span>
-                        </p>
+
+                        <span className="pr-3">gönderine yorum yaptı.</span>
+                        <span className="text-[0.75rem] text-gray-400 pt-1">
+                          {item.createdAt.toLocaleString("tr-TR", {
+                            hour12: false,
+                          })}
+                        </span>
                       </div>
                     </div>
                   </article>

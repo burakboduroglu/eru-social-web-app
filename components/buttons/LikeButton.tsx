@@ -20,7 +20,7 @@ export default function LikeButton({
   };
 
   return (
-    <div className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.75em] lg:text-[0.75em] leading-tight">
+    <div className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.65em] lg:text-[0.70m] leading-tight">
       <button
         onClick={handleLike}
         onMouseEnter={() => setIsHovered(true)}
@@ -28,7 +28,7 @@ export default function LikeButton({
       >
         {isHovered ? (
           <Image
-            src="/assets/heart-filled.svg" // Change this to your hover image path
+            src="/assets/heart-filled.svg"
             alt="begen"
             width={24}
             height={24}

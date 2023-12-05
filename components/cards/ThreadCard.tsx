@@ -6,7 +6,6 @@ import DeleteThread from "../forms/DeleteThread";
 import LinkCard from "./LinkCard";
 import LikeButton from "../buttons/LikeButton";
 import ReplyButton from "../buttons/ReplyButton";
-import { Share } from "next/font/google";
 import ShareButton from "../buttons/ShareButton";
 
 // ... rest of your code

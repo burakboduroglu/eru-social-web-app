@@ -62,7 +62,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
 
   return (
     <Form {...form}>
-      <ToastContainer limit={3} theme={"dark"} autoClose={10} />
+      <ToastContainer limit={3} theme={"dark"} autoClose={1000} />
 
       <form
         className="flex flex-col gap-3 items-end"

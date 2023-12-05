@@ -63,10 +63,7 @@ export default function YouTubeCard({
                 </span>
               </div>
             ) : spotifyLink ? (
-              <Spotify
-                link={spotifyLink[0]}
-                className="w-full h-32 xs:w-44 xs:h-46 sm:w-full sm:h-64"
-              />
+              <Spotify link={spotifyLink[0]} className="w-full" />
             ) : contentUrl ? (
               <div className="w-full">
                 {withoutLink}
