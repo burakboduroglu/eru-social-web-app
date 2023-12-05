@@ -40,7 +40,6 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     try {
-      console.log(organization?.id);
       await createThread({
         text: values.thread,
         author: userId,
@@ -48,16 +47,16 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
         path: pathname,
       });
 
+      router.push("/");
+      toast.success("Gönderi başarıyla paylaşıldı.");
+    } catch (error) {
+      toast.error("Gönderi paylaşılırken bir hata oluştu.");
+    } finally {
       // reset the form
       form.reset({
         thread: "",
         accountId: userId,
       });
-
-      router.push("/");
-      toast.success("Gönderi başarıyla paylaşıldı.");
-    } catch (error) {
-      toast.error("Gönderi paylaşılırken bir hata oluştu.");
     }
   };
 

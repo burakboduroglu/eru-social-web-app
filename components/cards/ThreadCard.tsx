@@ -34,7 +34,7 @@ interface CardProps {
   }[];
   isComment?: boolean;
   path: string;
-  postLike?: Number | null;
+  postLike?: Number;
 }
 
 const ThreadCard = ({
@@ -93,7 +93,7 @@ const ThreadCard = ({
               <div className="flex gap-4">
                 <LikeButton
                   threadId={JSON.stringify(id)}
-                  postLike={postLike || null}
+                  postLike={postLike || 0}
                 />
                 <ReplyButton id={JSON.stringify(id)} />
                 <ShareButton id={JSON.stringify(id)} />

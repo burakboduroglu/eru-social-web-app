@@ -9,18 +9,18 @@ export default function LikeButton({
   postLike,
 }: {
   threadId: string;
-  postLike: Number | 0;
+  postLike: Number;
 }) {
-  const [likeCount, setLikeCount] = useState(postLike);
+  const [likeCount, setLikeCount] = useState(Number(postLike));
   const [isHovered, setIsHovered] = useState(false);
 
   const handleLike = () => {
-    likeThread(JSON.parse(threadId));
     setLikeCount(Number(likeCount) + Number(1));
+    likeThread(JSON.parse(threadId));
   };
 
   return (
-    <div>
+    <div className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.75em] lg:text-[0.75em] leading-tight">
       <button
         onClick={handleLike}
         onMouseEnter={() => setIsHovered(true)}
@@ -43,11 +43,7 @@ export default function LikeButton({
             className="cursor-pointer object-contain"
           />
         )}
-        {postLike && (
-          <span className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.75em] lg:text-[0.75em] leading-tight">
-            {likeCount?.toString()}
-          </span>
-        )}
+        {likeCount}
       </button>
     </div>
   );

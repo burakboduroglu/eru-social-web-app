@@ -50,11 +50,7 @@ export default function YouTubeCard({
       {videoId ? (
         <div>
           <div className="pb-3">{contentWithoutLinks}</div>
-          <YouTube
-            videoId={videoId}
-            opts={opts}
-            className="w-full xs:min-h-96"
-          />
+          <YouTube videoId={videoId} opts={opts} className="w-full" />
         </div>
       ) : (
         contentWithoutLinks && (
@@ -69,10 +65,10 @@ export default function YouTubeCard({
             ) : spotifyLink ? (
               <Spotify
                 link={spotifyLink[0]}
-                className="md:h-64 md:w-96 sm:w-44 sm:h-32 xs:w-44 xs:h-32 -mb-8"
+                className="w-full h-32 xs:w-44 xs:h-46 sm:w-full sm:h-64"
               />
             ) : contentUrl ? (
-              <div className="w-full md:w-1/2 lg:w-1/3">
+              <div className="w-full">
                 {withoutLink}
                 <Link href={contentUrl[0]} className="text-sm text-blue">
                   {contentUrl[0].slice(0, 25)}
