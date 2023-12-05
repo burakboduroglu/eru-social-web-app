@@ -44,15 +44,17 @@ export default async function Page() {
                         className="rounded-full mr-1 border border-gray-1 p-0.5 relative w-8 h-8"
                       />
                       <div className="inline-flex w-full text-light-2 mt-2 pl-3">
-                        <span className="mr-2 text-primary-500">
+                        <span className="mr-1 text-primary-500">
                           {item.author.name}
                         </span>
-                        <p>gönderine yorum yaptı.</p>
-                        <span className="pl-20">
-                          {item.createdAt.toLocaleString("tr-TR", {
-                            hour12: false,
-                          })}
-                        </span>
+                        <p>
+                          <span className="pr-3">gönderine yorum yaptı.</span>
+                          <span className="text-[0.65rem] pt-1 text-gray-400">
+                            {item.createdAt.toLocaleString("tr-TR", {
+                              hour12: false,
+                            })}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   </article>

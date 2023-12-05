@@ -72,7 +72,7 @@ export default function YouTubeCard({
                 className="md:h-64 md:w-96 sm:w-44 sm:h-32 xs:w-44 xs:h-32 -mb-8"
               />
             ) : contentUrl ? (
-              <div>
+              <div className="w-full md:w-1/2 lg:w-1/3">
                 {withoutLink}
                 <Link href={contentUrl[0]} className="text-sm text-blue">
                   {contentUrl[0].slice(0, 25)}

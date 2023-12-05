@@ -44,7 +44,7 @@ export default function LikeButton({
           />
         )}
         {postLike && (
-          <span className="text-gray-400 xs:text-[0.65em] leading-tight ">
+          <span className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.75em] lg:text-[0.75em] leading-tight">
             {likeCount?.toString()}
           </span>
         )}
