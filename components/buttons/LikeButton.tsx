@@ -9,14 +9,14 @@ export default function LikeButton({
   postLike,
 }: {
   threadId: string;
-  postLike: Number | null;
+  postLike: Number | 0;
 }) {
   const [likeCount, setLikeCount] = useState(postLike);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleLike = () => {
     likeThread(JSON.parse(threadId));
-    setLikeCount((prevCount: any) => (prevCount ? prevCount + 1 : 1));
+    setLikeCount(Number(likeCount) + Number(1));
   };
 
   return (
