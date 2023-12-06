@@ -49,7 +49,7 @@ export default function YouTubeCard({
     <div className="max-w-xl mx-auto sm:max-w-full">
       {videoId ? (
         <div>
-          <div className="pb-3">{contentWithoutLinks}</div>
+          <div className="pb-3">{withoutLink}</div>
           <YouTube videoId={videoId} opts={opts} className="w-full" />
         </div>
       ) : (
@@ -63,7 +63,10 @@ export default function YouTubeCard({
                 </span>
               </div>
             ) : spotifyLink ? (
-              <Spotify link={spotifyLink[0]} className="w-full" />
+              <div>
+                {withoutLink}
+                <Spotify link={spotifyLink[0]} className="w-full" />
+              </div>
             ) : contentUrl ? (
               <div className="w-full">
                 {withoutLink}
