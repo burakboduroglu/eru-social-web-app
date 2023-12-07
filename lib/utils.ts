@@ -54,6 +54,5 @@ export function findUrlsInText(text: string) {
 // Random Community
 export function getRandomCommunities(communities: any, count: any) {
   const shuffled = communities.sort(() => 0.5 - Math.random());
-
   return shuffled.slice(0, count);
 }
