@@ -291,7 +291,6 @@ export async function getAllCommunities() {
   }
 }
 
-// update comminity bio
 export async function updateCommunityBio(communityId: string, bio: string) {
   try {
     connectToDatabase();
