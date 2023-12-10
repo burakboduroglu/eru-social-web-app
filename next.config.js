@@ -1,12 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: "/eru-social-web-app", // replace 'your-repo-name' with the name of your repository
-  assetPrefix: "/eru-social-web-app/", // replace 'your-repo-name' with the name of your repository
-  exportPathMap: function () {
-    return {
-      "/": { page: "/" },
-    };
-  },
+  basePath: "/eru-social-web-app",
+  assetPrefix: "/eru-social-web-app/",
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -15,33 +10,25 @@ const nextConfig = {
     serverComponentsExternalPackages: ["mongoose"],
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.clerk.dev",
-      },
-      {
-        protocol: "https",
-        hostname: "uploadthing.com",
-      },
-      {
-        protocol: "https",
-        hostname: "placehold.co",
-      },
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-      },
+    domains: [
+      "img.clerk.com",
+      "images.clerk.dev",
+      "uploadthing.com",
+      "placehold.co",
+      "utfs.io",
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        destination: "/app/:path*",
+        permanent: false,
+      },
+    ];
   },
 };
 
