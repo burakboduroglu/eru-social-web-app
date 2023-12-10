@@ -2,12 +2,19 @@
 
 import { FilterQuery, SortOrder } from "mongoose";
 import { revalidatePath } from "next/cache";
-
 import Community from "../models/community.model";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
-
 import { connectToDatabase } from "../mongoose";
+
+interface Params {
+  userId: string;
+  username: string;
+  name: string;
+  bio: string;
+  image: string;
+  path: string;
+}
 
 export async function getUser(userId: string) {
   try {
@@ -33,15 +40,6 @@ export async function getUserByMongoId(userId: string) {
   } catch (error: any) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
-}
-
-interface Params {
-  userId: string;
-  username: string;
-  name: string;
-  bio: string;
-  image: string;
-  path: string;
 }
 
 export async function updateUser({
@@ -79,7 +77,6 @@ export async function getUserPosts(userId: string) {
   try {
     connectToDatabase();
 
-    // Find all threads authored by the user with the given userId
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
       model: Thread,
@@ -87,7 +84,7 @@ export async function getUserPosts(userId: string) {
         {
           path: "community",
           model: Community,
-          select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
+          select: "name id image _id",
         },
         {
           path: "children",
@@ -95,7 +92,7 @@ export async function getUserPosts(userId: string) {
           populate: {
             path: "author",
             model: User,
-            select: "name image id", // Select the "name" and "_id" fields from the "User" model
+            select: "name image id",
           },
         },
       ],
@@ -153,15 +150,12 @@ export async function getActivity(userId: string) {
   try {
     connectToDatabase();
 
-    // Find all threads created by the user
     const userThreads = await Thread.find({ author: userId });
 
-    // Collect all the child thread ids (replies) from the 'children' field of each user thread
     const childThreadIds = userThreads.reduce((acc, userThread) => {
       return acc.concat(userThread.children);
     }, []);
 
-    // Find and return the child threads (replies) excluding the ones created by the same user
     const replies = await Thread.find({
       _id: { $in: childThreadIds },
       author: { $ne: userId },
@@ -183,7 +177,6 @@ export async function getUserComments(userId: string) {
   try {
     connectToDatabase();
 
-    // comments on user's posts
     const comments = await Thread.find({
       threads: userId,
       author: { $ne: userId },
@@ -197,7 +190,6 @@ export async function getUserComments(userId: string) {
       },
     });
 
-    // self comments
     const threads = await Thread.find({ author: userId }).populate({
       path: "children",
       model: Thread,
@@ -209,10 +201,8 @@ export async function getUserComments(userId: string) {
       },
     });
 
-    // Extract only the children from each thread
     const selfComments = threads.flatMap((thread) => thread.children);
 
-    // Extract only the children from each thread
     const userComments = comments.flatMap((comment) => comment.children);
 
     return [...userComments, ...selfComments];

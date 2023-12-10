@@ -1,11 +1,8 @@
 "use server";
 
-import { FilterQuery, SortOrder } from "mongoose";
-
 import Community from "../models/community.model";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
-
 import { connectToDatabase } from "../mongoose";
 
 export async function createCommunity(
@@ -97,54 +94,6 @@ export async function fetchCommunityPosts(id: string) {
   } catch (error) {
     // Handle any errors
     console.error("Error fetching community posts:", error);
-    throw error;
-  }
-}
-
-export async function fetchCommunities({
-  searchString = "",
-  pageNumber = 1,
-  pageSize = 20,
-  sortBy = "desc",
-}: {
-  searchString?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  sortBy?: SortOrder;
-}) {
-  try {
-    connectToDatabase();
-
-    const skipAmount = (pageNumber - 1) * pageSize;
-
-    const regex = new RegExp(searchString, "i");
-
-    const query: FilterQuery<typeof Community> = {};
-
-    if (searchString.trim() !== "") {
-      query.$or = [
-        { username: { $regex: regex } },
-        { name: { $regex: regex } },
-      ];
-    }
-
-    const sortOptions = { createdAt: sortBy };
-
-    const communitiesQuery = Community.find(query)
-      .sort(sortOptions)
-      .skip(skipAmount)
-      .limit(pageSize)
-      .populate("members");
-
-    const totalCommunitiesCount = await Community.countDocuments(query);
-
-    const communities = await communitiesQuery.exec();
-
-    const isNext = totalCommunitiesCount > skipAmount + communities.length;
-
-    return { communities, isNext };
-  } catch (error) {
-    console.error("Error fetching communities:", error);
     throw error;
   }
 }

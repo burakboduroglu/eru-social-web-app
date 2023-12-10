@@ -2,7 +2,6 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ComImage from "../../public/assets/community.svg";
-
 import { Button } from "../ui/button";
 import { getUserByMongoId } from "@/lib/actions/user.actions";
 

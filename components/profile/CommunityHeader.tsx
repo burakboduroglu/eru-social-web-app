@@ -1,7 +1,7 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
-
 import { capitalize } from "@/lib/utils";
 import React from "react";
 

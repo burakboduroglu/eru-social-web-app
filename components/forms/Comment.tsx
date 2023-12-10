@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import UserPlaceholder from "public/assets/user.svg";
-
 import {
   Form,
   FormControl,
@@ -14,10 +13,8 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-
 import { CommentValidation } from "@/lib/validations/thread";
 import { addCommentToThread } from "@/lib/actions/thread.actions";
 

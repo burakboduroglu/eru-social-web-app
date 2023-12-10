@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-
 import { deleteThread } from "@/lib/actions/thread.actions";
 import { ToastContainer, toast } from "react-toastify";
 

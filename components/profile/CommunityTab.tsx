@@ -1,14 +1,6 @@
 import { redirect } from "next/navigation";
-
-import {
-  getUserPosts,
-  getUserComments,
-  getUser,
-} from "@/lib/actions/user.actions";
-
 import ThreadCard from "../cards/ThreadCard";
 import {
-  fetchCommunities,
   fetchCommunityDetails,
   fetchCommunityPosts,
 } from "@/lib/actions/community.actions";

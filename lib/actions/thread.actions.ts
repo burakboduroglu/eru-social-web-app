@@ -64,7 +64,6 @@ export async function createThread({
     });
 
     if (communityIdObject) {
-      // Update Community model
       await Community.findByIdAndUpdate(communityIdObject, {
         $push: { threads: createdThread._id },
       });
@@ -92,47 +91,40 @@ export async function deleteThread(id: string, path: string): Promise<void> {
   try {
     connectToDatabase();
 
-    // Find the thread to be deleted (the main thread)
     const mainThread = await Thread.findById(id).populate("author community");
 
     if (!mainThread) {
       throw new Error("Thread not found");
     }
 
-    // Fetch all child threads (comments) and their descendants recursively
     const descendantThreads = await getAllChildThreads(id);
 
-    // Get all descendant thread IDs including the main thread ID and child thread IDs
     const descendantThreadIds = [
       id,
       ...descendantThreads.map((thread) => thread._id),
     ];
 
-    // Extract the authorIds and communityIds to update User and Community models
     const uniqueAuthorIds = new Set(
       [
-        ...descendantThreads.map((thread) => thread.author?._id?.toString()), // Use optional chaining to handle possible undefined values
+        ...descendantThreads.map((thread) => thread.author?._id?.toString()),
         mainThread.author?._id?.toString(),
       ].filter((id) => id !== undefined)
     );
 
     const uniqueCommunityIds = new Set(
       [
-        ...descendantThreads.map((thread) => thread.community?._id?.toString()), // Use optional chaining to handle possible undefined values
+        ...descendantThreads.map((thread) => thread.community?._id?.toString()),
         mainThread.community?._id?.toString(),
       ].filter((id) => id !== undefined)
     );
 
-    // Recursively delete child threads and their descendants
     await Thread.deleteMany({ _id: { $in: descendantThreadIds } });
 
-    // Update User model
     await User.updateMany(
       { _id: { $in: Array.from(uniqueAuthorIds) } },
       { $pull: { threads: { $in: descendantThreadIds } } }
     );
 
-    // Update Community model
     await Community.updateMany(
       { _id: { $in: Array.from(uniqueCommunityIds) } },
       { $pull: { threads: { $in: descendantThreadIds } } }
@@ -160,16 +152,16 @@ export async function getThreadById(threadId: string) {
         select: "_id id username name image",
       })
       .populate({
-        path: "children", // Populate the children field
+        path: "children",
         populate: [
           {
-            path: "author", // Populate the author field within children
+            path: "author",
             model: User,
             select: "_id id username name parentId image",
           },
           {
-            path: "children", // Populate the children field within children
-            model: Thread, // The model of the nested children (assuming it's the same "Thread" model)
+            path: "children",
+            model: Thread,
             populate: {
               path: "author",
               model: User,

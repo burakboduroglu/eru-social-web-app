@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import ComImage from "../../public/assets/community.svg";
-
 import { Button } from "../ui/button";
 
 interface Props {

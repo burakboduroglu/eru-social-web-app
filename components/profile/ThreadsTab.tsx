@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
-
 import {
   getUserPosts,
   getUserComments,
   getUser,
 } from "@/lib/actions/user.actions";
-
 import ThreadCard from "../cards/ThreadCard";
 
 interface TabProps {

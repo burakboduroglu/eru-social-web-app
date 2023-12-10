@@ -1,22 +1,16 @@
 "use client";
 
-// Zod
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-// React - Next- Clerk
 import { useForm } from "react-hook-form";
 import { useOrganization } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
-// shadcn ui
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-
 import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
-
 import { ToastContainer, toast } from "react-toastify";
-
 import Image from "next/image";
 
 interface ThreadProps {
