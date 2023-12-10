@@ -12,6 +12,8 @@ import LeftSidebar from "@/components/shared/LeftSidebar";
 import RightSidebar from "@/components/shared/RightSidebar";
 import Bottombar from "@/components/shared/Bottombar";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -32,6 +34,7 @@ export default function RootLayout({
     <ClerkProvider localization={trTR}>
       <html lang="en">
         <body className={inter.className}>
+          <SpeedInsights />
           <Topbar />
           <main className="flex flex-row mx-auto">
             <LeftSidebar />
