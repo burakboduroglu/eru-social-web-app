@@ -2,7 +2,11 @@
 const nextConfig = {
   basePath: "/eru-social-web-app", // replace 'your-repo-name' with the name of your repository
   assetPrefix: "/eru-social-web-app/", // replace 'your-repo-name' with the name of your repository
-  output: "export",
+  exportPathMap: function () {
+    return {
+      "/": { page: "/" },
+    };
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
