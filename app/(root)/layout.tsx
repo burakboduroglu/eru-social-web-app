@@ -34,12 +34,14 @@ export default function RootLayout({
     <ClerkProvider localization={trTR}>
       <html lang="en">
         <body className={inter.className}>
-          <SpeedInsights />
           <Topbar />
           <main className="flex flex-row mx-auto">
             <LeftSidebar />
             <section className="main-container">
-              <div className="w-full max-w-xl ">{children}</div>
+              <div className="w-full max-w-xl ">
+                {children}
+                <SpeedInsights />
+              </div>
             </section>
             <RightSidebar />
           </main>
