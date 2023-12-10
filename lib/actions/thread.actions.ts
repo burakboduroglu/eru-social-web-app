@@ -1,12 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
 import { connectToDatabase } from "../mongoose";
-
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
 import Community from "../models/community.model";
+
+interface Params {
+  text: string;
+  author: string;
+  communityId: string | null;
+  path: string;
+}
 
 export async function getPosts() {
   connectToDatabase();
@@ -21,24 +26,17 @@ export async function getPosts() {
       model: Community,
     })
     .populate({
-      path: "children", // Populate the children field
+      path: "children",
       populate: {
-        path: "author", // Populate the author field within children
+        path: "author",
         model: User,
-        select: "_id name parentId image", // Select only _id and username fields of the author
+        select: "_id name parentId image",
       },
     });
 
   const unfilteredPosts = await postsQuery.exec();
   const posts = unfilteredPosts.filter((post) => post.parentId === undefined);
   return posts;
-}
-
-interface Params {
-  text: string;
-  author: string;
-  communityId: string | null;
-  path: string;
 }
 
 export async function createThread({
@@ -58,10 +56,9 @@ export async function createThread({
     const createdThread = await Thread.create({
       text,
       author,
-      community: communityIdObject || null, // Assign communityId if provided, or leave it null for personal account
+      community: communityIdObject || null,
     });
 
-    // Update User model
     await User.findByIdAndUpdate(author, {
       $push: { threads: createdThread._id },
     });
@@ -199,27 +196,22 @@ export async function addCommentToThread(
   connectToDatabase();
 
   try {
-    // Find the original thread by its ID
     const originalThread = await Thread.findById(threadId);
 
     if (!originalThread) {
       throw new Error("Thread not found");
     }
 
-    // Create the new comment thread
     const commentThread = new Thread({
       text: commentText,
       author: userId,
-      parentId: threadId, // Set the parentId to the original thread's ID
+      parentId: threadId,
     });
 
-    // Save the comment thread to the database
     const savedCommentThread = await commentThread.save();
 
-    // Add the comment thread's ID to the original thread's children array
     originalThread.children.push(savedCommentThread._id);
 
-    // Save the updated original thread to the database
     await originalThread.save();
 
     revalidatePath(path);
@@ -229,7 +221,6 @@ export async function addCommentToThread(
   }
 }
 
-// handle the "like" action
 export async function likeThread(threadId: string) {
   connectToDatabase();
 
@@ -261,21 +252,5 @@ export async function unlikeThread(threadId: string) {
   } catch (err) {
     console.error("Error while unliking thread:", err);
     throw new Error("Unable to unlike thread");
-  }
-}
-
-export async function getLikeCount(threadId: string) {
-  connectToDatabase();
-
-  try {
-    const thread = await Thread.findById(threadId);
-    if (!thread) {
-      throw new Error("Thread not found");
-    }
-
-    return thread.likes;
-  } catch (err) {
-    console.error("Error while getting like count:", err);
-    throw new Error("Unable to get like count");
   }
 }
