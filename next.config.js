@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: "/eru-social-web-app",
-  assetPrefix: "/eru-social-web-app/",
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -10,25 +8,33 @@ const nextConfig = {
     serverComponentsExternalPackages: ["mongoose"],
   },
   eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: [
-      "img.clerk.com",
-      "images.clerk.dev",
-      "uploadthing.com",
-      "placehold.co",
-      "utfs.io",
-    ],
-  },
-  async redirects() {
-    return [
+    remotePatterns: [
       {
-        source: "/:path*",
-        destination: "/app/:path*",
-        permanent: false,
+        protocol: "https",
+        hostname: "img.clerk.com",
       },
-    ];
+      {
+        protocol: "https",
+        hostname: "images.clerk.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "uploadthing.com",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+      },
+    ],
   },
 };
 
