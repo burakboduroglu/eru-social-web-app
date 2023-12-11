@@ -133,8 +133,6 @@ export async function getAllUsers({
 
     const usersQuery = User.find(query).sort(sortOptions);
 
-    const totalUsersCount = await User.countDocuments(query);
-
     const users = await usersQuery.exec();
 
     return { users };
