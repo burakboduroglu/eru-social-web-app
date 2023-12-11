@@ -34,7 +34,7 @@ function Searchbar({ routeType }: Props) {
         alt="search"
         width={24}
         height={24}
-        style={{ width: 24, height: 24 }}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-contain"
       />
       <Input

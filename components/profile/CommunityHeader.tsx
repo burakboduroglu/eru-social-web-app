@@ -35,6 +35,7 @@ const CommunityHeader = ({
               src={imgUrl}
               alt="profile photo"
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="rounded-full object-cover shadow-2xl border border-gray-1 p-2 bg-black"
             />
           </div>

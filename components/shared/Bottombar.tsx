@@ -31,6 +31,7 @@ function Bottombar() {
               <Image
                 src={link.imgURL}
                 alt={link.label}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 width={24}
                 height={24}
               />

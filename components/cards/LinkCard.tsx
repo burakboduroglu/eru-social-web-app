@@ -8,10 +8,12 @@ export default function YouTubeCard({
   url,
   content,
   path,
+  id,
 }: {
   url: string;
   content: string;
   path: string;
+  id: string;
 }) {
   const [videoId, setVideoId] = useState<string | false>(false);
   const [contentWithoutLinks, setContentWithoutLinks] = useState<string>("");
@@ -44,12 +46,14 @@ export default function YouTubeCard({
 
   const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
   const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
-
+  const idPlainObject = JSON.parse(id);
   return (
     <div className="max-w-xl mx-auto sm:max-w-full">
       {videoId ? (
         <div>
-          <div className="pb-3">{withoutLink}</div>
+          <Link href={`/thread/${idPlainObject}`} className="pb-3">
+            {withoutLink}
+          </Link>
           <YouTube videoId={videoId} opts={opts} className="w-full" />
         </div>
       ) : (
@@ -57,14 +61,16 @@ export default function YouTubeCard({
           <div className="mb-3">
             {path === "/" && withoutLink.length > 150 ? (
               <div>
-                {withoutLink.slice(0, 149)}
-                <span className="text-blue pl-1">
-                  ...devamını görüntüleyin.
-                </span>
+                <Link href={`/thread/${idPlainObject}`}>
+                  {withoutLink.slice(0, 149)}
+                  <span className="text-blue pl-1">
+                    ...devamını görüntüleyin.
+                  </span>
+                </Link>
               </div>
             ) : spotifyLink ? (
               <div>
-                {withoutLink}
+                <Link href={`/thread/${idPlainObject}`}>{withoutLink}</Link>
                 <Spotify link={spotifyLink[0]} className="w-full" />
               </div>
             ) : contentUrl ? (
@@ -76,7 +82,9 @@ export default function YouTubeCard({
                 </Link>
               </div>
             ) : (
-              contentWithoutLinks
+              <Link href={`/thread/${idPlainObject}`}>
+                {contentWithoutLinks}
+              </Link>
             )}
           </div>
         )

@@ -64,8 +64,9 @@ const ThreadCard = ({
             >
               <Image
                 src={author?.image || UserPlaceholder}
-                alt="Profil Resmi"
-                fill={true}
+                alt="Profile Picture"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="cursor-pointer rounded-full border border-gray-1 p-1 bg-black"
               />
             </Link>
@@ -83,11 +84,14 @@ const ThreadCard = ({
                 {author?.username ? `@${author?.username}` : ""}
               </span>
             </Link>
-            <Link href={`/thread/${parentId || id}`}>
-              <div className="mt-3 text-small-regular text-light-2">
-                <LinkCard url={content} content={content} path={path} />
-              </div>
-            </Link>
+            <div className="mt-3 text-small-regular text-white">
+              <LinkCard
+                url={content}
+                content={content}
+                path={path}
+                id={JSON.stringify(id)}
+              />
+            </div>
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-4">
                 <LikeButton
@@ -115,6 +119,7 @@ const ThreadCard = ({
                         alt="Topluluk Resmi"
                         width={24}
                         height={24}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className=" object-cover rounded-full p-1 border border-gray-500 relative w-6 h-6"
                       />
                     </Link>
@@ -131,6 +136,7 @@ const ThreadCard = ({
                       alt={`user_${index}`}
                       width={22}
                       height={22}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className={`${
                         index !== 0 && "-ml-5"
                       } rounded-full object-cover border border-gray-1 p-0.5 relative w-5 h-5 bg-black`}

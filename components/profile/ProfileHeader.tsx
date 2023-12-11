@@ -49,7 +49,7 @@ const ProfileHeader = ({
                 alt="logout"
                 width={20}
                 height={20}
-                style={{ width: 20, height: 20 }}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
 
               <p className="text-light-2 max-sm:hidden">Edit</p>

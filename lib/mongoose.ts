@@ -8,7 +8,7 @@ export const connectToDatabase = async () => {
   mongoose.set("strictQuery", true);
 
   if (!process.env.MONGODB_URL) return console.error("No MongoDB URL provided");
-  if (isConnected) return console.log("Already connected to MongoDB");
+  if (isConnected) return console.log("Fetching from MongoDB");
 
   try {
     await mongoose.connect(process.env.MONGODB_URL);
