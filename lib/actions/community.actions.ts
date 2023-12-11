@@ -14,7 +14,7 @@ export async function createCommunity(
   createdById: string
 ) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const user = await User.findOne({ id: createdById });
 
@@ -45,7 +45,7 @@ export async function createCommunity(
 
 export async function fetchCommunityDetails(id: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const communityDetails = await Community.findOne({ id }).populate([
       "createdBy",
@@ -67,7 +67,7 @@ export async function fetchCommunityDetails(id: string) {
 
 export async function fetchCommunityPosts(id: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const communityPosts = await Community.findOne({ id }).populate({
       path: "threads",
@@ -103,7 +103,7 @@ export async function addMemberToCommunity(
   memberId: string
 ) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const community = await Community.findOne({ id: communityId });
 
@@ -139,7 +139,7 @@ export async function removeUserFromCommunity(
   communityId: string
 ) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const userIdObject = await User.findOne({ id: userId }, { _id: 1 });
     const communityIdObject = await Community.findOne(
@@ -179,7 +179,7 @@ export async function updateCommunityInfo(
   image: string
 ) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const updatedCommunity = await Community.findOneAndUpdate(
       { id: communityId },
@@ -199,7 +199,7 @@ export async function updateCommunityInfo(
 
 export async function deleteCommunity(communityId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const deletedCommunity = await Community.findOneAndDelete({
       id: communityId,
@@ -229,7 +229,7 @@ export async function deleteCommunity(communityId: string) {
 
 export async function getAllCommunities() {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const communities = await Community.find().populate("members");
 
@@ -242,7 +242,7 @@ export async function getAllCommunities() {
 
 export async function updateCommunityBio(communityId: string, bio: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const updatedCommunity = await Community.findOneAndUpdate(
       { id: communityId },

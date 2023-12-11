@@ -14,7 +14,7 @@ interface Params {
 }
 
 export async function getPosts(limit = 10, skip = 0) {
-  connectToDatabase();
+  await connectToDatabase();
 
   const postsQuery = Thread.find()
     .populate({
@@ -46,7 +46,7 @@ export async function createThread({
   path,
 }: Params) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const communityIdObject = await Community.findOne(
       { id: communityId },
@@ -89,7 +89,7 @@ async function getAllChildThreads(threadId: string): Promise<any[]> {
 
 export async function deleteThread(id: string, path: string): Promise<void> {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const mainThread = await Thread.findById(id).populate("author community");
 
@@ -137,7 +137,7 @@ export async function deleteThread(id: string, path: string): Promise<void> {
 }
 
 export async function getThreadById(threadId: string) {
-  connectToDatabase();
+  await connectToDatabase();
 
   try {
     const thread = await Thread.findById(threadId)
@@ -185,7 +185,7 @@ export async function addCommentToThread(
   userId: string,
   path: string
 ) {
-  connectToDatabase();
+  await connectToDatabase();
 
   try {
     const originalThread = await Thread.findById(threadId);
@@ -214,7 +214,7 @@ export async function addCommentToThread(
 }
 
 export async function likeThread(threadId: string) {
-  connectToDatabase();
+  await connectToDatabase();
 
   try {
     const thread = await Thread.findById(threadId);
@@ -231,7 +231,7 @@ export async function likeThread(threadId: string) {
 }
 
 export async function unlikeThread(threadId: string) {
-  connectToDatabase();
+  await connectToDatabase();
 
   try {
     const thread = await Thread.findById(threadId);

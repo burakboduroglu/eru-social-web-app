@@ -18,7 +18,7 @@ interface Params {
 
 export async function getUser(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     return await User.findOne({ id: userId }).populate({
       path: "communities",
@@ -31,7 +31,7 @@ export async function getUser(userId: string) {
 
 export async function getUserByMongoId(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     return await User.findOne({ _id: userId }).populate({
       path: "communities",
@@ -51,7 +51,7 @@ export async function updateUser({
   image,
 }: Params): Promise<void> {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     await User.findOneAndUpdate(
       { id: userId },
@@ -75,7 +75,7 @@ export async function updateUser({
 
 export async function getUserPosts(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
@@ -107,16 +107,14 @@ export async function getUserPosts(userId: string) {
 export async function getAllUsers({
   userId,
   searchString = "",
-
   sortBy = "desc",
 }: {
   userId: string;
   searchString?: string;
-
   sortBy?: SortOrder;
 }) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const regex = new RegExp(searchString, "i");
 
@@ -148,7 +146,7 @@ export async function getAllUsers({
 
 export async function getActivity(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const userThreads = await Thread.find({ author: userId });
 
@@ -175,7 +173,7 @@ export async function getActivity(userId: string) {
 
 export async function getUserComments(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const comments = await Thread.find({
       threads: userId,
