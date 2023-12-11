@@ -31,6 +31,7 @@ const ProfileHeader = ({
               src={imgUrl}
               alt="profile photo"
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="rounded-full object-cover shadow-2xl border border-gray-1 p-2 bg-black"
             />
           </div>
@@ -46,10 +47,11 @@ const ProfileHeader = ({
             <div className="flex cursor-pointer gap-3 rounded-lg bg-dark-3 px-4 py-2">
               <Image
                 src="/assets/edit.svg"
-                alt="logout"
-                width={20}
-                height={20}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                width="0"
+                height="0"
+                sizes="100vw"
+                className="w-full h-auto"
+                alt="edit icon"
               />
 
               <p className="text-light-2 max-sm:hidden">Edit</p>

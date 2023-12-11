@@ -14,7 +14,6 @@ function Searchbar({ routeType }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
 
-  // query after 0.3s of no input
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (search) {
@@ -31,18 +30,18 @@ function Searchbar({ routeType }: Props) {
     <div className="searchbar">
       <Image
         src="/assets/search-gray.svg"
+        width="0"
+        height="0"
+        sizes="100vw"
+        className="w-5 h-5 "
         alt="search"
-        width={24}
-        height={24}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className="object-contain"
       />
       <Input
         id="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Arama yap"
-        className="no-focus searchbar_input pb-5"
+        className="no-focus searchbar_input pb-6"
       />
     </div>
   );

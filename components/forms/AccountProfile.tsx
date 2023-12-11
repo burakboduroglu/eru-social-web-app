@@ -130,11 +130,11 @@ const AccountProfile = ({ user }: Props) => {
                 {field.value ? (
                   <Image
                     src={field.value}
+                    width="0"
+                    height="0"
+                    sizes="100vw"
+                    className="w-full h-auto rounded-full object-cover"
                     alt="profile photo"
-                    width={96}
-                    height={96}
-                    priority
-                    className="rounded-full object-contain"
                   />
                 ) : (
                   <Image

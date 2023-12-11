@@ -51,7 +51,7 @@
   }
 
   .searchbar {
-    @apply flex gap-1 rounded-lg bg-dark-3 px-4 pt-3;
+    @apply flex gap-1 rounded-lg bg-dark-3 px-5 pt-5;
   }
 
   .searchbar_input {
