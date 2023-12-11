@@ -14,7 +14,7 @@ export default async function Home() {
   let i = 0;
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
-
+  const shuffledPosts = posts.slice().sort(() => Math.random() - 0.5);
   return (
     <div className="flex flex-col max-w-md lg:max-w-xl mx-auto">
       <div className="-mt-3 ">
@@ -29,24 +29,21 @@ export default async function Home() {
           <p className="no-result">Hiç gönderi bulunamadı.</p>
         ) : (
           <div>
-            {posts
-              .slice(0)
-              .reverse()
-              .map((post) => (
-                <ThreadCard
-                  key={post._id}
-                  id={post._id}
-                  currentUserId={user?.id || ""}
-                  parentId={post.parentId}
-                  content={post.text}
-                  author={post.author}
-                  community={post.community}
-                  createdAt={post.createdAt}
-                  comments={post.children}
-                  postLike={post.likes}
-                  path="/"
-                />
-              ))}
+            {shuffledPosts.map((post) => (
+              <ThreadCard
+                key={post._id}
+                id={post._id}
+                currentUserId={user?.id || ""}
+                parentId={post.parentId}
+                content={post.text}
+                author={post.author}
+                community={post.community}
+                createdAt={post.createdAt}
+                comments={post.children}
+                postLike={post.likes}
+                path="/"
+              />
+            ))}
           </div>
         )}
       </section>

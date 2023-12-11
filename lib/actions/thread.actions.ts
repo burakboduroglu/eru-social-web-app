@@ -13,7 +13,7 @@ interface Params {
   path: string;
 }
 
-export async function getPosts() {
+export async function getPosts(limit = 10, skip = 0) {
   connectToDatabase();
 
   const postsQuery = Thread.find()
