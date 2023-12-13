@@ -29,7 +29,7 @@ function DeleteThread({
     <div>
       <Image
         src="/assets/delete.svg"
-        alt="delte"
+        alt="delete"
         width={18}
         height={18}
         className="cursor-pointer object-contain"
@@ -41,7 +41,6 @@ function DeleteThread({
           }
         }}
       />
-      <ToastContainer limit={3} theme={"dark"} autoClose={2000} />
     </div>
   );
 }
