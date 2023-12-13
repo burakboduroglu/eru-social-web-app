@@ -58,7 +58,6 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
                   src={userImg || UserPlaceholder}
                   alt="current_user"
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="rounded-full object-cover border border-gray-1 p-1"
                 />
               </FormLabel>

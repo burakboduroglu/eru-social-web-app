@@ -7,6 +7,7 @@ import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import { connectToDatabase } from "../mongoose";
 
+// Types
 interface Params {
   userId: string;
   username: string;
@@ -16,6 +17,7 @@ interface Params {
   path: string;
 }
 
+// Get user for profile page
 export async function getUser(userId: string) {
   try {
     await connectToDatabase();
@@ -29,6 +31,7 @@ export async function getUser(userId: string) {
   }
 }
 
+// Get user for community page "üyeler" tab
 export async function getUserByMongoId(userId: string) {
   try {
     await connectToDatabase();
@@ -42,37 +45,7 @@ export async function getUserByMongoId(userId: string) {
   }
 }
 
-export async function updateUser({
-  userId,
-  bio,
-  name,
-  path,
-  username,
-  image,
-}: Params): Promise<void> {
-  try {
-    await connectToDatabase();
-
-    await User.findOneAndUpdate(
-      { id: userId },
-      {
-        username: username.toLowerCase(),
-        name,
-        bio,
-        image,
-        onboarded: true,
-      },
-      { upsert: true }
-    );
-
-    if (path === "/profile/edit") {
-      revalidatePath(path);
-    }
-  } catch (error: any) {
-    console.log(`Failed to create/update user: ${error.message}`);
-  }
-}
-
+// Get user posts for profile page "gönderiler" tab
 export async function getUserPosts(userId: string) {
   try {
     await connectToDatabase();
@@ -104,6 +77,7 @@ export async function getUserPosts(userId: string) {
   }
 }
 
+// Get all users for explore page
 export async function getAllUsers({
   userId,
   searchString = "",
@@ -142,6 +116,7 @@ export async function getAllUsers({
   }
 }
 
+// Get user replies for the last 24 hours
 export async function getActivity(userId: string) {
   try {
     await connectToDatabase();
@@ -169,6 +144,7 @@ export async function getActivity(userId: string) {
   }
 }
 
+// Get user comments for profile page "yanıtlar" tab
 export async function getUserComments(userId: string) {
   try {
     await connectToDatabase();
@@ -205,5 +181,37 @@ export async function getUserComments(userId: string) {
   } catch (e: any) {
     console.error(`Error: ${e}`);
     throw e;
+  }
+}
+
+// Update user profile informations
+export async function updateUser({
+  userId,
+  bio,
+  name,
+  path,
+  username,
+  image,
+}: Params): Promise<void> {
+  try {
+    await connectToDatabase();
+
+    await User.findOneAndUpdate(
+      { id: userId },
+      {
+        username: username.toLowerCase(),
+        name,
+        bio,
+        image,
+        onboarded: true,
+      },
+      { upsert: true }
+    );
+
+    if (path === "/profile/edit") {
+      revalidatePath(path);
+    }
+  } catch (error: any) {
+    console.log(`Failed to create/update user: ${error.message}`);
   }
 }
