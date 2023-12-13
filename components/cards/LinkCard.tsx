@@ -70,8 +70,10 @@ export default function YouTubeCard({
               </div>
             ) : spotifyLink ? (
               <div>
-                <Link href={`/thread/${idPlainObject}`}>{withoutLink}</Link>
-                <Spotify link={spotifyLink[0]} className="w-full" />
+                <Link href={`/thread/${idPlainObject}`}>
+                  {withoutLink}
+                  <Spotify link={spotifyLink[0]} className="w-full" />
+                </Link>
               </div>
             ) : contentUrl ? (
               <div className="w-full">

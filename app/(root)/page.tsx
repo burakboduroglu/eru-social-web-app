@@ -14,7 +14,7 @@ export default async function Home() {
   let i = 0;
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
-  const shuffledPosts = posts.slice().sort(() => Math.random() - 0.5);
+  const reversedPosts = posts.reverse();
   return (
     <div className="flex flex-col max-w-md lg:max-w-xl mx-auto">
       <div className="-mt-3 ">
@@ -29,7 +29,7 @@ export default async function Home() {
           <p className="no-result">Hiç gönderi bulunamadı.</p>
         ) : (
           <div>
-            {shuffledPosts.map((post) => (
+            {reversedPosts.map((post) => (
               <ThreadCard
                 key={post._id}
                 id={post._id}
