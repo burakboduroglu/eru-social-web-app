@@ -14,6 +14,7 @@ import {
 } from "@/lib/actions/user.actions";
 import ThreadsTab from "@/components/profile/ThreadsTab";
 import UserPlaceholder from "public/assets/user.svg";
+import { ToastContainer } from "react-toastify";
 
 async function Page({
   params,

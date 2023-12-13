@@ -53,7 +53,6 @@ const ProfileHeader = ({
                 className="w-full h-auto"
                 alt="edit icon"
               />
-
               <p className="text-light-2 max-sm:hidden">Edit</p>
             </div>
           </Link>

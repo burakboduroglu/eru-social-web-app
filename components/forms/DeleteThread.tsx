@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { deleteThread } from "@/lib/actions/thread.actions";
-import { ToastContainer, toast } from "react-toastify";
 
 interface Props {
   threadId: string;
@@ -34,10 +33,11 @@ function DeleteThread({
         height={18}
         className="cursor-pointer object-contain"
         onClick={async () => {
-          await deleteThread(JSON.parse(threadId), pathname);
-          if (!parentId || !isComment) {
-            router.push(`/profile/${currentUserId}`);
-            toast.info("Gönderi siliniyor");
+          if (window.confirm("Are you sure you want to delete this post?")) {
+            await deleteThread(JSON.parse(threadId), pathname);
+            if (!parentId || !isComment) {
+              router.push(`/profile/${currentUserId}`);
+            }
           }
         }}
       />

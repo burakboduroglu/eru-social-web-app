@@ -7,6 +7,7 @@ import LinkCard from "./LinkCard";
 import LikeButton from "../buttons/LikeButton";
 import ReplyButton from "../buttons/ReplyButton";
 import ShareButton from "../buttons/ShareButton";
+import { toast } from "react-toastify";
 
 // ... rest of your code
 interface CardProps {
@@ -152,6 +153,7 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
+
         {/* Delete Thread */}
         <DeleteThread
           threadId={JSON.stringify(id)}

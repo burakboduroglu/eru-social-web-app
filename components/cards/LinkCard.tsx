@@ -40,9 +40,7 @@ export default function YouTubeCard({
     width: "100%",
   };
 
-  const spotifyLink = content.match(
-    /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+)\b/
-  );
+  const spotifyLink = content.match(/(https?:\/\/open\.spotify\.com\/[^\s]*)/);
 
   const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
   const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
@@ -72,12 +70,12 @@ export default function YouTubeCard({
               <div>
                 <Link href={`/thread/${idPlainObject}`}>
                   {withoutLink}
-                  <Spotify link={spotifyLink[0]} className="w-full" />
+                  <Spotify link={spotifyLink[0]} className="w-full pt-3" />
                 </Link>
               </div>
             ) : contentUrl ? (
               <div className="w-full">
-                {withoutLink}
+                {withoutLink}{" "}
                 <Link href={contentUrl[0]} className="text-sm text-blue">
                   {contentUrl[0].slice(0, 25)}
                   ...
