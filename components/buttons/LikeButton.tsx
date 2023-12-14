@@ -20,7 +20,7 @@ export default function LikeButton({
   };
 
   return (
-    <div className="text-gray-400 xs:text-[0.55em] sm:text-[0.55em] md:text-[0.65em] lg:text-[0.70m] leading-tight">
+    <div className="text-gray-400 xs:text-[0.35em] sm:text-[0.35em] md:text-[0.65em] lg:text-[0.70m]">
       <button
         onClick={handleLike}
         onMouseEnter={() => setIsHovered(true)}
@@ -30,20 +30,20 @@ export default function LikeButton({
           <Image
             src="/assets/heart-filled.svg"
             alt="begen"
-            width={24}
-            height={24}
+            width={23}
+            height={23}
             className="cursor-pointer object-contain"
           />
         ) : (
           <Image
             src="/assets/heart-gray.svg"
             alt="begen"
-            width={24}
-            height={24}
+            width={23}
+            height={23}
             className="cursor-pointer object-contain"
           />
         )}
-        {likeCount}
+        <p className="text-gray-400 py-1">{likeCount}</p>
       </button>
     </div>
   );

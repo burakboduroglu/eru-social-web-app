@@ -94,7 +94,7 @@ const ThreadCard = ({
                   threadId={JSON.stringify(id)}
                   postLike={postLike || 0}
                 />
-                <ReplyButton id={JSON.stringify(id)} />
+                <ReplyButton id={JSON.stringify(id)} length={comments.length} />
                 <ShareButton id={JSON.stringify(id)} />
               </div>
               <div className="flex-col mt-3 text-subtle-medium">
