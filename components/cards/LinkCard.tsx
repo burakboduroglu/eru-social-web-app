@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import YouTube from "react-youtube";
 import { Spotify } from "react-spotify-embed";
 import Link from "next/link";
 import DisplayThread from "../shared/DisplayContent";
+import YouTubeCard from "../preview/YouTubeCard";
 
-export default function YouTubeCard({
+export default function LinkCard({
   url,
   content,
   path,
@@ -55,7 +55,7 @@ export default function YouTubeCard({
           <Link href={`/thread/${idPlainObject}`} className="pb-3">
             <DisplayThread text={withoutLink} />
           </Link>
-          <YouTube videoId={videoId} opts={opts} className="w-full" />
+          <YouTubeCard embedId={videoId} />
         </div>
       ) : (
         contentWithoutLinks && (
