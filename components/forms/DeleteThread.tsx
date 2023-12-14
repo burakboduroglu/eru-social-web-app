@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { deleteThread } from "@/lib/actions/thread.actions";
+import { deletePost } from "@/lib/actions/thread.actions";
 
 interface Props {
   threadId: string;
@@ -34,7 +34,7 @@ function DeleteThread({
         className="cursor-pointer object-contain"
         onClick={async () => {
           if (window.confirm("Gönderiyi silmek istediğinize emin misiniz? ")) {
-            await deleteThread(JSON.parse(threadId), pathname);
+            await deletePost(JSON.parse(threadId), pathname);
             if (!parentId || !isComment) {
               router.push(`/profile/${currentUserId}`);
             }

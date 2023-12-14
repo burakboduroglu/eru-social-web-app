@@ -6,6 +6,7 @@ import User from "../models/user.model";
 import Thread from "../models/thread.model";
 import Community from "../models/community.model";
 
+// Thread params
 interface Params {
   text: string;
   author: string;
@@ -13,7 +14,8 @@ interface Params {
   path: string;
 }
 
-export async function getPosts(limit = 10, skip = 0) {
+// Fetch all posts
+export async function fetchAllPosts(limit = 10, skip = 0) {
   await connectToDatabase();
 
   const postsQuery = Thread.find()
@@ -39,12 +41,8 @@ export async function getPosts(limit = 10, skip = 0) {
   return posts;
 }
 
-export async function createThread({
-  text,
-  author,
-  communityId,
-  path,
-}: Params) {
+// Create a post
+export async function createPost({ text, author, communityId, path }: Params) {
   try {
     await connectToDatabase();
 
@@ -71,33 +69,35 @@ export async function createThread({
 
     revalidatePath(path);
   } catch (error: any) {
-    throw new Error(`Failed to create thread: ${error.message}`);
+    throw new Error(`Failed to create post: ${error.message}`);
   }
 }
 
-async function getAllChildThreads(threadId: string): Promise<any[]> {
+// Get all child posts for deleting
+async function getAllChildPosts(threadId: string): Promise<any[]> {
   const childThreads = await Thread.find({ parentId: threadId });
 
   const descendantThreads = [];
   for (const childThread of childThreads) {
-    const descendants = await getAllChildThreads(childThread._id);
+    const descendants = await getAllChildPosts(childThread._id);
     descendantThreads.push(childThread, ...descendants);
   }
 
   return descendantThreads;
 }
 
-export async function deleteThread(id: string, path: string): Promise<void> {
+// Delete a post
+export async function deletePost(id: string, path: string): Promise<void> {
   try {
     await connectToDatabase();
 
     const mainThread = await Thread.findById(id).populate("author community");
 
     if (!mainThread) {
-      throw new Error("Thread not found");
+      throw new Error("Post not found");
     }
 
-    const descendantThreads = await getAllChildThreads(id);
+    const descendantThreads = await getAllChildPosts(id);
 
     const descendantThreadIds = [
       id,
@@ -132,11 +132,12 @@ export async function deleteThread(id: string, path: string): Promise<void> {
 
     revalidatePath(path);
   } catch (error: any) {
-    throw new Error(`Failed to delete thread: ${error.message}`);
+    throw new Error(`Failed to delete post: ${error.message}`);
   }
 }
 
-export async function getThreadById(threadId: string) {
+// Fetch a post by id
+export async function fetchPostById(threadId: string) {
   await connectToDatabase();
 
   try {
@@ -179,7 +180,26 @@ export async function getThreadById(threadId: string) {
   }
 }
 
-export async function addCommentToThread(
+// Like a post
+export async function likeThread(threadId: string) {
+  await connectToDatabase();
+
+  try {
+    const thread = await Thread.findById(threadId);
+    if (!thread) {
+      throw new Error("Thread not found");
+    }
+
+    thread.likes += 1;
+    await thread.save();
+  } catch (err) {
+    console.error("Error while liking thread:", err);
+    throw new Error("Unable to like thread");
+  }
+}
+
+// Add comment to post
+export async function addCommentToPost(
   threadId: string,
   commentText: string,
   userId: string,
@@ -191,7 +211,7 @@ export async function addCommentToThread(
     const originalThread = await Thread.findById(threadId);
 
     if (!originalThread) {
-      throw new Error("Thread not found");
+      throw new Error("Post not found");
     }
 
     const commentThread = new Thread({
@@ -210,39 +230,5 @@ export async function addCommentToThread(
   } catch (err) {
     console.error("Error while adding comment:", err);
     throw new Error("Unable to add comment");
-  }
-}
-
-export async function likeThread(threadId: string) {
-  await connectToDatabase();
-
-  try {
-    const thread = await Thread.findById(threadId);
-    if (!thread) {
-      throw new Error("Thread not found");
-    }
-
-    thread.likes += 1;
-    await thread.save();
-  } catch (err) {
-    console.error("Error while liking thread:", err);
-    throw new Error("Unable to like thread");
-  }
-}
-
-export async function unlikeThread(threadId: string) {
-  await connectToDatabase();
-
-  try {
-    const thread = await Thread.findById(threadId);
-    if (!thread) {
-      throw new Error("Thread not found");
-    }
-
-    thread.likes -= 1;
-    await thread.save();
-  } catch (err) {
-    console.error("Error while unliking thread:", err);
-    throw new Error("Unable to unlike thread");
   }
 }

@@ -1,5 +1,5 @@
 import ThreadCard from "@/components/cards/ThreadCard";
-import { getPosts } from "@/lib/actions/thread.actions";
+import { fetchAllPosts } from "@/lib/actions/thread.actions";
 import { currentUser } from "@clerk/nextjs";
 import PostThread from "@/components/forms/PostThread";
 import { redirect } from "next/navigation";
@@ -7,7 +7,7 @@ import { getUser } from "@/lib/actions/user.actions";
 import UpdateButton from "@/components/buttons/UpdateButton";
 
 export default async function Home() {
-  const posts = await getPosts();
+  const posts = await fetchAllPosts();
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 

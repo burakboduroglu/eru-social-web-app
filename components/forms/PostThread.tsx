@@ -9,12 +9,11 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ThreadValidation } from "@/lib/validations/thread";
-import { createThread } from "@/lib/actions/thread.actions";
+import { createPost } from "@/lib/actions/thread.actions";
 import { ToastContainer, toast } from "react-toastify";
 import Image from "next/image";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-
 import { useState } from "react";
 
 interface ThreadProps {
@@ -39,7 +38,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     try {
-      await createThread({
+      await createPost({
         text: values.thread,
         author: userId,
         communityId: organization ? organization.id : null,

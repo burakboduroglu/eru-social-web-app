@@ -5,6 +5,7 @@ import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import { connectToDatabase } from "../mongoose";
 
+// Create a new community
 export async function createCommunity(
   id: string,
   name: string,
@@ -43,6 +44,7 @@ export async function createCommunity(
   }
 }
 
+// Fetch community details
 export async function fetchCommunityDetails(id: string) {
   try {
     await connectToDatabase();
@@ -65,6 +67,7 @@ export async function fetchCommunityDetails(id: string) {
   }
 }
 
+// Fetch community posts
 export async function fetchCommunityPosts(id: string) {
   try {
     await connectToDatabase();
@@ -98,6 +101,7 @@ export async function fetchCommunityPosts(id: string) {
   }
 }
 
+// Add a member to a community
 export async function addMemberToCommunity(
   communityId: string,
   memberId: string
@@ -134,6 +138,7 @@ export async function addMemberToCommunity(
   }
 }
 
+// Remove a member from a community
 export async function removeUserFromCommunity(
   userId: string,
   communityId: string
@@ -172,6 +177,7 @@ export async function removeUserFromCommunity(
   }
 }
 
+// Update community information
 export async function updateCommunityInfo(
   communityId: string,
   name: string,
@@ -197,6 +203,7 @@ export async function updateCommunityInfo(
   }
 }
 
+// Delete a community
 export async function deleteCommunity(communityId: string) {
   try {
     await connectToDatabase();
@@ -227,6 +234,7 @@ export async function deleteCommunity(communityId: string) {
   }
 }
 
+// Fetch all communities
 export async function getAllCommunities() {
   try {
     await connectToDatabase();
@@ -240,6 +248,7 @@ export async function getAllCommunities() {
   }
 }
 
+// Update community bio
 export async function updateCommunityBio(communityId: string, bio: string) {
   try {
     await connectToDatabase();

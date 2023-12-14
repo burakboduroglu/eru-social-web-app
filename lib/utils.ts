@@ -31,24 +31,9 @@ export function formatDateString(dateString: string) {
   return `${time} - ${formattedDate}`;
 }
 
-// created by chatgpt
-export function formatThreadCount(count: number): string {
-  if (count === 0) {
-    return "No Threads";
-  } else {
-    const threadCount = count.toString().padStart(2, "0");
-    const threadWord = count === 1 ? "Thread" : "Threads";
-    return `${threadCount} ${threadWord}`;
-  }
-}
-
+// Capitalize
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function findUrlsInText(text: string) {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.match(urlRegex);
 }
 
 // Random Community

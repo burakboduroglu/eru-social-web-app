@@ -16,7 +16,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { CommentValidation } from "@/lib/validations/thread";
-import { addCommentToThread } from "@/lib/actions/thread.actions";
+import { addCommentToPost } from "@/lib/actions/thread.actions";
 
 interface CommentProps {
   threadId: string;
@@ -35,7 +35,7 @@ function Comment({ threadId, userImg, userId }: Readonly<CommentProps>) {
   });
 
   const onSubmit = async (values: z.infer<typeof CommentValidation>) => {
-    await addCommentToThread(
+    await addCommentToPost(
       threadId,
       values.thread,
       JSON.parse(userId),

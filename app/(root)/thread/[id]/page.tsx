@@ -5,7 +5,7 @@ import Comment from "@/components/forms/Comment";
 import ThreadCard from "@/components/cards/ThreadCard";
 
 import { getUser } from "@/lib/actions/user.actions";
-import { getThreadById } from "@/lib/actions/thread.actions";
+import { fetchPostById } from "@/lib/actions/thread.actions";
 
 export const revalidate = 0;
 
@@ -18,7 +18,7 @@ async function page({ params }: { params: { id: string } }) {
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const thread = await getThreadById(params.id);
+  const thread = await fetchPostById(params.id);
 
   return (
     <section className="relative overflow-hidden">
