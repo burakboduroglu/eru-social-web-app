@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import YouTube from "react-youtube";
 import { Spotify } from "react-spotify-embed";
 import Link from "next/link";
+import DisplayThread from "../shared/DisplayContent";
 
 export default function YouTubeCard({
   url,
@@ -52,7 +53,7 @@ export default function YouTubeCard({
       {videoId ? (
         <div>
           <Link href={`/thread/${idPlainObject}`} className="pb-3">
-            {withoutLink}
+            <DisplayThread text={withoutLink} />
           </Link>
           <YouTube videoId={videoId} opts={opts} className="w-full" />
         </div>
@@ -71,13 +72,13 @@ export default function YouTubeCard({
             ) : spotifyLink ? (
               <div>
                 <Link href={`/thread/${idPlainObject}`}>
-                  {withoutLink}
-                  <Spotify link={spotifyLink[0]} className="pt-3 w-25" />
+                  <DisplayThread text={withoutLink} />
+                  <Spotify link={spotifyLink[0]} className="pt-1 w-25" />
                 </Link>
               </div>
             ) : contentUrl ? (
               <div className="w-full">
-                {withoutLink}{" "}
+                <DisplayThread text={withoutLink} />{" "}
                 <Link href={contentUrl[0]} className="text-sm text-blue">
                   {contentUrl[0].slice(0, 25)}
                   ...
@@ -85,7 +86,7 @@ export default function YouTubeCard({
               </div>
             ) : (
               <Link href={`/thread/${idPlainObject}`}>
-                {contentWithoutLinks}
+                <DisplayThread text={contentWithoutLinks} />
               </Link>
             )}
           </div>

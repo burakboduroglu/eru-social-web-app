@@ -23,9 +23,6 @@ export default function ReplyButton({ id, length }: { id: any; length: any }) {
               height={17}
               className="cursor-pointer object-contain mt-0.5 mr-[1px]"
             />
-            <p className="text-gray-400 xs:text-[0.25em] sm:text-[0.25em] md:text-[0.65em] lg:text-[0.70m] px-1 py-1.5">
-              {length}
-            </p>
           </div>
         ) : (
           <Image
@@ -36,7 +33,7 @@ export default function ReplyButton({ id, length }: { id: any; length: any }) {
             className="cursor-pointer object-contain mt-0.5 mr-[1px]"
           />
         )}
-        <p className="text-gray-400 xs:text-[0.25em] sm:text-[0.25em] md:text-[0.65em] lg:text-[0.70m] px-1 py-2">
+        <p className="text-gray-400 xs:text-[0.25em] sm:text-[0.25em] md:text-[0.65em] lg:text-[0.70m] md:px-1 md:py-2 xs:px-1.5 sm:px-1.5">
           {length}
         </p>
       </Link>

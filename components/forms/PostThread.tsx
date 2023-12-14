@@ -110,7 +110,6 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                           style={{
                             position: "absolute",
                             zIndex: 1,
-
                             overflow: "auto",
                           }}
                         >
@@ -129,7 +128,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                       </div>
                     )}
                   </div>
-                  <div>
+                  <div className="mt-2 -mb-3">
                     {field.value.length >= 550 && (
                       <p className="text-red-600 pb-3">
                         Max karakter sınırına ulaşıldı.
