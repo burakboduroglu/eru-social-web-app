@@ -40,7 +40,9 @@ export default function YouTubeCard({
     width: "100%",
   };
 
-  const spotifyLink = content.match(/(https?:\/\/open\.spotify\.com\/[^\s]*)/);
+  const spotifyLink = content.match(
+    /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+(\?si=[a-zA-Z0-9]+)?)/
+  );
 
   const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
   const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
