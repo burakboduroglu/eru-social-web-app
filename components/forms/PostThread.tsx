@@ -12,6 +12,10 @@ import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
 import { ToastContainer, toast } from "react-toastify";
 import Image from "next/image";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+
+import { useState } from "react";
 
 interface ThreadProps {
   userId: string;
@@ -22,6 +26,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const [showImage, setShowImage] = useState(false);
   const { organization } = useOrganization();
 
   const form = useForm<z.infer<typeof ThreadValidation>>({
@@ -86,11 +91,43 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                     />
                     <Image
                       src="/assets/gif.svg"
-                      alt="yorum"
+                      alt="emoji"
                       width={24}
                       height={24}
                       className="cursor-pointer object-contain"
                     />
+                    <Image
+                      src="/assets/emoji.svg"
+                      alt="emoji"
+                      width={22}
+                      height={22}
+                      className="cursor-pointer object-contain"
+                      onClick={() => setShowImage(!showImage)}
+                    />
+                    {showImage && (
+                      <div style={{ position: "relative" }}>
+                        <div
+                          style={{
+                            position: "absolute",
+                            zIndex: 1,
+
+                            overflow: "auto",
+                          }}
+                        >
+                          <Picker
+                            data={data}
+                            onEmojiSelect={(emoji: any) => {
+                              field.onChange(`${field.value}${emoji.native}`);
+                            }}
+                            perLine={8}
+                            emojiSize={24}
+                            locale="tr"
+                            navPosition="top"
+                            theme="dark"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div>
                     {field.value.length >= 550 && (
@@ -100,6 +137,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                     )}
                   </div>
                 </div>
+
                 <Button
                   type="submit"
                   className="bg-primary-500 w-[8em] mb-4"
