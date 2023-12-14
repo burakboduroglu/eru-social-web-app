@@ -57,7 +57,7 @@ export default function YouTubeCard({
       ) : (
         contentWithoutLinks && (
           <div className="mb-3">
-            {path === "/" && withoutLink.length > 150 ? (
+            {path === "/" && withoutLink.length > 250 ? (
               <div>
                 <Link href={`/thread/${idPlainObject}`}>
                   {withoutLink.slice(0, 149)}
@@ -70,7 +70,7 @@ export default function YouTubeCard({
               <div>
                 <Link href={`/thread/${idPlainObject}`}>
                   {withoutLink}
-                  <Spotify link={spotifyLink[0]} className="w-full pt-3" />
+                  <Spotify link={spotifyLink[0]} className="pt-3 w-25" />
                 </Link>
               </div>
             ) : contentUrl ? (

@@ -7,7 +7,7 @@ import LinkCard from "./LinkCard";
 import LikeButton from "../buttons/LikeButton";
 import ReplyButton from "../buttons/ReplyButton";
 import ShareButton from "../buttons/ShareButton";
-import { toast } from "react-toastify";
+import AuthorButton from "../buttons/AuthorButton";
 
 // ... rest of your code
 interface CardProps {
@@ -73,18 +73,13 @@ const ThreadCard = ({
             </Link>
             <div className="thread-card_bar" />
           </div>
+
           <div>
-            <Link
-              href={`/profile/${author?.id}`}
-              className="flex-col items-start"
-            >
-              <p className="cursor-pointer text-amber-100 xs:text-[0.95em] leading-tight">
-                {author?.name}
-              </p>
-              <span className="text-gray-400 xs:text-[0.75em] leading-tight">
-                {author?.username ? `@${author?.username}` : ""}
-              </span>
-            </Link>
+            <AuthorButton
+              id={author?.id}
+              name={author?.name}
+              username={author?.username}
+            />
             <div className="mt-3 text-small-regular text-white">
               <LinkCard
                 url={content}

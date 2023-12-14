@@ -40,9 +40,8 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
         communityId: organization ? organization.id : null,
         path: pathname,
       });
-
-      router.push("/");
       toast.success("Gönderi başarıyla paylaşıldı.");
+      router.push("/");
     } catch (error) {
       toast.error("Gönderi paylaşılırken bir hata oluştu.");
     } finally {
