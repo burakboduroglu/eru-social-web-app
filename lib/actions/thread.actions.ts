@@ -181,20 +181,27 @@ export async function fetchPostById(threadId: string) {
 }
 
 // Like a post
-export async function likeThread(threadId: string) {
+export async function likeThread(threadId: string, userId: string) {
   await connectToDatabase();
 
   try {
     const thread = await Thread.findById(threadId);
     if (!thread) {
-      throw new Error("Thread not found");
+      throw new Error("Gönderi bulunamadı");
     }
 
-    thread.likes += 1;
-    await thread.save();
-  } catch (err) {
-    console.error("Error while liking thread:", err);
-    throw new Error("Unable to like thread");
+    if (thread.likedBy.includes(userId)) {
+      thread.likes -= 1;
+      thread.likedBy.pop(userId);
+      await thread.save();
+    } else {
+      thread.likes += 1;
+      thread.likedBy.push(userId);
+      await thread.save();
+    }
+  } catch (err: any) {
+    console.error(err.message);
+    return null;
   }
 }
 

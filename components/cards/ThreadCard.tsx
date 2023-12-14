@@ -35,6 +35,7 @@ interface CardProps {
   isComment?: boolean;
   path: string;
   postLike?: Number;
+  curruntUserInfo: string;
 }
 
 const ThreadCard = ({
@@ -49,6 +50,7 @@ const ThreadCard = ({
   isComment,
   path,
   postLike,
+  curruntUserInfo,
 }: CardProps) => {
   return (
     <article
@@ -93,6 +95,7 @@ const ThreadCard = ({
                 <LikeButton
                   threadId={JSON.stringify(id)}
                   postLike={postLike || 0}
+                  userId={curruntUserInfo}
                 />
                 <ReplyButton id={JSON.stringify(id)} length={comments.length} />
                 <ShareButton id={JSON.stringify(id)} />

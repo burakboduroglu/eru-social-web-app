@@ -7,16 +7,25 @@ import { likeThread } from "@/lib/actions/thread.actions";
 export default function LikeButton({
   threadId,
   postLike,
+  userId,
 }: {
   threadId: string;
   postLike: Number;
+  userId: string;
 }) {
   const [likeCount, setLikeCount] = useState(Number(postLike));
   const [isHovered, setIsHovered] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const handleLike = () => {
-    setLikeCount(Number(likeCount) + Number(1));
-    likeThread(JSON.parse(threadId));
+    if (isLiked) {
+      setLikeCount(likeCount - 1);
+      setIsLiked(false);
+    } else {
+      setLikeCount(likeCount + 1);
+      setIsLiked(true);
+    }
+    likeThread(JSON.parse(threadId), userId);
   };
 
   return (
@@ -26,7 +35,7 @@ export default function LikeButton({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {isHovered ? (
+        {isHovered || isLiked ? (
           <Image
             src="/assets/heart-filled.svg"
             alt="begen"

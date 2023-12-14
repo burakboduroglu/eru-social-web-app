@@ -18,21 +18,23 @@ async function page({ params }: { params: { id: string } }) {
   const userInfo = await getUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const thread = await fetchPostById(params.id);
+  const post = await fetchPostById(params.id);
 
   return (
     <section className="relative overflow-hidden">
       <div>
         <ThreadCard
-          id={thread._id}
+          id={post._id}
           currentUserId={user.id}
-          parentId={thread.parentId}
-          content={thread.text}
-          author={thread.author}
-          community={thread.community}
-          createdAt={thread.createdAt}
-          comments={thread.children}
+          parentId={post.parentId}
+          content={post.text}
+          author={post.author}
+          community={post.community}
+          createdAt={post.createdAt}
+          comments={post.children}
+          postLike={post.likes}
           path={`/thread`}
+          curruntUserInfo={userInfo._id.toString()}
         />
       </div>
 
@@ -44,7 +46,7 @@ async function page({ params }: { params: { id: string } }) {
         />
       </div>
       <div className="mt-10 px-10 xs:px-3 overflow-hidden wrap">
-        {thread.children.map((childItem: any) => (
+        {post.children.map((childItem: any) => (
           <div className="mt-6">
             <ThreadCard
               key={childItem._id}
@@ -57,6 +59,7 @@ async function page({ params }: { params: { id: string } }) {
               createdAt={childItem.createdAt}
               comments={childItem.children}
               isComment
+              curruntUserInfo={userInfo._id.toString()}
               path={`/thread`}
             />
           </div>
