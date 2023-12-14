@@ -33,7 +33,7 @@ function DeleteThread({
         height={18}
         className="cursor-pointer object-contain"
         onClick={async () => {
-          if (window.confirm("Are you sure you want to delete this post?")) {
+          if (window.confirm("Gönderiyi silmek istediğinize emin misiniz?")) {
             await deleteThread(JSON.parse(threadId), pathname);
             if (!parentId || !isComment) {
               router.push(`/profile/${currentUserId}`);
