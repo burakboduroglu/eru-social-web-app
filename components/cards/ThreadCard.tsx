@@ -135,7 +135,7 @@ const ThreadCard = ({
                       alt={`user_${index}`}
                       width={22}
                       height={22}
-                      priority={true}
+                      priority
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className={`${
                         index !== 0 && "-ml-5"

@@ -89,7 +89,7 @@ export default function LinkCard({
                     width={200}
                     height={200}
                     style={{ objectFit: "contain" }}
-                    priority={true}
+                    priority
                     placeholder="empty"
                   />
                 </Link>
