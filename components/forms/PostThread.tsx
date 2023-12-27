@@ -16,7 +16,6 @@ import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { useState } from "react";
 import GifPicker, { Theme } from "gif-picker-react";
-
 interface ThreadProps {
   userId: string;
   userName: string;
@@ -98,6 +97,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                       className="cursor-pointer object-contain"
                       onClick={() => {
                         setShowGif(!showGif);
+                        setShowImage(false);
                       }}
                     />
                     <Image
@@ -107,7 +107,10 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                       height={22}
                       className="cursor-pointer object-contain"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      onClick={() => setShowImage(!showImage)}
+                      onClick={() => {
+                        setShowImage(!showImage);
+                        setShowGif(false);
+                      }}
                     />
                     {showImage && (
                       <div style={{ position: "relative" }}>
@@ -142,7 +145,9 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                           }}
                         >
                           <GifPicker
-                            tenorApiKey={process.env.TENOR_API_KEY || ""}
+                            tenorApiKey={
+                              process.env.NEXT_PUBLIC_TENOR_API_KEY || ""
+                            }
                             theme={Theme.DARK}
                             country="TR"
                             locale="tr"
