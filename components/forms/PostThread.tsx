@@ -141,9 +141,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                           }}
                         >
                           <GifPicker
-                            tenorApiKey={
-                              "AIzaSyAjsngGZC2DACpX1D5DqItbl_yLq9yXQC8"
-                            }
+                            tenorApiKey={process.env.TENOR_API_KEY || ""}
                             theme={Theme.DARK}
                             country="TR"
                             locale="tr"

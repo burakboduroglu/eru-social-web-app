@@ -1,4 +1,5 @@
 import React from "react";
+
 interface YoutubeEmbedProps {
   embedId: string;
 }
@@ -9,7 +10,6 @@ const YoutubeEmbed = ({ embedId }: YoutubeEmbedProps) => (
       width="853"
       height="480"
       src={`https://www.youtube.com/embed/${embedId}`}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
       title="Embedded youtube"
       className="rounded-lg w-full h-full"

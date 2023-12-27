@@ -47,7 +47,6 @@ export default function LinkCard({
   );
 
   const tenorLink = content.match(/https?:\/\/media\.tenor\.com\/[^\s]+/) || "";
-  console.log(tenorLink[0] || "tenor");
 
   const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
   const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
@@ -89,6 +88,7 @@ export default function LinkCard({
                     alt="tenor"
                     width={200}
                     height={200}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </Link>
               </div>

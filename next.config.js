@@ -13,7 +13,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["media.tenor.com"],
+    domains: ["media.tenor.com", "www.youtube.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -38,6 +38,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "media.tenor.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.youtube.com",
       },
     ],
   },
