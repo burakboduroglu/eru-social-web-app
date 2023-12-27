@@ -15,6 +15,7 @@ import Image from "next/image";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { useState } from "react";
+import GifPicker, { Theme } from "gif-picker-react";
 
 interface ThreadProps {
   userId: string;
@@ -26,6 +27,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
   const pathname = usePathname();
 
   const [showImage, setShowImage] = useState(false);
+  const [showGif, setShowGif] = useState(false);
   const { organization } = useOrganization();
 
   const form = useForm<z.infer<typeof ThreadValidation>>({
@@ -94,6 +96,9 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                       width={24}
                       height={24}
                       className="cursor-pointer object-contain"
+                      onClick={() => {
+                        setShowGif(!showGif);
+                      }}
                     />
                     <Image
                       src="/assets/emoji.svg"
@@ -122,6 +127,29 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                             locale="tr"
                             navPosition="top"
                             theme="dark"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {showGif && (
+                      <div style={{ position: "relative" }}>
+                        <div
+                          style={{
+                            position: "absolute",
+                            zIndex: 1,
+                            overflow: "auto",
+                          }}
+                        >
+                          <GifPicker
+                            tenorApiKey={
+                              "AIzaSyAjsngGZC2DACpX1D5DqItbl_yLq9yXQC8"
+                            }
+                            theme={Theme.DARK}
+                            country="TR"
+                            locale="tr"
+                            onGifClick={(gif: any) => {
+                              return field.onChange(`${field.value}${gif.url}`);
+                            }}
                           />
                         </div>
                       </div>

@@ -4,6 +4,7 @@ import { Spotify } from "react-spotify-embed";
 import Link from "next/link";
 import DisplayThread from "../shared/DisplayContent";
 import YouTubeCard from "../preview/YouTubeCard";
+import Image from "next/image";
 
 export default function LinkCard({
   url,
@@ -45,6 +46,9 @@ export default function LinkCard({
     /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+(\?si=[a-zA-Z0-9]+)?)/
   );
 
+  const tenorLink = content.match(/https?:\/\/media\.tenor\.com\/[^\s]+/) || "";
+  console.log(tenorLink[0] || "tenor");
+
   const contentUrl = url.match(/.*?(https?:\/\/[^\s]+)/g);
   const withoutLink = content.replace(/(https?:\/\/[^\s]+)/g, "");
   const idPlainObject = JSON.parse(id);
@@ -74,6 +78,18 @@ export default function LinkCard({
                 <Link href={`/thread/${idPlainObject}`}>
                   <DisplayThread text={withoutLink} />
                   <Spotify link={spotifyLink[0]} className="pt-1 w-25" />
+                </Link>
+              </div>
+            ) : tenorLink ? (
+              <div>
+                <Link href={`/thread/${idPlainObject}`}>
+                  <DisplayThread text={withoutLink} />
+                  <Image
+                    src={tenorLink[0] || "tenor"}
+                    alt="tenor"
+                    width={200}
+                    height={200}
+                  />
                 </Link>
               </div>
             ) : contentUrl ? (
