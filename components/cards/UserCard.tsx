@@ -30,6 +30,7 @@ const UserCard = ({
           alt="photo"
           width={24}
           height={24}
+          priority={true}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="cursor-pointer rounded-full border border-gray-1 p-1 relative h-8 w-8 bg-black"
         />

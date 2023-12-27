@@ -88,7 +88,9 @@ export default function LinkCard({
                     alt="tenor"
                     width={200}
                     height={200}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: "contain" }}
+                    priority={true}
+                    placeholder="empty"
                   />
                 </Link>
               </div>
