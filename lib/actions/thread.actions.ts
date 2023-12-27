@@ -19,8 +19,6 @@ export async function fetchAllPosts(limit = 10, skip = 0) {
   await connectToDatabase();
 
   const postsQuery = Thread.find()
-    .limit(limit)
-    .skip(skip)
     .sort({ createdAt: -1 })
     .populate({
       path: "author",
