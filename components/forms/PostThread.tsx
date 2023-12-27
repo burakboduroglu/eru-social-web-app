@@ -106,6 +106,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                       width={22}
                       height={22}
                       className="cursor-pointer object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       onClick={() => setShowImage(!showImage)}
                     />
                     {showImage && (
