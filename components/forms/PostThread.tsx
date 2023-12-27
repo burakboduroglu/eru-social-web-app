@@ -152,7 +152,7 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                             country="TR"
                             locale="tr"
                             onGifClick={(gif: any) => {
-                              return field.onChange(`${field.value}${gif.url}`);
+                              field.onChange(`${field.value}${gif.url}`);
                             }}
                           />
                         </div>
