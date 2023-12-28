@@ -42,9 +42,7 @@ export default function LinkCard({
     width: "100%",
   };
 
-  const spotifyLink = content.match(
-    /(https?:\/\/open\.spotify\.com\/track\/[a-zA-Z0-9]+(\?si=[a-zA-Z0-9]+)?)/
-  );
+  const spotifyLink = content.match(/(https?:\/\/open\.spotify\.com\/.*)/);
 
   const tenorLink = content.match(/https?:\/\/media\.tenor\.com\/[^\s]+/) || "";
 
