@@ -39,7 +39,8 @@ export default async function Page() {
                             : item.author.image
                         }
                         alt="profile photo"
-                        fill
+                        width={32}
+                        height={32}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="rounded-full mr-1 border border-gray-1 p-0.5 relative w-8 h-8"
                       />
