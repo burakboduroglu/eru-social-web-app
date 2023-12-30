@@ -1,7 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { dark } from "@clerk/themes";
-import { OrganizationSwitcher, SignOutButton, SignedIn } from "@clerk/nextjs";
+import {
+  OrganizationSwitcher,
+  SignOutButton,
+  SignedIn,
+  UserButton,
+  UserProfile,
+} from "@clerk/nextjs";
 
 function Topbar() {
   return (
@@ -49,6 +55,16 @@ function Topbar() {
             },
           }}
         />
+        <div className="ml-5 mr-3">
+          <UserButton
+            appearance={{
+              baseTheme: dark,
+              elements: {
+                organizationSwitcherTrigger: "py-2 px-1",
+              },
+            }}
+          />
+        </div>
       </div>
     </nav>
   );

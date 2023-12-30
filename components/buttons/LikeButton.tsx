@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { likeThread } from "@/lib/actions/thread.actions";
 
@@ -17,7 +17,7 @@ export default function LikeButton({
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (isLiked) {
       setLikeCount(likeCount - 1);
       setIsLiked(false);

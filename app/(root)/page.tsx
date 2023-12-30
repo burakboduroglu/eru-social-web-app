@@ -1,4 +1,3 @@
-import ThreadCard from "@/components/cards/ThreadCard";
 import { fetchAllPosts } from "@/lib/actions/thread.actions";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
