@@ -105,7 +105,11 @@ export async function getAllUsers({
 
     const sortOptions = { createdAt: sortBy };
 
-    const usersQuery = User.find(query).sort(sortOptions);
+    // For Random Users (aggregate)
+    const usersQuery = User.aggregate([
+      { $match: query },
+      { $sample: { size: 5 } },
+    ]);
 
     const users = await usersQuery.exec();
 

@@ -76,7 +76,7 @@ export const universityTabs = [
   },
   {
     imgURL: "/assets/campus.svg",
-    route: "https://ogrisl.erciyes.edu.tr/",
+    route: "https://eru-social-web-app.vercel.app/map",
     label: "Kampüs",
   },
 ];
