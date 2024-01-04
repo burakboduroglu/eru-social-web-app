@@ -1,6 +1,12 @@
 # Eru Social Web
 > Eru social web designed for my Erciyes University Design Project.
 
+
+<a href="https://www.youtube.com/watch?v=3gyEawR3KL4">
+  <img src="https://github.com/burakboduroglu/eru-social-web-app/assets/80620802/b5173878-5bc4-45ad-87fc-43a4fdab0b09" />
+  <p>YouTube Link</p>
+</a>
+
 ## Table of Contents
 - [Eru Social Web](#eru-social-web)
   - [Table of Contents](#table-of-contents)
