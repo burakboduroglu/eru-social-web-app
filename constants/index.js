@@ -61,7 +61,7 @@ export const universityTabs = [
   {
     imgURL: "/assets/student.svg",
     route:
-      "https://eru-social-web-app.vercel.app/communities/org_2YfM3op85qZef0ZFVwD7A9LE7wi",
+      "https://www.burakboduroglu.com.tr/communities/org_2YfM3op85qZef0ZFVwD7A9LE7wi",
     label: "Öğrenci İşleri",
   },
   {
@@ -76,7 +76,7 @@ export const universityTabs = [
   },
   {
     imgURL: "/assets/campus.svg",
-    route: "https://eru-social-web-app.vercel.app/map",
+    route: "https://www.burakboduroglu.com.tr/map",
     label: "Kampüs",
   },
 ];
