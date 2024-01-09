@@ -83,13 +83,6 @@ function PostThread({ userId, userName }: Readonly<ThreadProps>) {
                 <div className="mb-3 pl-1">
                   <div className="flex gap-3.5 mb-1">
                     <Image
-                      src="/assets/share-image.svg"
-                      alt="image"
-                      width={24}
-                      height={24}
-                      className="cursor-pointer object-contain"
-                    />
-                    <Image
                       src="/assets/gif.svg"
                       alt="emoji"
                       width={24}
