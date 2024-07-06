@@ -57,6 +57,16 @@ npm install
 npm run dev
 ```
 
+4. Set Up Enviroment Variables
+```.env
+MONGODB_URL=
+CLERK_SECRET_KEY=
+UPLOADTHING_SECRET=
+UPLOADTHING_APP_ID=
+NEXT_CLERK_WEBHOOK_SECRET=
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+```
+
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
 
