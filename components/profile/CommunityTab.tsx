@@ -5,6 +5,7 @@ import {
   fetchCommunityPosts,
 } from "@/lib/actions/community.actions";
 import UserCard from "../cards/UserCard";
+import { getUser } from "@/lib/actions/user.actions";
 
 interface TabProps {
   currentUserId: string;
@@ -21,6 +22,8 @@ async function CommunityTab({
 }: Readonly<TabProps>) {
   let community = await fetchCommunityDetails(communityId);
   let communityPosts = await fetchCommunityPosts(communityId);
+  const viewer = await getUser(currentUserId);
+  const viewerDbId = viewer?._id?.toString() ?? "";
 
   if (!community) {
     redirect("/");
@@ -38,6 +41,7 @@ async function CommunityTab({
                 key={post._id}
                 id={post._id}
                 currentUserId={currentUserId}
+                currentUserDbId={viewerDbId}
                 parentId={post.parentId}
                 content={post.text}
                 author={

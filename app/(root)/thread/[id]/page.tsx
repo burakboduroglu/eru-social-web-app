@@ -34,7 +34,7 @@ async function page({ params }: { params: { id: string } }) {
           comments={post.children}
           postLike={post.likes}
           path={`/thread`}
-          curruntUserInfo={userInfo._id.toString()}
+          currentUserDbId={userInfo._id.toString()}
         />
       </div>
 
@@ -47,9 +47,8 @@ async function page({ params }: { params: { id: string } }) {
       </div>
       <div className="mt-10 px-10 xs:px-3 overflow-hidden wrap">
         {post.children.map((childItem: any) => (
-          <div className="mt-6">
+          <div className="mt-6" key={childItem._id}>
             <ThreadCard
-              key={childItem._id}
               id={childItem._id}
               currentUserId={user.id}
               parentId={childItem.parentId}
@@ -59,7 +58,7 @@ async function page({ params }: { params: { id: string } }) {
               createdAt={childItem.createdAt}
               comments={childItem.children}
               isComment
-              curruntUserInfo={userInfo._id.toString()}
+              currentUserDbId={userInfo._id.toString()}
               path={`/thread`}
             />
           </div>

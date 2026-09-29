@@ -20,6 +20,8 @@ async function ThreadsTab({
   tabLabel,
 }: Readonly<TabProps>) {
   let user = await getUser(profileId);
+  const viewer = await getUser(currentUserId);
+  const viewerDbId = viewer?._id?.toString() ?? "";
   let posts = await getUserPosts(profileId);
   let comments = await getUserComments(user);
 
@@ -61,7 +63,7 @@ async function ThreadsTab({
                 comments={post.children}
                 path={post.path}
                 postLike={post.likes}
-                curruntUserInfo={""}
+                currentUserDbId={viewerDbId}
               />
             ))
         ) : (
@@ -102,7 +104,7 @@ async function ThreadsTab({
               createdAt={post.createdAt}
               comments={post.children}
               path={post.path}
-              curruntUserInfo={""}
+              currentUserDbId={viewerDbId}
             />
           ))
       ) : (
