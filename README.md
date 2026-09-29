@@ -31,33 +31,25 @@ This project is designed for my Erciyes University Design Project. It is a socia
 - `Zod` for Validation
 
 ## Getting Started
-To get a local copy up and running follow these simple steps.
+To get a local copy up and running, follow these steps.
 
 ### Prerequisites
-* npm
+* [Bun](https://bun.sh)
 ```sh
-npm install npm@latest -g
-```
-* node.js
-```sh
-https://nodejs.org/en/download/
+curl -fsSL https://bun.sh/install | bash
 ```
 
 ### Installation
 1. Clone the repo
 ```sh
-git clone
+git clone https://github.com/burakboduroglu/eru-social-web-app.git
+cd eru-social-web-app
 ```
-2. Install NPM packages
+2. Install the packages
 ```sh
-npm install
+bun install
 ```
-3. Run the project
-```sh
-npm run dev
-```
-
-4. Set Up Enviroment Variables
+3. Set up the environment variables in `.env.local`
 ```.env
 MONGODB_URL=
 CLERK_SECRET_KEY=
@@ -65,6 +57,10 @@ UPLOADTHING_SECRET=
 UPLOADTHING_APP_ID=
 NEXT_CLERK_WEBHOOK_SECRET=
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+```
+4. Run the project
+```sh
+bun run dev
 ```
 
 ## License
