@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function () {
+export default function MapPage() {
   return (
     <div>
       <h1 className="head-text mb-5">Kampüs Haritası</h1>
