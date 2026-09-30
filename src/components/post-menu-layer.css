@@ -1,0 +1,24 @@
+/* Lift the open card itself above neighboring posts, whose positioned links sit at z-index 1. */
+.x-post:has(.post-menu[open]) {
+  z-index: 2;
+}
+
+.post-menu[open] {
+  z-index: 2;
+}
+
+.post-menu-items {
+  box-sizing: border-box;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1;
+  width: min(264px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(60dvh, 420px);
+  overflow: auto;
+  background-color: #101215;
+  opacity: 1;
+  backdrop-filter: none;
+  isolation: isolate;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 48%);
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
 import {
   Link,
   useLoaderData,
@@ -59,56 +59,139 @@ export function SearchForm({ initial = "" }: { initial?: string }) {
   const navigate = useNavigate();
   const [value, setValue] = useState(initial);
   const [suggest, setSuggest] = useState<SearchResults | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const box = useRef<HTMLFormElement>(null);
   const requestId = useRef(0);
+  const listboxId = useId();
+  const inputId = useId();
   useEffect(() => setValue(initial), [initial]);
   useEffect(() => {
-    const close = (event: PointerEvent) => { if (box.current && !box.current.contains(event.target as Node)) setOpen(false); };
+    const close = (event: PointerEvent) => {
+      if (box.current && !box.current.contains(event.target as Node)) {
+        setOpen(false);
+        setActiveIndex(-1);
+      }
+    };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
   useEffect(() => {
     const needle = value.trim();
-    if (needle.length < 2) { setSuggest(null); return; }
+    const id = ++requestId.current;
+    setActiveIndex(-1);
+    if (needle.length < 2) {
+      setSuggest(null);
+      setLoading(false);
+      setFailed(false);
+      return;
+    }
     let live = true;
+    setSuggest(null);
+    setLoading(true);
+    setFailed(false);
     const timer = setTimeout(() => {
-      const id = ++requestId.current;
       api<SearchResults>(`/search?q=${encodeURIComponent(needle)}`).then(
-        results => { if (live && requestId.current === id) { setSuggest(results); setOpen(true); } },
-        () => { if (live && requestId.current === id) setSuggest(null); },
+        results => { if (live && requestId.current === id) { setSuggest(results); setLoading(false); } },
+        () => { if (live && requestId.current === id) { setFailed(true); setLoading(false); } },
       );
     }, 250);
     return () => { live = false; clearTimeout(timer); };
   }, [value]);
 
+  const suggestions = [
+    ...(suggest?.people.slice(0, 3).map(person => ({
+      kind: "person" as const,
+      id: person.id,
+      title: person.name,
+      subtitle: `@${person.username}`,
+      image: person.image,
+      username: person.username,
+      to: `/profile/${person.id}`,
+    })) || []),
+    ...(suggest?.communities.slice(0, 3).map(community => ({
+      kind: "community" as const,
+      id: community.id,
+      title: community.name,
+      subtitle: `${community.memberCount} üye`,
+      image: community.image,
+      username: community.username,
+      to: `/communities/${community.id}`,
+    })) || []),
+  ];
+
+  useEffect(() => {
+    if (open && activeIndex >= 0 && suggestions[activeIndex]) {
+      document.getElementById(`${listboxId}-option-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
+    }
+  }, [activeIndex, listboxId, open, suggest]);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setOpen(false);
+    setActiveIndex(-1);
     void navigate({ to: "/explore", search: { q: value.trim(), tab: "posts" } as never });
   }
   function go(to: string) {
     setOpen(false);
+    setActiveIndex(-1);
     void navigate({ to } as never);
+  }
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      setActiveIndex(-1);
+    } else if (event.key === "ArrowDown" && suggestions.length) {
+      event.preventDefault();
+      setOpen(true);
+      setActiveIndex(index => (index + 1) % suggestions.length);
+    } else if (event.key === "ArrowUp" && suggestions.length) {
+      event.preventDefault();
+      setOpen(true);
+      setActiveIndex(index => index <= 0 ? suggestions.length - 1 : index - 1);
+    } else if (event.key === "Enter" && showPanel && activeIndex >= 0 && suggestions[activeIndex]) {
+      event.preventDefault();
+      go(suggestions[activeIndex].to);
+    }
   }
   function clear() {
     setValue(""); setSuggest(null); setOpen(false);
+    setActiveIndex(-1);
     void navigate({ to: "/explore", search: { q: "", tab: "posts" } as never });
   }
 
   const showPanel = open && value.trim().length >= 2;
   return (
-    <form ref={box} className="x-search-wrap" role="search" onSubmit={submit}>
+    <form
+      ref={box}
+      className="x-search-wrap"
+      role="search"
+      onSubmit={submit}
+      onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setOpen(false);
+          setActiveIndex(-1);
+        }
+      }}
+    >
       <div className="x-search">
         <Icon name="search" size={18} />
         <input
+          id={inputId}
           name="q"
           value={value}
-          onChange={event => setValue(event.target.value)}
-          onFocus={() => { if (suggest) setOpen(true); }}
-          onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}
+          onChange={event => { setValue(event.target.value); setOpen(true); }}
+          onFocus={() => { if (value.trim().length >= 2) setOpen(true); }}
+          onKeyDown={handleKeyDown}
           placeholder="Ara"
           aria-label="Ara"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showPanel}
+          aria-controls={showPanel ? listboxId : undefined}
+          aria-activedescendant={showPanel && activeIndex >= 0 && suggestions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined}
           maxLength={80}
           enterKeyHint="search"
           autoComplete="off"
@@ -120,21 +203,29 @@ export function SearchForm({ initial = "" }: { initial?: string }) {
         )}
       </div>
       {showPanel && (
-        <div className="x-suggest-items" role="listbox" aria-label="Arama önerileri">
-          {suggest?.people.slice(0, 3).map(person => (
-            <button key={person.id} type="button" onClick={() => go(`/profile/${person.id}`)}>
-              <Avatar src={person.image} name={person.name} username={person.username} />
-              <span><strong>{person.name}</strong><small>@{person.username}</small></span>
-            </button>
-          ))}
-          {suggest?.communities.slice(0, 3).map(community => (
-            <button key={community.id} type="button" onClick={() => go(`/communities/${community.id}`)}>
-              <Avatar src={community.image} name={community.name} username={community.username} />
-              <span><strong>{community.name}</strong><small>{community.memberCount} üye</small></span>
-            </button>
-          ))}
-          {suggest && !suggest.people.length && !suggest.communities.length && (
-            <p className="x-suggest-empty">Öneri yok. Aramak için Enter'a bas.</p>
+        <div className="x-suggest-items">
+          <div id={listboxId} role="listbox" aria-label="Arama önerileri">
+            {suggestions.map((item, index) => (
+              <div
+                key={`${item.kind}-${item.id}`}
+                id={`${listboxId}-option-${index}`}
+                className="x-suggest-option"
+                role="option"
+                aria-selected={activeIndex === index}
+                onMouseDown={event => event.preventDefault()}
+                onMouseEnter={() => setActiveIndex(index)}
+                onClick={() => go(item.to)}
+              >
+                <Avatar src={item.image} name={item.title} username={item.username} />
+                <span><strong>{item.title}</strong><small>{item.subtitle}</small></span>
+                <small className="x-suggest-kind">{item.kind === "person" ? "Kişi" : "Topluluk"}</small>
+              </div>
+            ))}
+          </div>
+          {loading && <p className="x-suggest-state" role="status">Öneriler aranıyor…</p>}
+          {failed && <p className="x-suggest-state" role="status">Öneriler yüklenemedi. Aramak için Enter'a bas.</p>}
+          {!loading && !failed && suggest && !suggestions.length && (
+            <p className="x-suggest-state" role="status">Öneri bulunamadı. Aramak için Enter'a bas.</p>
           )}
           <button type="submit" className="x-suggest-all">
             <Icon name="search" size={16} />
@@ -179,7 +270,7 @@ export function HomePage() {
 
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col">
-      <h1 className="sr-only">Anasayfa</h1>
+      <h1 className="sr-only">Ana Sayfa</h1>
       <nav className="x-feed-tabs" aria-label="Akış seçimi">
         <button className={search.feed !== "communities" ? "active" : ""} aria-pressed={search.feed !== "communities"} onClick={() => navigate({ to: "/", search: { feed: "all", page: 0 } as never, resetScroll: false })}>Senin için</button>
         <button className={search.feed === "communities" ? "active" : ""} aria-pressed={search.feed === "communities"} onClick={() => navigate({ to: "/", search: { feed: "communities", page: 0 } as never, resetScroll: false })}>Toplulukların</button>
@@ -199,19 +290,26 @@ export function ThreadPageView() {
     me.communities.some((community) => community.id === data.post.communityId);
 
   return (
-    <section>
+    <section className="thread-page" aria-label="Gönderi ve yanıtları">
       <header className="x-bar">
         <BackButton fallback="/" />
         <h1>Gönderi</h1>
       </header>
       <PostCard post={data.post} detail />
-      {canReply ? (
-        <Composer parentId={data.post.id} />
-      ) : (
-        <p className="panel">Yanıtlamak için topluluğa katılmalısın.</p>
-      )}
-      <h2 className="x-section-title">Yanıtlar</h2>
-      <PostList posts={data.replies} hasMore={data.hasMore} />
+      <div id="thread-reply" className="thread-reply">
+        {canReply ? (
+          <>
+            <p className="thread-reply-target"><Link to={`/profile/${data.post.author.id}`}>@{data.post.author.username}</Link> adlı kişiye yanıt veriyorsun</p>
+            <Composer parentId={data.post.id} />
+          </>
+        ) : (
+          <p className="thread-reply-locked">Yanıtlamak için topluluğa katılmalısın.</p>
+        )}
+      </div>
+      <section className="thread-replies" aria-labelledby="thread-replies-heading">
+        <h2 id="thread-replies-heading" className="sr-only">Yanıtlar</h2>
+        {data.replies.length || data.hasMore ? <PostList posts={data.replies} hasMore={data.hasMore} /> : <p className="thread-replies-empty">Henüz yanıt yok.</p>}
+      </section>
     </section>
   );
 }
@@ -248,7 +346,7 @@ export function ProfilePageView() {
         <h2>{data.profile.name}</h2>
         <p>@{data.profile.username}</p>
         {data.profile.bio && <p className="bio">{data.profile.bio}</p>}
-        <p className="x-joined">Katıldı {joinedLabel(data.profile.createdAt)}</p>
+        <p className="x-joined"><Icon name="calendar" size={14} /><span>{joinedLabel(data.profile.createdAt)} tarihinde katıldı</span></p>
       </div>
       <nav className="x-feed-tabs" aria-label="Profil sekmeleri">
         <button type="button" className={selectedTab === "posts" ? "active" : ""} aria-pressed={selectedTab === "posts"} onClick={() => selectTab("posts")}>Gönderiler</button>
@@ -361,7 +459,7 @@ export function ExplorePage() {
   }
 
   return (
-    <section>
+    <section className="discover-page">
       <header className="x-search-page">
         <h1 className="sr-only">Ara</h1>
         <SearchForm initial={search.q || ""} />
@@ -379,10 +477,20 @@ export function ExplorePage() {
         </>
       ) : (
         <>
-          <h2 className="x-section-title">Kişiler</h2>
-          {results.people.length ? results.people.map(person => <AccountRow key={person.id} profile={person} detail={person.bio} />) : <Empty description="Davet edilen kişiler burada listelenir.">Henüz başka üye yok.</Empty>}
-          <h2 className="x-section-title">Topluluklar</h2>
-          {results.communities.length ? results.communities.map(community => <CommunityRow key={community.id} community={community} />) : <Empty description="Yeni bir topluluk açarak sohbeti başlatabilirsin.">Katılabileceğin yeni bir topluluk yok.</Empty>}
+          <section className="discover-section" aria-labelledby="discover-people-title">
+            <div className="discover-section-heading">
+              <h2 id="discover-people-title">Kişiler</h2>
+              <span>{results.people.length} öneri</span>
+            </div>
+            {results.people.length ? results.people.map(person => <AccountRow key={person.id} profile={person} detail={person.bio} />) : <p className="discover-empty">Henüz başka üye yok. Yeni kişiler katıldıkça burada görünecek.</p>}
+          </section>
+          <section className="discover-section" aria-labelledby="discover-communities-title">
+            <div className="discover-section-heading">
+              <h2 id="discover-communities-title">Topluluklar</h2>
+              <span>{results.communities.length} öneri</span>
+            </div>
+            {results.communities.length ? results.communities.map(community => <CommunityRow key={community.id} community={community} />) : <p className="discover-empty">Henüz keşfedilecek topluluk yok. İlk topluluğu oluşturup sohbeti başlatabilirsin.</p>}
+          </section>
         </>
       )}
     </section>

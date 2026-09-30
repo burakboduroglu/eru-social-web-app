@@ -1,6 +1,8 @@
 import { Icon } from "./components/icon";
+import { showToast } from "./components/toast";
 import { LoadingSpinner, useContentLoading, useDelayedLoading } from "./components/loading";
-import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { Link, useRouter, useSearch, useNavigate, useRouterState } from "@tanstack/react-router";
 import { api } from "./lib/api";
 import type { Me, Post, CommunitySummary } from "../shared/types";
@@ -11,6 +13,9 @@ import { StatePanel } from "./components/page-state";
 import { EmojiPicker } from "./components/emoji-picker";
 import { PostContent } from "./components/post-content";
 import { GifPicker } from "./components/gif-picker";
+import { useFloatingPicker } from "./components/use-floating-picker";
+import { ComposerLinkPreview } from "./components/link-preview";
+import { PixelCharacter } from "./components/pixel-character";
 
 export const errorMessage = (error: unknown) => error instanceof Error ? error.message : "İşlem tamamlanamadı. Tekrar giriş yapmayı dene.";
 export function useMe() {
@@ -24,14 +29,12 @@ export function useMe() {
   return me;
 }
 export { Icon } from "./components/icon";
-// Accounts without an uploaded photo fall back to the first letter of their
-// username rather than a shared placeholder, so lists stay distinguishable.
+// A stable character gives accounts without photos a recognizable identity.
 export function Avatar({ src, name, username, large = false }: { src?: string | null; name: string; username?: string | null; large?: boolean }) {
-  const [broken, setBroken] = useState(false);
-  const letter = (username || name).trim().charAt(0).toLocaleUpperCase("tr-TR") || "?";
+  const [brokenSource, setBrokenSource] = useState<string | null>(null);
   const className = `avatar ${large ? "large" : ""}`;
-  if (!src || broken) return <span className={`${className} avatar-letter`} role="img" aria-label={name}>{letter}</span>;
-  return <img className={className} src={src} alt={name} loading="lazy" onError={() => setBroken(true)} />;
+  if (!src || brokenSource === src) return <span className={`${className} avatar-pixel`} role="img" aria-label={name}><PixelCharacter seed={username || name} size={large ? 80 : 40} /></span>;
+  return <img className={className} src={src} alt={name} loading="lazy" onError={() => setBrokenSource(src)} />;
 }
 export function ErrorNotice({ message }: { message: string }) { return message ? <p role="alert" className="error">{message}</p> : null; }
 export function Empty({ children, kind = "empty", description }: { children: ReactNode; kind?: "empty" | "default" | "search" | "people" | "messages"; description?: string }) {
@@ -60,36 +63,103 @@ export function Pagination({ hasMore, snapshot }: { hasMore: boolean; snapshot?:
 export function Composer({ communities = [], communityId, parentId }: { communities?: CommunitySummary[]; communityId?: string; parentId?: string }) {
   const action = useAction(); const me = useMe();
   const [value, setValue] = useState(""), [picker, setPicker] = useState<"emoji" | "gif" | null>(null), [message, setMessage] = useState("");
+  const pickerId = useId();
+  const pickerPanel = useRef<HTMLDivElement>(null);
+  const pickerControls = useRef<HTMLDivElement>(null);
+  const emojiTrigger = useRef<HTMLButtonElement>(null);
+  const gifTrigger = useRef<HTMLButtonElement>(null);
+  useFloatingPicker(!!picker, pickerPanel, picker === "emoji" ? emojiTrigger : gifTrigger);
+  function closePicker(restoreFocus = true) {
+    setPicker(null);
+    if (restoreFocus) (picker === "emoji" ? emojiTrigger : gifTrigger).current?.focus({ preventScroll: true });
+  }
+  function togglePicker(next: "emoji" | "gif") {
+    if (picker === next) { closePicker(); return; }
+    window.dispatchEvent(new CustomEvent("composer-picker-open", { detail: pickerId }));
+    if (targetMenu.current) targetMenu.current.open = false;
+    setTargetOpen(false);
+    setPicker(next);
+  }
   const [target, setTarget] = useState("");
+  const [targetQuery, setTargetQuery] = useState("");
+  const [targetOpen, setTargetOpen] = useState(false);
   const targetMenu = useRef<HTMLDetailsElement>(null);
+  const targetSearch = useRef<HTMLInputElement>(null);
   const max = parentId ? 350 : 550;
   useEffect(() => {
-    const close = (event: PointerEvent) => { if (targetMenu.current && !targetMenu.current.contains(event.target as Node)) targetMenu.current.open = false; };
+    if (!picker) return;
+    const outside = (event: PointerEvent) => {
+      const path = event.composedPath();
+      if (!path.includes(pickerPanel.current as EventTarget) && !path.includes(pickerControls.current as EventTarget)) closePicker();
+    };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { event.preventDefault(); closePicker(); } };
+    const otherPicker = (event: Event) => { if ((event as CustomEvent<string>).detail !== pickerId) closePicker(false); };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape, true);
+    window.addEventListener("composer-picker-open", otherPicker);
+    return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape, true); window.removeEventListener("composer-picker-open", otherPicker); };
+  }, [picker, pickerId]);
+  useEffect(() => {
+    const close = (event: PointerEvent) => { if (targetMenu.current && !targetMenu.current.contains(event.target as Node)) { targetMenu.current.open = false; setTargetOpen(false); setTargetQuery(""); } };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const data = new FormData(event.currentTarget);
-    if (await action.run(() => api("/threads", "POST", { text: value, parentId, communityId: communityId || data.get("communityId") || null }))) { setValue(""); setPicker(null); setMessage(parentId ? "Yanıt paylaşıldı." : "Gönderi başarıyla paylaşıldı."); }
+    if (await action.run(() => api("/threads", "POST", { text: value, parentId, communityId: communityId || data.get("communityId") || null }))) { setValue(""); setPicker(null); setMessage(""); showToast(parentId ? "Yanıt paylaşıldı." : "Gönderi paylaşıldı."); }
   }
-  if (parentId) return <form className="comment-form" onSubmit={submit}><Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} /><label className="sr-only" htmlFor={`reply-${parentId}`}>Yorum yap</label><Input id={`reply-${parentId}`} value={value} onChange={e => setValue(e.target.value)} required maxLength={max} placeholder="Yorum yap" className="no-focus border-none bg-transparent text-light-1" /><Button className="comment-form_btn" disabled={action.busy || !value.trim()}>Gönder</Button><ErrorNotice message={action.error} /></form>;
-  return <form className="x-composer relative flex flex-col gap-2 items-stretch" onSubmit={submit} onKeyDown={e => { if (e.key === "Escape") setPicker(null); }}>
+  if (parentId) return <form className="thread-reply-form" onSubmit={submit}>
+    <Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} />
+    <label className="sr-only" htmlFor={`reply-${parentId}`}>Yanıtını yaz</label>
+    <Textarea id={`reply-${parentId}`} value={value} onChange={e => { setValue(e.target.value); setMessage(""); }} required maxLength={max} rows={2} placeholder="Yanıtını yaz" className="no-focus border-none bg-transparent text-light-1" />
+    <ComposerLinkPreview text={value} />
+    <div className="thread-reply-controls">
+      <span className="thread-reply-length" aria-label={`${value.length} / ${max} karakter`}>{value.length > max - 50 ? `${value.length}/${max}` : ""}</span>
+      <Button className="thread-reply-submit" disabled={action.busy || !value.trim()}>{action.busy ? "Paylaşılıyor…" : "Yanıtla"}</Button>
+    </div>
+    <ErrorNotice message={action.error} />
+  </form>;
+  return <form className="x-composer relative flex flex-col gap-2 items-stretch" onSubmit={submit}>
     {!communityId && communities.length > 0 && (
-      <details ref={targetMenu} className="x-target-menu">
-        <summary className="x-composer-target" aria-label="Paylaşım yeri">
+      <details ref={targetMenu} className="x-target-menu" onToggle={event => {
+        const opened = event.currentTarget.open;
+        setTargetOpen(opened); setTargetQuery("");
+        if (opened && document.activeElement === event.currentTarget.querySelector("summary")) targetSearch.current?.focus();
+      }} onKeyDown={event => {
+        if (event.key === "Escape") { event.preventDefault(); if (targetMenu.current) targetMenu.current.open = false; setTargetOpen(false); setTargetQuery(""); targetMenu.current?.querySelector("summary")?.focus(); }
+        const search = event.target instanceof HTMLInputElement;
+        const items = [...(targetMenu.current?.querySelectorAll<HTMLButtonElement>(".x-target-items button:not(:disabled)") ?? [])];
+        if ((event.key === "ArrowDown" || event.key === "ArrowUp") && (search || event.target === targetMenu.current?.querySelector("summary"))) {
+          event.preventDefault();
+          if (targetMenu.current && !targetMenu.current.open) targetMenu.current.open = true;
+          (event.key === "ArrowDown" ? items[0] : items.at(-1))?.focus();
+          return;
+        }
+        if ((event.key === "ArrowDown" || event.key === "ArrowUp") && items.length) {
+          event.preventDefault(); const index = items.indexOf(document.activeElement as HTMLButtonElement);
+          const next = index < 0 ? (event.key === "ArrowDown" ? 0 : items.length - 1) : (index + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length;
+          items[next]?.focus();
+        } else if (!search && (event.key === "Home" || event.key === "End") && items.length) {
+          event.preventDefault(); (event.key === "Home" ? items[0] : items.at(-1))?.focus();
+        }
+      }}>
+        <summary className="x-composer-target" aria-label="Paylaşım yeri" aria-haspopup="menu" aria-expanded={targetOpen}>
           <Icon name="community" size={15} />
           <span>{target ? communities.find(c => c.id === target)?.name || "Topluluk" : "Kişisel profil"}</span>
           <Icon name="chevron" size={14} />
         </summary>
         <div className="x-target-items" role="menu" aria-label="Paylaşım yeri">
-          <button type="button" role="menuitemradio" aria-checked={!target} onClick={() => { setTarget(""); if (targetMenu.current) targetMenu.current.open = false; }}>
+          {communities.length > 5 && <label className="menu-search"><Icon name="search" size={16} /><input ref={targetSearch} type="search" aria-label="Topluluk ara" placeholder="Topluluk ara" value={targetQuery} onChange={event => setTargetQuery(event.target.value)} /></label>}
+          <div className="menu-section-label">Paylaşım yeri</div>
+          <button type="button" role="menuitemradio" aria-checked={!target} onClick={() => { setTarget(""); if (targetMenu.current) targetMenu.current.open = false; setTargetOpen(false); setTargetQuery(""); targetMenu.current?.querySelector("summary")?.focus(); }}>
             <Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} /><span>Kişisel profil</span>{!target && <Icon name="check" size={16} />}
           </button>
-          {communities.map(c => (
-            <button key={c.id} type="button" role="menuitemradio" aria-checked={target === c.id} onClick={() => { setTarget(c.id); if (targetMenu.current) targetMenu.current.open = false; }}>
+          {communities.filter(c => c.name.toLocaleLowerCase("tr-TR").includes(targetQuery.trim().toLocaleLowerCase("tr-TR"))).map(c => (
+            <button key={c.id} type="button" role="menuitemradio" aria-checked={target === c.id} onClick={() => { setTarget(c.id); if (targetMenu.current) targetMenu.current.open = false; setTargetOpen(false); setTargetQuery(""); targetMenu.current?.querySelector("summary")?.focus(); }}>
               <Avatar src={c.image} name={c.name} username={c.username} /><span>{c.name}</span>{target === c.id && <Icon name="check" size={16} />}
             </button>
           ))}
+          {communities.filter(c => c.name.toLocaleLowerCase("tr-TR").includes(targetQuery.trim().toLocaleLowerCase("tr-TR"))).length === 0 && <p className="menu-empty">Topluluk bulunamadı.</p>}
         </div>
       </details>
     )}
@@ -98,11 +168,12 @@ export function Composer({ communities = [], communityId, parentId }: { communit
       <div className="x-composer-avatar"><Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} /></div>
       <label htmlFor="compose-post" className="sr-only">Gönderi paylaş</label><Textarea id="compose-post" value={value} onChange={e => { setValue(e.target.value); setMessage(""); }} placeholder="Neler oluyor?" maxLength={max} required className="no-focus max-h-[200px] resize-none border-0 bg-transparent text-[20px] text-light-1 shadow-none" />
     </div>
-    <div className="flex items-center w-full justify-between"><div className="flex gap-3.5 pl-1">
-      <button type="button" className="icon-button" aria-label="GIF seç" aria-expanded={picker === "gif"} onClick={() => setPicker(picker === "gif" ? null : "gif")}><Icon name="gif" /></button>
-      <button type="button" className="icon-button" aria-label="Emoji seç" aria-expanded={picker === "emoji"} onClick={() => setPicker(picker === "emoji" ? null : "emoji")}><Icon name="emoji" size={22} /></button>
-    </div><Button className="rounded-full px-5" disabled={action.busy || !value.trim()}>{action.busy ? "Paylaşılıyor…" : "Gönderi yayınla"}</Button></div>
-    {picker && <div className="composer-picker" role="dialog" aria-label={picker === "emoji" ? "Emoji seçici" : "GIF seçici"}><button type="button" className="picker-close" aria-label="Seçiciyi kapat" onClick={() => setPicker(null)}>×</button>{picker === "emoji" ? <EmojiPicker onSelect={emoji => setValue(current => (current + emoji).slice(0, max))} /> : <GifPicker onSelect={url => { if (value.length + url.length + 1 <= max) { setValue(current => `${current}${current ? " " : ""}${url}`); setPicker(null); } else setMessage("GIF için karakter sınırında yeterli yer yok."); }} />}</div>}
+    <ComposerLinkPreview text={value} />
+    <div className="flex items-center w-full justify-between"><div ref={pickerControls} className="flex gap-3.5 pl-1">
+      <button ref={gifTrigger} type="button" className="icon-button" aria-label="GIF seç" aria-haspopup="dialog" aria-controls={picker === "gif" ? pickerId : undefined} aria-expanded={picker === "gif"} onClick={() => togglePicker("gif")}><Icon name="gif" /></button>
+      <button ref={emojiTrigger} type="button" className="icon-button" aria-label="Emoji seç" aria-haspopup="dialog" aria-controls={picker === "emoji" ? pickerId : undefined} aria-expanded={picker === "emoji"} onClick={() => togglePicker("emoji")}><Icon name="emoji" size={22} /></button>
+    </div><Button className="composer-submit rounded-full px-5" disabled={action.busy || !value.trim()}>{action.busy ? "Paylaşılıyor…" : "Gönderi yayınla"}</Button></div>
+    {picker && createPortal(<div ref={pickerPanel} id={pickerId} className="composer-picker composer-picker-floating" role="dialog" aria-labelledby={`${pickerId}-title`}><div className="composer-picker-header"><h2 id={`${pickerId}-title`}>{picker === "emoji" ? "Emoji seç" : "GIF seç"}</h2><button type="button" className="picker-close" aria-label="Seçiciyi kapat" onClick={() => closePicker()}>×</button></div>{picker === "emoji" ? <EmojiPicker onSelect={emoji => { setValue(current => (current + emoji).slice(0, max)); setMessage(""); }} /> : <GifPicker onSelect={url => { if (value.length + url.length + (value ? 1 : 0) <= max) { setValue(current => `${current}${current ? " " : ""}${url}`); setMessage(""); closePicker(); } else setMessage("GIF için karakter sınırında yeterli yer yok."); }} />}</div>, document.body)}
     {value.length >= max && <p className="text-red-400 text-small-regular">Maksimum karakter sınırına ulaşıldı.</p>}{message && <p role="status" className="text-small-regular text-light-3 self-start">{message}</p>}<ErrorNotice message={action.error} />
   </form>;
 }
@@ -121,11 +192,12 @@ export function PostCard({ post, detail = false }: { post: Post; detail?: boolea
   const { profile } = useMe(); const action = useAction(); const navigate = useNavigate();
   const pathname = useRouterState({ select: state => state.location.pathname });
   const menu = useRef<HTMLDetailsElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [liked, setLiked] = useState(post.liked), [likeCount, setLikeCount] = useState(post.likeCount);
   const [liking, setLiking] = useState(false), [dismissed, setDismissed] = useState(false), [message, setMessage] = useState("");
   useEffect(() => { setLiked(post.liked); setLikeCount(post.likeCount); }, [post.liked, post.likeCount]);
   useEffect(() => {
-    const close = (event: PointerEvent) => { if (menu.current && !menu.current.contains(event.target as Node)) menu.current.open = false; };
+    const close = (event: PointerEvent) => { if (menu.current && !menu.current.contains(event.target as Node)) { menu.current.open = false; setMenuOpen(false); } };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
@@ -145,27 +217,42 @@ export function PostCard({ post, detail = false }: { post: Post; detail?: boolea
   }
   if (dismissed) return <div className="dismissed-post" role="status"><span>Bu gönderi akışından kaldırıldı.</span><button type="button" onClick={() => dismiss(true)}>Geri al</button></div>;
   const detailPath = `/thread/${post.id}`;
-  return <article className={`x-post${detail ? " thread-main" : ""}`}>
+  return <article className={`x-post${detail ? " thread-main" : ""}${post.community ? " post-has-community" : ""}`}>
     {pathname !== detailPath && <Link to={detailPath} className="post-detail-link" aria-label={`${post.author.name} gönderisinin detayını aç`} />}
     <Link to={`/profile/${post.author.id}`} className="post-avatar-link"><Avatar src={post.author.image} name={post.author.name} username={post.author.username} /></Link>
     <div className="post-body">
-      <div className="post-heading"><div className="x-post-meta"><Link to={`/profile/${post.author.id}`} className="font-bold text-light-1">{post.author.name}</Link><span>@{post.author.username}</span><span>·</span><Link to={`/thread/${post.id}`} className="post-date"><time dateTime={post.createdAt} title={new Date(post.createdAt).toLocaleString("tr-TR")}>{relativeDate(post.createdAt)}</time></Link></div>
-        <details ref={menu} className="post-menu" onKeyDown={event => { if (event.key === "Escape" && menu.current) { menu.current.open = false; menu.current.querySelector("summary")?.focus(); } }}>
-          <summary aria-label="Gönderi seçenekleri"><Icon name="menu" size={20} /></summary>
-          <div className="post-menu-items"><button type="button" onClick={async () => { if (menu.current) menu.current.open = false; try { await navigator.clipboard.writeText(`${location.origin}/thread/${post.id}`); setMessage("Bağlantı kopyalandı."); } catch { setMessage("Bağlantı kopyalanamadı."); } }}>Bağlantıyı kopyala</button>
-            {post.authorId !== profile.id && <button type="button" onClick={() => dismiss()}>Bu gönderiyle ilgilenmiyorum</button>}
-            {post.authorId === profile.id && <button type="button" className="text-red-400" disabled={action.busy} onClick={() => { if (menu.current) menu.current.open = false; if (confirm("Gönderi ve yanıtları silinsin mi?")) action.run(async () => { await api(`/threads/${post.id}`, "DELETE"); if (pathname === `/thread/${post.id}`) await navigate({ to: `/profile/${profile.id}` }); }); }}>Gönderiyi sil</button>}
+      {post.community && <Link to={`/communities/${post.community.id}`} className="post-community"><Icon name="community" size={16} /><span>{post.community.name}</span></Link>}
+      <div className="post-heading"><div className="x-post-meta"><Link to={`/profile/${post.author.id}`} className="font-bold text-light-1">{post.author.name}</Link><span>@{post.author.username}</span>{!detail && <><span>·</span><Link to={`/thread/${post.id}`} className="post-date"><time dateTime={post.createdAt} title={new Date(post.createdAt).toLocaleString("tr-TR")}>{relativeDate(post.createdAt)}</time></Link></>}</div>
+        <details ref={menu} className="post-menu" onToggle={event => {
+          const opened = event.currentTarget.open;
+          setMenuOpen(opened);
+          if (opened && document.activeElement === event.currentTarget.querySelector("summary")) event.currentTarget.querySelector<HTMLButtonElement>(".post-menu-items button:not(:disabled)")?.focus();
+        }} onKeyDown={event => {
+          if (event.key === "Escape" && menu.current) { event.preventDefault(); menu.current.open = false; setMenuOpen(false); menu.current.querySelector("summary")?.focus(); }
+          const items = [...(menu.current?.querySelectorAll<HTMLButtonElement>(".post-menu-items button:not(:disabled)") ?? [])];
+          if ((event.key === "ArrowDown" || event.key === "ArrowUp") && (event.target === menu.current?.querySelector("summary") || !menu.current?.open)) {
+            event.preventDefault(); if (menu.current) menu.current.open = true;
+            (event.key === "ArrowDown" ? items[0] : items.at(-1))?.focus(); return;
+          }
+          if ((event.key === "ArrowDown" || event.key === "ArrowUp") && items.length) { event.preventDefault(); const index = items.indexOf(document.activeElement as HTMLButtonElement); const next = index < 0 ? (event.key === "ArrowDown" ? 0 : items.length - 1) : (index + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length; items[next]?.focus(); }
+          else if ((event.key === "Home" || event.key === "End") && items.length) { event.preventDefault(); (event.key === "Home" ? items[0] : items.at(-1))?.focus(); }
+        }}>
+          <summary aria-label="Gönderi seçenekleri" aria-haspopup="menu" aria-expanded={menuOpen}><Icon name="menu" size={20} /></summary>
+          <div className="post-menu-items" role="menu" aria-label="Gönderi seçenekleri"><div className="menu-section-label">Gönderi seçenekleri</div><button type="button" role="menuitem" onClick={async () => { if (menu.current) menu.current.open = false; setMenuOpen(false); setMessage(""); try { await navigator.clipboard.writeText(`${location.origin}/thread/${post.id}`); showToast("Bağlantı kopyalandı."); } catch { setMessage("Bağlantı kopyalanamadı."); } }}><Icon name="copy" size={18} />Bağlantıyı kopyala</button>
+            {post.authorId !== profile.id && <button type="button" role="menuitem" onClick={() => dismiss()}><Icon name="hide" size={18} />Bu gönderiyle ilgilenmiyorum</button>}
+            {post.authorId === profile.id && <button type="button" role="menuitem" className="menu-danger" disabled={action.busy} onClick={() => { if (menu.current) menu.current.open = false; setMenuOpen(false); if (confirm("Gönderi ve yanıtları silinsin mi?")) action.run(async () => { await api(`/threads/${post.id}`, "DELETE"); if (pathname === `/thread/${post.id}`) await navigate({ to: `/profile/${profile.id}` }); }); }}><Icon name="delete" size={18} />Gönderiyi sil</button>}
           </div>
         </details>
       </div>
       {post.parentId && <Link className="post-context" to={`/thread/${post.parentId}`}>Yanıtlanan gönderi</Link>}
       <PostContent text={post.text} postId={post.id} truncate={pathname === "/"} />
-      {post.community && <Link to={`/communities/${post.community.id}`} className="post-context">{post.community.name}</Link>}
       {detail && <div className="thread-meta"><time dateTime={post.createdAt}>{fullDate(post.createdAt)}</time></div>}
-      {detail && <div className="thread-counts"><span><strong>{post.replyCount}</strong> Yanıt</span><span><strong>{likeCount}</strong> Beğeni</span></div>}
       <div className="post-actions-row">
-        <Link className="post-action reply-action" to={`/thread/${post.id}`} aria-label={`${post.replyCount} yanıt`}><Icon name="reply" size={19} /><span>{post.replyCount || ""}</span></Link>
-        <button className="post-action like-action" aria-label={liked ? "Beğeniyi kaldır" : "Beğen"} aria-pressed={liked} disabled={liking} onClick={like}><Icon name={liked ? "heart-filled" : "heart-gray"} size={19} /><span>{likeCount || ""}</span></button>
+        {detail ? <button type="button" className="post-action reply-action" aria-label={`${post.replyCount} yanıt, yanıt yaz`} onClick={() => {
+          document.getElementById("thread-reply")?.scrollIntoView({ block: "center" });
+          document.querySelector<HTMLTextAreaElement>("#thread-reply textarea")?.focus({ preventScroll: true });
+        }}><Icon name="reply" size={19} /><span>{post.replyCount}</span></button> : <Link className="post-action reply-action" to={`/thread/${post.id}`} aria-label={`${post.replyCount} yanıt`}><Icon name="reply" size={19} /><span>{post.replyCount || ""}</span></Link>}
+        <button className="post-action like-action" aria-label={liked ? "Beğeniyi kaldır" : "Beğen"} aria-pressed={liked} disabled={liking} onClick={like}><Icon name={liked ? "heart-filled" : "heart-gray"} size={19} /><span>{detail ? likeCount : likeCount || ""}</span></button>
         <Link className="post-action" to={`/thread/share/${post.id}`} aria-label="Gönderiyi paylaş"><Icon name="share" size={19} /></Link>
       </div>
       {message && <p className="post-feedback" role="status">{message}</p>}<ErrorNotice message={action.error} />

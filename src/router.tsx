@@ -1,6 +1,8 @@
 import { LoadingSpinner, usePageTransition, useDelayedLoading } from "./components/loading";
 import { RouteError, NotFoundPage } from "./components/page-state";
 import { Brand } from "./brand";
+import { AccountMenu } from "./components/account-menu";
+import { DiscoverySidebar } from "./components/discovery-sidebar";
 import { useState } from "react";
 import { createRootRoute, createRoute, createRouter, Outlet, Link, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { api } from "./lib/api";
@@ -33,7 +35,7 @@ const confirmRoute = createRoute({
 });
 
 const sidebarLinks = [
-  { route: "/", label: "Anasayfa", icon: "home" },
+  { route: "/", label: "Ana Sayfa", icon: "home" },
   { route: "/explore", label: "Keşfet", icon: "search" },
   { route: "/notifications", label: "Bildirimler", icon: "notification" },
   { route: "/communities", label: "Topluluklar", icon: "community" },
@@ -57,10 +59,10 @@ function Shell() {
   return <div className="x-shell">
     <aside className="x-sidebar"><Brand /><nav className="x-nav" aria-label="Ana menü">{links.map(link => <Link to={link.to} key={link.to} className={active(link.to) ? "active" : ""} aria-current={active(link.to) ? "page" : undefined}><Icon name={link.icon} size={27} /><span>{link.label}</span></Link>)}</nav>
       <Link to="/" className="x-compose-link" onClick={() => setTimeout(() => document.getElementById("compose-post")?.focus(), 100)}>Gönderi yayınla</Link>
-      <div className="x-account"><Link to={`/profile/${profile.id}`} className="row"><Avatar name={profile.name} username={profile.username} src={profile.image} /><span><strong>{profile.name || "Yeni üye"}</strong><small>@{profile.username || "profilini-tamamla"}</small></span></Link><button type="button" onClick={signOut} aria-label="Çıkış yap"><Icon name="logout" size={20} /></button></div><ErrorNotice message={error} />
+      <div className="x-account"><Link to={`/profile/${profile.id}`} className="row"><Avatar name={profile.name} username={profile.username} src={profile.image} /><span><strong>{profile.name || "Yeni üye"}</strong><small>@{profile.username || "profilini-tamamla"}</small></span></Link><AccountMenu onSignOut={signOut} /></div><ErrorNotice message={error} />
     </aside>
-    <main className="x-main"><div className="x-topbar"><Brand /><button type="button" onClick={signOut} aria-label="Çıkış yap"><Icon name="logout" size={22} /></button></div><div hidden={showSpinner} aria-busy={pageTransition}><Outlet /></div>{showSpinner && <LoadingSpinner label="Sayfa yükleniyor" />}</main>
-    <aside className="x-rightbar">{pathname !== "/explore" && <SearchForm initial={exploreQuery} />}<section className="x-suggestions"><h2>Toplulukları keşfet</h2>{suggestedCommunities.length ? suggestedCommunities.map(c => <Link key={c.id} to={`/communities/${c.id}`} className="x-community"><Avatar src={c.image} name={c.name} username={c.username} /><span><strong>{c.name}</strong><small>{c.memberCount} üye</small></span></Link>) : <p>İlgi alanlarına göre yeni insanlarla tanış.</p>}<Link to="/communities" className="x-more">Daha fazla göster</Link></section>{communities.length > 0 && <section className="x-suggestions"><h2>Toplulukların</h2>{communities.slice(0, 4).map(c => <Link key={c.id} to={`/communities/${c.id}`} className="x-community"><Avatar src={c.image} name={c.name} username={c.username} /><strong>{c.name}</strong></Link>)}</section>}<footer>© {new Date().getFullYear()} social-web</footer></aside>
+    <main className="x-main"><div className="x-topbar"><Brand /><AccountMenu onSignOut={signOut} /></div><div hidden={showSpinner} aria-busy={pageTransition}><Outlet /></div>{showSpinner && <LoadingSpinner label="Sayfa yükleniyor" />}</main>
+    <aside className="x-rightbar">{pathname !== "/explore" && <SearchForm initial={exploreQuery} />}<DiscoverySidebar suggested={suggestedCommunities} joined={communities} /><footer>© {new Date().getFullYear()} social-web</footer></aside>
     <nav className="x-mobile-nav" aria-label="Mobil menü">{links.map(link => <Link to={link.to} key={link.to} aria-label={link.label} aria-current={active(link.to) ? "page" : undefined} className={active(link.to) ? "active" : ""}><Icon name={link.icon} size={25} /></Link>)}</nav>
   </div>;
 }

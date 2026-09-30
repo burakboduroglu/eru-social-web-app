@@ -12,17 +12,21 @@ const VIDEO_EXTENSIONS = /\.(?:mp4|webm|mov|m4v)$/i;
 function safeHttpUrl(input: string): URL | null {
   try {
     const url = new URL(input);
-    if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password || url.port) return null;
+    if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password) return null;
     return url;
   } catch {
     return null;
   }
 }
 
-export function parseMediaUrl(input: string): ParsedMediaUrl | null {
+export function parseMediaUrl(input: string, appOrigin?: string): ParsedMediaUrl | null {
   const url = safeHttpUrl(input);
   if (!url) return null;
   const host = url.hostname.toLowerCase();
+  const origin = appOrigin || (typeof window !== "undefined" ? window.location.origin : undefined);
+  // Only the bundled starter catalog is embeddable on our own origin.
+  if (origin && url.origin === origin && /^\/gifs\/[a-z0-9-]+\.gif$/.test(url.pathname) && !url.search) return { type: "gif", url: url.href };
+  if (url.port) return null;
 
   if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(host)) {
     const segments = url.pathname.split("/").filter(Boolean);

@@ -1,0 +1,88 @@
+.composer-picker.composer-picker-floating {
+  position: fixed;
+  inset: auto;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - 24px));
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  background: #101215;
+  box-shadow: 0 10px 36px rgb(0 0 0 / 50%);
+}
+
+.composer-picker-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 10px 6px 14px;
+  border-bottom: 1px solid #30363d;
+}
+
+.composer-picker-header h2 { margin: 0; color: #e7e9ea; font-size: 14px; font-weight: 600; }
+.composer-picker-header .picker-close { position: static; flex: 0 0 32px; width: 32px; height: 32px; font-size: 22px; }
+.picker-close:focus-visible, .picker-retry:focus-visible, .gif-picker-item:focus-visible { outline: 2px solid #1d9bf0; outline-offset: -3px; }
+.x-composer .icon-button[aria-expanded="true"] { border-radius: 50%; background: rgb(29 155 240 / 15%); }
+
+.emoji-picker-content { position: relative; min-height: 0; padding: 6px; overflow: hidden; }
+.emoji-picker-content > [role="status"] { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; background: #101215; }
+.composer-picker .emoji-panel {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  height: min(352px, 55dvh, calc(var(--picker-content-max-height, 364px) - 12px));
+  min-height: 0;
+  overflow: hidden;
+}
+.composer-picker .emoji-panel[hidden] { display: none; }
+/* Emoji Mart's host must stay flex: its shadow root uses stretch to bound the category scroll area. */
+.composer-picker .emoji-panel em-emoji-picker {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  --rgb-background: 16, 18, 21;
+  --rgb-input: 32, 35, 39;
+  --rgb-color: 231, 233, 234;
+  --rgb-accent: 29, 155, 240;
+  --border-radius: 8px;
+  --sidebar-width: 5px;
+}
+
+.gif-picker-content { display: grid; flex: 0 1 auto; gap: 10px; min-width: 0; min-height: 0; max-height: min(440px, 65dvh, var(--picker-content-max-height, 440px)); padding: 12px; overflow-y: auto; overscroll-behavior: contain; }
+.gif-picker-caption { margin: 0; color: #8b98a5; font-size: 12px; line-height: 1.5; }
+.composer-picker .gif-upload-label { gap: 5px; font-size: 12px; }
+.composer-picker .gif-picker-content input { width: 100%; max-width: 100%; }
+.composer-picker .gif-picker-content input[type="file"] { overflow: hidden; font-size: 11px; }
+.composer-picker .gif-picker-content input[type="file"]::file-selector-button { margin-right: 6px; padding: 5px 8px; font-size: 11px; }
+.gif-picker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+.gif-picker-item { display: flex; align-items: center; justify-content: center; height: 116px; min-width: 0; overflow: hidden; border: 1px solid #30363d; border-radius: 8px; padding: 0; background: #202327; cursor: pointer; }
+.gif-picker-item:hover:not(:disabled) { border-color: #1d9bf0; }
+.gif-picker-item img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.gif-picker-item:disabled { cursor: default; }
+.gif-thumbnail-error { padding: 12px; color: #8b98a5; font-size: 12px; text-align: center; }
+.picker-state { margin: 0; padding: 18px 8px; color: #8b98a5; font-size: 13px; line-height: 1.5; text-align: center; }
+.picker-state p { margin: 0 0 10px; }
+.picker-retry { border: 1px solid #536471; border-radius: 999px; padding: 6px 14px; background: transparent; color: #e7e9ea; font: inherit; cursor: pointer; }
+.picker-retry:hover { background: #202327; }
+.gif-picker-content { scrollbar-width: thin; scrollbar-color: #38414a transparent; }
+.gif-picker-content::-webkit-scrollbar { width: 4px; }
+.gif-picker-content::-webkit-scrollbar-thumb { background: #38414a; border-radius: 4px; }
+.gif-picker-content::-webkit-scrollbar-track { background: transparent; }
+@supports selector(::-webkit-scrollbar) { .gif-picker-content { scrollbar-width: auto; } }
+.gif-picker-sources { display: flex; flex-wrap: wrap; gap: 6px; }
+.gif-picker-sources .picker-retry { padding: 5px 11px; font-size: 12px; }
+.gif-picker-sources .picker-retry[aria-pressed="true"] { border-color: #1d9bf0; background: rgb(29 155 240 / 15%); color: #1d9bf0; }

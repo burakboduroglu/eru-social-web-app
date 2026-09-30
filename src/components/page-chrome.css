@@ -1,0 +1,51 @@
+.x-bar {
+  box-sizing: border-box;
+  min-height: 56px;
+  gap: 12px;
+  border-bottom: 1px solid var(--x-border);
+  padding-inline: 16px;
+}
+
+.x-bar h1 {
+  font-size: 18px;
+  line-height: 22px;
+}
+
+.x-bar-titles {
+  min-width: 0;
+}
+
+.x-bar-titles h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.x-bar > .x-pill,
+.x-bar > .x-pill-outline {
+  box-sizing: border-box;
+  align-self: center;
+  min-height: 32px;
+  flex: 0 0 auto;
+  padding: 7px 13px;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.x-bar ~ .x-feed-tabs {
+  top: 56px;
+}
+
+.x-profile-copy .x-joined {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.x-profile-copy .x-joined > svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}

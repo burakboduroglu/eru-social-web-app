@@ -1,0 +1,261 @@
+/* A focused post uses the full column beneath its compact author row. */
+.post-community {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  min-width: 0;
+  color: var(--x-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.post-community > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-community:hover {
+  color: #e7e9ea;
+}
+
+.post-community:hover > span {
+  text-decoration: underline;
+}
+
+.post-has-community > .post-avatar-link {
+  margin-top: 22px;
+}
+
+.thread-page {
+  min-width: 0;
+}
+
+.thread-page > .thread-main {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 0;
+  padding: 16px 16px 0;
+}
+
+.thread-page > .thread-main:hover {
+  background: transparent;
+}
+
+.thread-main > .post-avatar-link {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+
+.thread-main > .post-body {
+  display: contents;
+}
+
+.thread-main > .post-body > * {
+  min-width: 0;
+  grid-column: 1 / -1;
+}
+
+.thread-main > .post-body > .post-heading {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 40px;
+  align-items: flex-start;
+}
+
+.thread-main.post-has-community > .post-avatar-link,
+.thread-main.post-has-community > .post-body > .post-heading {
+  grid-row: 2;
+  margin-top: 0;
+}
+
+.thread-main > .post-body > .post-community {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: 6px;
+}
+
+.thread-main .post-heading .x-post-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 40px;
+  gap: 0;
+}
+
+.thread-main .post-heading .x-post-meta > :first-child {
+  max-width: 100%;
+}
+
+.thread-main .post-heading .x-post-meta > span {
+  max-width: 100%;
+  font-size: 14px;
+}
+
+.thread-page .thread-main .post-body .post-text {
+  margin: 16px 0 0;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.thread-main .post-context {
+  justify-self: start;
+  margin-top: 12px;
+}
+
+.thread-main .thread-meta {
+  margin-top: 16px;
+  border: 0;
+  padding: 0;
+  color: var(--x-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.thread-main .post-actions-row {
+  max-width: none;
+  justify-content: space-around;
+  align-items: center;
+  margin: 16px 0 0;
+  border-top: 1px solid var(--x-border);
+  padding: 4px 0;
+}
+
+.thread-main .post-actions-row .post-action {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.thread-main .post-feedback,
+.thread-main .error {
+  margin: 0 0 12px;
+}
+
+/* Replies share the feed's avatar gutter without competing with the main post. */
+.thread-reply {
+  scroll-margin-top: 72px;
+  border-bottom: 1px solid var(--x-border);
+  padding: 16px;
+}
+
+.thread-reply-target {
+  margin: 0 0 8px 52px;
+  overflow-wrap: anywhere;
+  color: var(--x-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.thread-reply-target a {
+  color: var(--x-blue);
+}
+
+.thread-reply-target a:hover {
+  text-decoration: underline;
+}
+
+.thread-reply .thread-reply-form {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 12px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.thread-reply-form > .avatar {
+  grid-column: 1;
+  grid-row: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.thread-reply .thread-reply-form > textarea {
+  grid-column: 2;
+  min-width: 0;
+  min-height: 48px;
+  max-height: 200px;
+  resize: vertical;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 7px 0 0;
+  color: #e7e9ea;
+  font-size: 17px;
+  line-height: 24px;
+  box-shadow: none;
+}
+
+.thread-reply-form > textarea::placeholder {
+  color: var(--x-muted);
+}
+
+.thread-reply-controls {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.thread-reply-length {
+  color: var(--x-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.thread-reply-controls > .thread-reply-submit {
+  height: auto;
+  min-height: 32px;
+  border-radius: 999px;
+  background: var(--x-blue);
+  padding: 6px 16px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.thread-reply-submit:not(:disabled):hover {
+  background: #1a8cd8;
+}
+
+.thread-reply .thread-reply-form > :is(.error, .post-feedback) {
+  grid-column: 2;
+  margin: 0;
+}
+
+.thread-reply-locked,
+.thread-replies-empty {
+  margin: 0;
+  color: var(--x-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.thread-replies-empty {
+  padding: 24px 16px;
+  text-align: center;
+}
+
+@media (max-width: 400px) {
+  .thread-page > .thread-main,
+  .thread-page .thread-reply {
+    padding-inline: 12px;
+  }
+
+  .thread-page .thread-main .post-body .post-text {
+    font-size: 19px;
+  }
+}

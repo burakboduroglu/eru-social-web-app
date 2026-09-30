@@ -1,0 +1,63 @@
+.app-toast-region {
+  position: fixed;
+  inset: calc(16px + env(safe-area-inset-top)) 12px auto;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.app-toast {
+  display: flex;
+  max-width: min(100%, 420px);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #343b42;
+  border-radius: 12px;
+  background: #1b2026;
+  padding: 10px 10px 10px 14px;
+  color: #e7e9ea;
+  font-size: 14px;
+  line-height: 20px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 35%);
+  pointer-events: auto;
+  animation: toast-enter 180ms ease-out;
+}
+
+@keyframes toast-enter {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-toast { animation: none; }
+}
+
+.app-toast > svg {
+  color: var(--x-blue);
+}
+
+.app-toast > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-toast > button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: #a0a7af;
+}
+
+.app-toast > button:hover {
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+}
+
+.app-toast > button:focus-visible {
+  outline: 2px solid var(--x-blue);
+  outline-offset: 2px;
+}

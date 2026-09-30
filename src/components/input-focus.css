@@ -1,0 +1,15 @@
+:is(
+  .x-field input,
+  .x-field textarea,
+  .auth-card input:not([type="file"]),
+  .composer-picker input:not([type="file"]),
+  .comment-form input
+):focus {
+  border-color: rgb(29 155 240 / 55%);
+  outline: none;
+  box-shadow: 0 0 0 1px rgb(29 155 240 / 45%);
+}
+
+.x-search:focus-within {
+  outline-color: rgb(29 155 240 / 65%);
+}

@@ -1,0 +1,38 @@
+.post-text .link-preview,
+.composer-link-preview .link-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  background: #101215;
+  color: #e7e9ea;
+  text-decoration: none;
+  white-space: normal;
+}
+.post-text .link-preview:hover,
+.composer-link-preview .link-preview:hover { border-color: #536471; text-decoration: none; }
+.link-preview:focus-visible { outline: 2px solid #1d9bf0; outline-offset: 2px; }
+.post-text .link-preview .link-preview-image,
+.composer-link-preview .link-preview .link-preview-image { display: block; width: 100%; height: 180px; max-height: 180px; border-radius: 0; object-fit: cover; }
+.link-preview-copy { display: grid; gap: 4px; min-width: 0; padding: 12px 14px; font-size: 14px; line-height: 1.4; }
+.link-preview-site { overflow: hidden; color: #8b98a5; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.link-preview-copy strong,
+.link-preview-copy p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; }
+.link-preview-copy strong { color: #e7e9ea; font-weight: 600; }
+.link-preview-copy p { margin: 0; color: #8b98a5; font-size: 13px; }
+.composer-link-preview { position: relative; width: 100%; min-width: 0; }
+.thread-reply-form > .composer-link-preview { grid-column: 2; }
+.composer-link-preview .link-preview-compact { flex-direction: row; margin-top: 0; }
+.composer-link-preview .link-preview-compact .link-preview-image { flex: 0 0 90px; width: 90px; height: 110px; }
+.composer-link-preview .link-preview-copy { flex: 1 1 auto; padding-right: 36px; }
+.link-preview-close { position: absolute; z-index: 2; top: 5px; right: 5px; display: grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 50%; background: #101215; color: #e7e9ea; font-size: 22px; cursor: pointer; }
+.link-preview-close:hover { background: #202327; }
+.link-preview-close:focus-visible { outline: 2px solid #1d9bf0; }
+.link-preview-loading { margin: 0; padding: 10px 36px 10px 12px; color: #8b98a5; font-size: 12px; }
+@media (max-width: 400px) {
+  .composer-link-preview .link-preview-compact .link-preview-image { flex-basis: 70px; width: 70px; }
+  .link-preview-copy { padding: 10px; }
+}

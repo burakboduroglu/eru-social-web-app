@@ -1,6 +1,7 @@
 import { ServerTiming } from "./timing";
 import { recommendedFeed } from "./feed";
 import { feedFeedback } from "./db/schema";
+import { getLinkPreview } from "./link-preview";
 import { createClient } from "@supabase/supabase-js";
 import { withUser, type Transaction } from "./db/client";
 import { HttpError, object, text, uuid, username, pageOffset, avatar } from "./validation";
@@ -39,6 +40,7 @@ export async function handleApi(request: Request) {
     const claims = data?.claims;
     if (error || !claims || claims.role !== "authenticated" || typeof claims.sub !== "string" || claims.iss !== `${config.url}/auth/v1` || !(claims.aud === "authenticated" || (Array.isArray(claims.aud) && claims.aud.includes("authenticated")))) throw new HttpError(401, "Oturum geçersiz. Tekrar giriş yap.");
     const userId = uuid(claims.sub);
+    if (request.method === "GET" && url.pathname === "/api/link-preview") return send({ preview: await timing.measure("preview", () => getLinkPreview(url.searchParams.get("url") || "")) });
     let body: Record<string, unknown> = {};
     if (["POST", "PATCH", "PUT"].includes(request.method)) {
       try { body = object(await request.json()); } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }

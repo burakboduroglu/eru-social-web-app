@@ -1,0 +1,393 @@
+/* Keep the pixel character inside its avatar box at every rendered size. */
+.avatar.avatar-pixel {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.avatar.avatar-pixel > .pixel-character {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 2px;
+  overflow: hidden;
+}
+
+/* The text wrapper and pixel avatar are both direct spans in account rows. */
+.x-account-row > .avatar {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 0;
+}
+
+/* The camera overlay selector also matched a span-based pixel avatar. */
+.x-profile-actions .x-avatar-picker > span.avatar {
+  position: relative;
+  inset: auto;
+  width: 141px;
+  height: 141px;
+  flex: 0 0 141px;
+  transform: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #000;
+  pointer-events: auto;
+}
+
+/* Compact, consistent target selection rows inspired by X's responsive menus. */
+.x-target-items {
+  box-sizing: border-box;
+  width: min(272px, calc(100vw - 24px));
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+  max-height: min(60dvh, 360px);
+  padding: 6px;
+}
+
+.x-target-items button {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 40px;
+  gap: 9px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.x-target-items button > .avatar {
+  box-sizing: border-box;
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  padding: 0;
+}
+
+.x-target-items button > span:not(.avatar) {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.x-target-items button > svg:last-child {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.menu-section-label {
+  padding: 6px 8px 5px;
+  font-size: 10px;
+  letter-spacing: .07em;
+  line-height: 14px;
+}
+
+.menu-search {
+  min-width: 0;
+  min-height: 34px;
+  gap: 7px;
+  margin: 2px 2px 6px;
+  padding: 6px 8px;
+}
+
+.menu-search > svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.menu-search input {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.menu-empty {
+  padding: 10px 8px;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.post-menu-items {
+  box-sizing: border-box;
+  width: min(272px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(60dvh, 360px);
+  padding: 5px;
+}
+
+.post-menu-items button {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 40px;
+  gap: 9px;
+  padding: 7px 9px;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: normal;
+}
+
+.post-menu-items button > svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+@media (max-width: 700px) {
+  .x-profile-actions .x-avatar-picker > span.avatar {
+    width: 84px;
+    height: 84px;
+    flex-basis: 84px;
+    min-width: 84px;
+    max-width: 84px;
+    min-height: 84px;
+    max-height: 84px;
+  }
+}
+
+/* Keep search controls inside both the Explore column and the right rail. */
+.x-search-wrap {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.x-search {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 38px;
+  gap: 8px;
+  padding: 0 6px 0 12px;
+}
+
+.x-search > svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.x-search input {
+  box-sizing: border-box;
+  width: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 6px 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.x-search .x-icon-button {
+  box-sizing: border-box;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  flex: 0 0 28px;
+}
+
+.x-search .x-icon-button > svg {
+  width: 14px;
+  height: 14px;
+}
+
+.x-suggest-items {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+  max-height: min(56dvh, 340px);
+}
+
+.x-suggest-items [role="listbox"] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.x-suggest-items .x-suggest-option {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 44px;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.x-suggest-items .x-suggest-option > .avatar,
+.x-suggest-items .x-suggest-option > .avatar.avatar-pixel {
+  box-sizing: border-box;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+}
+
+.x-suggest-items .x-suggest-option > span:not(.avatar) {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.x-suggest-items .x-suggest-option strong,
+.x-suggest-items .x-suggest-option small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.x-suggest-items .x-suggest-option small { font-size: 11px; line-height: 15px; }
+.x-suggest-items .x-suggest-option .x-suggest-kind { flex: 0 0 auto; font-size: 10px; }
+.x-suggest-all { min-height: 36px; gap: 7px; padding: 7px 8px; font-size: 12px; }
+.x-suggest-all > svg { width: 14px; height: 14px; }
+.x-suggest-items .x-suggest-state { padding: 8px; font-size: 12px; line-height: 17px; }
+
+/* Give the long right-rail heading room to wrap without squeezing row content. */
+.x-rightbar .discovery-sidebar {
+  min-width: 0;
+  padding: 12px;
+}
+
+.x-rightbar .discovery-sidebar .discovery-sidebar-heading {
+  min-width: 0;
+  gap: 7px;
+}
+
+.x-rightbar .discovery-sidebar .discovery-sidebar-heading > svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.x-rightbar .discovery-sidebar .discovery-sidebar-heading h2 {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: 14px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.x-rightbar .discovery-sidebar .discovery-sidebar-heading > span {
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+.x-rightbar .discovery-sidebar > p {
+  margin: 6px 0 8px;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.x-rightbar .discovery-sidebar .discovery-sidebar-row {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 44px;
+  gap: 8px;
+  margin-inline: -12px;
+  padding: 6px 12px;
+}
+
+.x-rightbar .discovery-sidebar-row > .avatar {
+  box-sizing: border-box;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+}
+
+.x-rightbar .discovery-sidebar-row > span:not(.avatar) {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.x-rightbar .discovery-sidebar-row strong {
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.x-rightbar .discovery-sidebar-row small {
+  margin-top: 1px;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.x-rightbar .discovery-sidebar-row > svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.x-rightbar .discovery-sidebar .x-more {
+  margin: 4px -12px -12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+@media (max-width: 480px) {
+  .x-search { gap: 7px; padding-inline: 10px 5px; }
+  .x-suggest-items { max-width: calc(100vw - 20px); }
+}
+
+/* Keep the destination trigger smaller than the composer controls. */
+.x-target-menu > .x-composer-target {
+  max-width: min(272px, calc(100vw - 32px));
+  min-height: 30px;
+  padding: 6px 10px;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.x-target-menu > .x-composer-target > span { min-width: 0; }
+.x-target-menu > .x-composer-target > svg { width: 14px; height: 14px; flex: 0 0 14px; }
+
+/* A narrow, quiet scrollbar for the page and scrollable UI surfaces. */
+:where(html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid) {
+  scrollbar-width: thin;
+  scrollbar-color: #38414a transparent;
+}
+:where(html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid)::-webkit-scrollbar { width: 4px; height: 4px; }
+:where(html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid)::-webkit-scrollbar-track { background: transparent; }
+:where(html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid)::-webkit-scrollbar-thumb { border-radius: 4px; background: #38414a; }
+:where(html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid)::-webkit-scrollbar-thumb:hover { background: #596571; }
+
+/* Destination selection belongs in the composer's upper-right corner. */
+.x-composer > .x-target-menu { align-self: flex-end; }
+.x-target-menu > .x-target-items { left: auto; right: 0; }
+
+@supports selector(::-webkit-scrollbar) {
+  html, body, .x-rightbar, .x-target-items, .post-menu-items, .x-suggest-items [role="listbox"], .composer-picker, .gif-picker-grid { scrollbar-width: auto; }
+}
+
+/* Align the two composer actions without changing their individual heights. */
+.x-composer { --composer-action-width: 156px; }
+.x-composer > .x-target-menu { width: var(--composer-action-width); max-width: 100%; }
+.x-target-menu > .x-composer-target { width: 100%; justify-content: center; }
+.x-composer .composer-submit { width: var(--composer-action-width); max-width: 100%; flex: none; padding-inline: 10px; }

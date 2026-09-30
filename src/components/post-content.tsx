@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { parseMediaUrl } from "../lib/media";
-
-const URL_PATTERN = /https?:\/\/[^\s<>"']+/g;
-const TRAILING_PUNCTUATION = /[.,!?;:)}\]]+$/;
+import { detectLinks, displayLink } from "../../shared/link-preview";
+import { firstPreviewUrl, LinkPreview } from "./link-preview";
 
 function renderMedia(url: string, key: number): ReactNode {
   const media = parseMediaUrl(url);
-  if (!media) return <a key={key} href={url} target="_blank" rel="noopener noreferrer">{url}</a>;
+  if (!media) return <a key={key} href={url} target="_blank" rel="noopener noreferrer" title={url}>{displayLink(url)}</a>;
   if (media.type === "youtube") return <div className="post-video" key={key} style={{ aspectRatio: "16 / 9", width: "100%" }}>
     <iframe src={media.embedUrl} title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen style={{ width: "100%", height: "100%", border: 0 }} />
   </div>;
@@ -20,17 +19,10 @@ function renderMedia(url: string, key: number): ReactNode {
 function renderText(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let cursor = 0;
-  let match: RegExpExecArray | null;
-  URL_PATTERN.lastIndex = 0;
-  while ((match = URL_PATTERN.exec(text))) {
-    const raw = match[0];
-    const trimmed = raw.replace(TRAILING_PUNCTUATION, "");
-    if (!trimmed) continue;
-    const start = match.index;
-    nodes.push(text.slice(cursor, start));
-    nodes.push(renderMedia(trimmed, start));
-    nodes.push(raw.slice(trimmed.length));
-    cursor = start + raw.length;
+  for (const link of detectLinks(text)) {
+    nodes.push(text.slice(cursor, link.start));
+    nodes.push(renderMedia(link.url, link.start));
+    cursor = link.end;
   }
   nodes.push(text.slice(cursor));
   return nodes;
@@ -38,9 +30,12 @@ function renderText(text: string): ReactNode[] {
 
 export function PostContent({ text, postId, truncate = false }: { text: string; postId: string; truncate?: boolean }) {
   const isTruncated = truncate && text.length > 250;
-  const visibleText = isTruncated ? `${text.slice(0, 250).replace(/\s+$/, "")}…` : text;
+  const cutoff = detectLinks(text).find(link => link.start < 250 && link.end > 250)?.start ?? 250;
+  const visibleText = isTruncated ? `${text.slice(0, cutoff).replace(/\s+$/, "")}…` : text;
+  const previewUrl = firstPreviewUrl(visibleText);
   return <div className="post-text text-[15px] text-white">
     {renderText(visibleText)}
     {isTruncated && <> <Link to={`/thread/${postId}`}>devamını oku</Link></>}
+    {previewUrl && <LinkPreview url={previewUrl} />}
   </div>;
 }

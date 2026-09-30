@@ -1,0 +1,80 @@
+/* The search control has horizontal margins, so its own width must stay auto. */
+.x-search {
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.x-search-wrap .x-search {
+  width: auto;
+}
+
+.x-search input {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+/* Fit the three-column shell through the narrow gap before the rail hides. */
+@media (min-width: 1051px) and (max-width: 1067px) {
+  .x-shell {
+    width: min(100%, 1068px);
+    grid-template-columns: 88px minmax(0, 1fr) 350px;
+  }
+
+  .x-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .x-rightbar {
+    width: 320px;
+    min-width: 0;
+    margin-left: 30px;
+  }
+}
+
+/* The collapsed navigation rail needs its account menu to open into the page. */
+@media (min-width: 701px) and (max-width: 1279px) {
+  .x-sidebar .account-menu-items {
+    right: auto;
+    left: calc(100% + 8px);
+  }
+}
+
+/* Give profile details and editor fields the same clear vertical rhythm. */
+.x-profile-copy {
+  gap: 8px;
+  padding-top: 12px;
+  padding-bottom: 20px;
+}
+
+#profile-editor .x-field + .x-field {
+  margin-top: 4px;
+}
+
+.x-profile-copy,
+.x-community-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.x-search-page + .x-feed-tabs {
+  top: 50px;
+}
+
+@media (max-width: 700px) {
+  .x-bar,
+  .x-search-page,
+  .x-feed-tabs {
+    top: 54px;
+  }
+
+  .x-bar ~ .x-feed-tabs {
+    top: 110px;
+  }
+
+  .x-search-page + .x-feed-tabs {
+    top: 104px;
+  }
+}
