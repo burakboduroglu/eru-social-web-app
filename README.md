@@ -18,9 +18,9 @@
 
 <div align="center">
 
-<img src="docs/screenshots/feed-desktop.jpg" alt="social-web home feed with sidebar navigation, the composer, a post and community discovery" width="900">
+<img src="docs/screenshots/feed-desktop.png" alt="social-web home feed with sidebar navigation, the composer, posts and community discovery" width="900">
 
-<sub>The screenshot is the running app; the account, avatar and post are the author's own test data.</sub>
+<sub>Screenshot supplied by the project owner, shown unchanged.</sub>
 
 </div>
 
@@ -37,8 +37,14 @@ through user search. Community feeds keep related conversations together.
 The interface uses a **flat feed, neutral dividers and responsive navigation**.
 Tabs update their content without remounting the composer or navigation. Page
 transitions show a small in-content spinner while keeping the surrounding layout
-in place. Illustrated empty states explain where to start; error screens distinguish
-missing pages, connection failures and temporary service limits.
+in place. Pixelarticons, pixel illustrations and seeded fallback avatars share a
+consistent visual style. Compact menus and search suggestions support keyboard
+navigation. GIF and emoji selectors open as floating panels without moving the
+composer or feed. Post details separate the content, date, engagement and inline
+reply form. Community destinations appear above the author. Publishing confirms
+with a short toast at the top of the screen. Illustrated empty states explain
+where to start; error screens distinguish missing pages, connection failures and
+temporary service limits.
 
 ## Highlights
 
@@ -48,7 +54,7 @@ missing pages, connection failures and temporary service limits.
 | 💬 | **Conversations** | Paginated feeds, replies, likes, share links and recent reply notifications. |
 | 👥 | **Communities** | Create a community, join one, publish to its feed and browse its members. Owners can edit its description. |
 | 🪪 | **Profiles** | Onboarding, avatar upload, searchable names, biographies and separate posts/replies tabs. |
-| 🎞️ | **Rich posts** | Emoji picker, personal GIF library and YouTube/Spotify previews. No Tenor API key. |
+| 🎞️ | **Rich posts** | Searchable emoji, 14 bundled animated reaction GIFs, personal uploads, readable links, automatic page previews and YouTube/Spotify embeds. No GIF provider API key. |
 | 🛡️ | **Database-enforced ownership** | Verified Auth identities and transaction-local roles preserve RLS through the Drizzle connection. |
 | 📱 | **One responsive layout** | Three columns on desktop, compact navigation on smaller screens and a mobile bottom bar. |
 | 🖼️ | **Useful error states** | Themed illustrations, retry actions and `Retry-After` countdowns for rate limits and service failures. |
@@ -177,10 +183,17 @@ migrations and place the Bun server behind HTTPS. See
 Legacy accounts and posts are not imported. Password recovery, OAuth, private
 messages and email/password editing are not implemented. Community member lists
 currently show up to 100 people; notifications cover replies from the last 24 hours.
-The GIF picker searches your own uploads rather than a third-party GIF catalog.
+The GIF picker searches a small bundled reaction catalog and your own uploads;
+it does not search the wider internet. Page previews depend on publicly reachable
+HTTP pages with usable metadata and may fall back to a plain link. Their bounded,
+cached fetches validate public addresses and redirects; preview images are fetched
+by the server rather than loaded from unverified third-party URLs in the browser.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Illustrations are adapted from unDraw assets used
-in Hezarfen; attribution and source details are in
+MIT — see [LICENSE](LICENSE). Interface icons use the MIT-licensed
+[Pixelarticons](https://github.com/halfmage/pixelarticons) library. Active illustrations
+are native pixel UI components; retained legacy unDraw assets have attribution in
 [the illustration notes](src/assets/illustrations/README.md).
+Bundled Google Noto Emoji animations use **CC BY 4.0**, independently of the app's
+MIT license; sources, credits and license text are in [the GIF catalog notes](public/gifs/README.md).

@@ -1,9 +1,13 @@
-# Illustrations
+# Illustration sources
+
+The application now renders native pixel scenes from `src/components/illustration.tsx` and seeded characters from `src/components/pixel-character.tsx`. The SVG files below are retained legacy assets and are not loaded by the current illustration component.
+
+## Legacy SVG assets
 
 Five unDraw illustrations by Katerina Limpitsouni, reused from the user-designated Hezarfen frontend reference. Source: https://github.com/Hezarfen-Co/hezarfen_frontend/tree/main/src/assets/illustrations
 
 License: https://undraw.co/license
-These assets are used within the application, not redistributed as a standalone illustration collection. No AI training use. The SVG source files are unchanged; `src/components/illustration.tsx` maps the stock palette to the application's theme at runtime.
+These assets are used within the application, not redistributed as a standalone illustration collection. No AI training use. The SVG source files are unchanged.
 
 | File | unDraw source slug |
 | --- | --- |
