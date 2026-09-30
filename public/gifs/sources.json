@@ -1,0 +1,108 @@
+{
+  "creator": "Google Noto Emoji",
+  "source": "https://googlefonts.github.io/noto-emoji-files/",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "downloaded": "2026-09-30",
+  "modified": false,
+  "assets": [
+    {
+      "filename": "smile.gif",
+      "unicode": "1f600",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f600/512.gif",
+      "bytes": 836130,
+      "sha256": "1fa8d23983927d7d5cd1e854e589821da5c3d2c11a866128fe3a688a9ee888fb"
+    },
+    {
+      "filename": "love.gif",
+      "unicode": "1f60d",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif",
+      "bytes": 978737,
+      "sha256": "8b891ba60e3d7cd9c508368094dbc2c8a8cb631190116b555e675c46ab255154"
+    },
+    {
+      "filename": "clap.gif",
+      "unicode": "1f44f",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif",
+      "bytes": 194400,
+      "sha256": "36a2cd7143f1028f746c470889a1ba6d8b71f073b97f5dbdd1130ee2b000b867"
+    },
+    {
+      "filename": "thumbs-up.gif",
+      "unicode": "1f44d",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif",
+      "bytes": 194821,
+      "sha256": "6f9e0ded0161c86e3d7ab1f42c8d0ad4c609bbce86d0c04092127f94b373134b"
+    },
+    {
+      "filename": "heart.gif",
+      "unicode": "2764_fe0f",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.gif",
+      "bytes": 248803,
+      "sha256": "8558abf3f723b996ade7518dd405cf564e9cd17000161717cfa143c42d94323c"
+    },
+    {
+      "filename": "celebrate.gif",
+      "unicode": "1f389",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif",
+      "bytes": 395755,
+      "sha256": "86879c45175f3901a8676d9b0bb5132c7a98b20a9f40487c21e4c896ce196616"
+    },
+    {
+      "filename": "fire.gif",
+      "unicode": "1f525",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif",
+      "bytes": 475239,
+      "sha256": "d8785d856b415fed27d3fafde40cc34bfb2ef9f2bffeecc9cbe7b3428e0f7e3e"
+    },
+    {
+      "filename": "wave.gif",
+      "unicode": "1f44b",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44b/512.gif",
+      "bytes": 378319,
+      "sha256": "1025c22c790ada1e071c0ace357817a7745c356b2ace3cb0e508329f67ff9fe0"
+    },
+    {
+      "filename": "sparkles.gif",
+      "unicode": "2728",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif",
+      "bytes": 158633,
+      "sha256": "e598e4b90f9f6206ab6316defd43ef3305c14ebbb03840b09dca8f8685888261"
+    },
+    {
+      "filename": "eyes.gif",
+      "unicode": "1f440",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f440/512.gif",
+      "bytes": 309202,
+      "sha256": "cd74f25ba724237765bc5d481a4a1c20299a4cd85ee8949b78123a0cb729a1b0"
+    },
+    {
+      "filename": "ok.gif",
+      "unicode": "1f44c",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44c/512.gif",
+      "bytes": 165580,
+      "sha256": "1b15efdc6e1860608d1e1de245e8fa7d8cd0bb17e625de35c20d3acc0caa4053"
+    },
+    {
+      "filename": "hundred.gif",
+      "unicode": "1f4af",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f4af/512.gif",
+      "bytes": 168659,
+      "sha256": "35f5b266c961602799985a5bd71e282738efe2d80ee1a0db13e9c12fead01581"
+    },
+    {
+      "filename": "heart-hands.gif",
+      "unicode": "1faf6",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1faf6/512.gif",
+      "bytes": 233292,
+      "sha256": "6ec83d8505d4173389caa687f3d5592213e09bb1119e896fd12e4988445c68fb"
+    },
+    {
+      "filename": "thanks.gif",
+      "unicode": "1f64f",
+      "source": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif",
+      "bytes": 208491,
+      "sha256": "34ca6f3db7c2b6b3cf60af4f3aecb8c2a0ff8e6d9b20549dc12331d5cff18c34"
+    }
+  ]
+}
