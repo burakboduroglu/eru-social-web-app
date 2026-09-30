@@ -28,9 +28,6 @@ social-web brings posts, replies and communities into a dark, X-style interface.
 React and TanStack Router handle the browser; a Bun API uses Drizzle to query
 Supabase Postgres. Auth and file storage live in the same Supabase project.
 
-Originally `eru-social-web-app`, the project has moved from Next.js, Clerk and
-MongoDB to this stack. The university and campus-map sections have been removed.
-
 ## What it is
 
 Join with an **invitation code**, confirm your email and complete your profile.
