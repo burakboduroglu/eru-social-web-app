@@ -61,13 +61,10 @@ missing pages, connection failures and temporary service limits.
 Requires Bun, the Supabase CLI and a Supabase project.
 
 ```sh
-git clone https://github.com/burakboduroglu/eru-social-web-app.git social-web
+git clone https://github.com/burakboduroglu/social-web.git
 cd social-web
 bun install
 ```
-
-The remote repository still uses its original name. These migration changes
-must be present in the checkout before running the commands below.
 
 Create an ignored `.env` with **only the three Supabase settings**:
 
