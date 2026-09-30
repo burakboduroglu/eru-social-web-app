@@ -1,0 +1,9 @@
+project_id = "social-web"
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5174/auth/confirm", "http://127.0.0.1:5174/auth/confirm", "http://localhost:5173/auth/confirm", "http://127.0.0.1:5173/auth/confirm", "http://localhost:3001/auth/confirm", "http://127.0.0.1:3001/auth/confirm"]
+minimum_password_length = 8
+
+[auth.email]
+enable_confirmations = true
