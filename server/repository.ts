@@ -1,7 +1,7 @@
 import { and, eq, ne, isNull, isNotNull, desc, ilike, or, sql, inArray, type SQL } from "drizzle-orm";
 import { communities, profiles, threads, likes, members } from "./db/schema";
 import type { Transaction } from "./db/client";
-import type { Post, CommunitySummary } from "../shared/types";
+import type { Post, PostMedia, CommunitySummary } from "../shared/types";
 import { HttpError } from "./validation";
 
 function postQuery(tx: Transaction, userId: string) {
@@ -12,6 +12,10 @@ function postQuery(tx: Transaction, userId: string) {
     replyCount: sql<number>`(select count(*)::int from threads r where r.parent_id = ${threads.id})`,
     replyAuthors: sql<{ id: string; image: string }[]>`coalesce((select json_agg(preview) from (select p.id, p.image from threads r join profiles p on p.id = r.author_id where r.parent_id = ${threads.id} order by r.created_at desc limit 2) preview), '[]'::json)`,
     liked: sql<boolean>`exists(select 1 from thread_likes l where l.thread_id = ${threads.id} and l.user_id = ${userId})`,
+    bookmarked: sql<boolean>`exists(select 1 from thread_bookmarks b where b.thread_id = ${threads.id} and b.user_id = ${userId})`,
+    reposted: sql<boolean>`exists(select 1 from thread_reposts r where r.thread_id=${threads.id} and r.user_id=${userId})`,
+    repostCount: sql<number>`(select count(*)::int from thread_reposts r where r.thread_id=${threads.id})`,
+    media: sql<PostMedia[]>`coalesce((select json_agg(json_build_object('id', m.id, 'objectPath', m.object_path, 'url', ${`${process.env.SUPABASE_URL || ""}/storage/v1/object/public/post-images/`} || m.object_path, 'mimeType', m.mime_type, 'byteSize', m.byte_size, 'width', m.width, 'height', m.height, 'altText', m.alt_text, 'position', m.position) order by m.position) from thread_media m where m.thread_id=${threads.id}), '[]'::json)`,
   }).from(threads).innerJoin(profiles, eq(threads.authorId, profiles.id))
     .leftJoin(communities, eq(threads.communityId, communities.id))
 }

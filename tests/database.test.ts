@@ -22,7 +22,7 @@ beforeAll(async () => {
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     create table storage.buckets(id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
-    create table storage.objects(id uuid default gen_random_uuid(), bucket_id text, name text);
+    create table storage.objects(id uuid primary key default gen_random_uuid(), bucket_id text, name text);
     alter table storage.objects enable row level security;
     create function storage.foldername(text) returns text[] language sql immutable as $$ select string_to_array($1, '/') $$;
     grant usage on schema public, auth, storage to authenticated, anon;
@@ -31,6 +31,11 @@ beforeAll(async () => {
   await db.exec(await readFile(new URL("../supabase/migrations/202609300001_social_web.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202609300003_post_media.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202609300004_feed_feedback.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010001_thread_bookmarks.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010002_profile_follows.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010003_notifications.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010004_post_images.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010005_thread_reposts.sql", import.meta.url), "utf8"));
   await db.query("insert into auth.users(id) values ($1), ($2)", [alice, bob]);
 }, 30000);
 afterAll(async () => { await db.close(); });

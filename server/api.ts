@@ -1,4 +1,11 @@
 import { ServerTiming } from "./timing";
+import { listBookmarks, setBookmark } from "./bookmarks";
+import { followState, listFollows, setFollow } from "./follows";
+import { listNotifications, markNotificationsRead, unreadNotifications } from "./notifications";
+import { attachImages, cleanupOldImages, imageReferences, imageStorage, ingestImage, removeImage } from "./post-media";
+import { MAX_IMAGE_BYTES } from "./image-validation";
+import { setRepost } from "./reposts";
+import { timeline } from "./timeline";
 import { recommendedFeed } from "./feed";
 import { feedFeedback } from "./db/schema";
 import { getLinkPreview } from "./link-preview";
@@ -40,10 +47,31 @@ export async function handleApi(request: Request) {
     const claims = data?.claims;
     if (error || !claims || claims.role !== "authenticated" || typeof claims.sub !== "string" || claims.iss !== `${config.url}/auth/v1` || !(claims.aud === "authenticated" || (Array.isArray(claims.aud) && claims.aud.includes("authenticated")))) throw new HttpError(401, "Oturum geçersiz. Tekrar giriş yap.");
     const userId = uuid(claims.sub);
+    if (url.pathname === "/api/media/images" || url.pathname === "/api/media/images/cleanup") {
+      const storage = imageStorage(config, bearer);
+      if (url.pathname === "/api/media/images" && request.method === "POST") {
+        if (Number(request.headers.get("content-length")) > MAX_IMAGE_BYTES) throw new HttpError(400, "Görsel en fazla 5 MiB olmalı.");
+        return send(await ingestImage(userId, new Uint8Array(await request.arrayBuffer()), request.headers.get("content-type") || "", storage, config.url));
+      }
+      if (url.pathname === "/api/media/images" && request.method === "DELETE") return send(await removeImage(userId, url.searchParams.get("path"), storage));
+      if (url.pathname === "/api/media/images/cleanup" && request.method === "POST") {
+        try {
+          const raw = await request.text();
+          if (Buffer.byteLength(raw) > 16 * 1024) throw new Error();
+          object(JSON.parse(raw));
+        } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }
+        return send(await cleanupOldImages(userId, storage));
+      }
+      throw new HttpError(404, "İşlem bulunamadı.");
+    }
     if (request.method === "GET" && url.pathname === "/api/link-preview") return send({ preview: await timing.measure("preview", () => getLinkPreview(url.searchParams.get("url") || "")) });
     let body: Record<string, unknown> = {};
     if (["POST", "PATCH", "PUT"].includes(request.method)) {
-      try { body = object(await request.json()); } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }
+      try {
+        const raw = await request.text();
+        if (Buffer.byteLength(raw) > 16 * 1024) throw new Error();
+        body = raw ? object(JSON.parse(raw)) : request.method === "PUT" && /^\/api\/(threads\/[^/]+\/(bookmark|repost)|profiles\/[^/]+\/follow)$/.test(url.pathname) ? {} : object(null);
+      } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }
     }
     return send(await timing.measure("database", () => withUser(userId, tx => dispatch(tx, userId, request.method, url, body, config.url))));
   } catch (error) {
@@ -62,7 +90,30 @@ export async function handleApi(request: Request) {
 export async function dispatch(tx: Transaction, userId: string, method: string, url: URL, body: Record<string, unknown>, supabaseUrl: string): Promise<unknown> {
   const path = url.pathname.slice(4).split("/").filter(Boolean);
   const offset = pageOffset(url.searchParams.get("page"));
-  const id = path[1] ? uuid(path[1]) : undefined;
+  const id = path[1] && ["threads", "profiles", "communities"].includes(path[0]) ? uuid(path[1]) : undefined;
+  if (path[0] === "notifications") {
+    if (path.length === 1 && method === "GET") return listNotifications(tx, userId, url.searchParams.get("cursor"), url.searchParams.get("kind") || "all");
+    if (path.length === 2 && path[1] === "unread" && method === "GET") return unreadNotifications(tx, userId);
+    if (path.length === 2 && path[1] === "read" && method === "PATCH") return markNotificationsRead(tx, userId, body.ids);
+    throw new HttpError(404, "İşlem bulunamadı.");
+  }
+  if (path[0] === "bookmarks" && path.length === 1 && method === "GET") {
+    return listBookmarks(tx, userId, url.searchParams.get("cursor"));
+  }
+  if (path[0] === "threads" && id && path[2] === "bookmark") {
+    if (path.length !== 3 || (method !== "PUT" && method !== "DELETE")) throw new HttpError(404, "İşlem bulunamadı.");
+    return setBookmark(tx, userId, id, method === "PUT");
+  }
+  if(path[0]==="threads" && id && path[2]==="repost") {
+    if(path.length!==3 || (method!=="PUT" && method!=="DELETE")) throw new HttpError(404,"İşlem bulunamadı.");
+    return setRepost(tx,userId,id,method==="PUT");
+  }
+  if (path[0] === "profiles" && id && path[2]) {
+    if(path.length===3 && path[2]==="timeline" && method==="GET") return timeline(tx,userId,id,url.searchParams.get("snapshot"),url.searchParams.get("cursor"));
+    if (path.length === 3 && path[2] === "follow" && (method === "PUT" || method === "DELETE")) return setFollow(tx, userId, id, method === "PUT");
+    if (path.length === 3 && (path[2] === "followers" || path[2] === "following") && method === "GET") return listFollows(tx, id, path[2], url.searchParams.get("cursor"));
+    throw new HttpError(404, "İşlem bulunamadı.");
+  }
   if (method === "GET" && path[0] === "me") {
     const allCommunities = await listCommunities(tx, userId);
     return { profile: await profile(tx, userId), communities: allCommunities.filter(c => c.joined), suggestedCommunities: allCommunities.filter(c => !c.joined).slice(0, 3) };
@@ -94,23 +145,22 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
     const tab = url.searchParams.get("tab") === "replies" ? "replies" : "posts";
     const scope = and(eq(threads.authorId, id), tab === "replies" ? isNotNull(threads.parentId) : isNull(threads.parentId));
     const [total] = await tx.select({ count: sql<number>`count(*)::int` }).from(threads).where(scope);
-    return { profile: await profile(tx, id), postCount: total.count, ...page(await listPosts(tx, userId, scope, offset)) };
+    return { profile: await profile(tx, id), ...await followState(tx, userId, id), postCount: total.count, ...page(await listPosts(tx, userId, scope, offset)) };
   }
   if (method === "GET" && path[0] === "profiles") {
     const query = (url.searchParams.get("q") || "").slice(0, 80).replace(/[\\%_]/g, "");
     return tx.select().from(profiles).where(and(eq(profiles.onboarded, true), ne(profiles.id, userId), query ? or(ilike(profiles.username, `%${query}%`), ilike(profiles.name, `%${query}%`)) : undefined)).orderBy(profiles.username).limit(30);
   }
-  if (method === "GET" && path[0] === "notifications") {
-    return page(await listPosts(tx, userId, and(ne(threads.authorId, userId), sql`${threads.createdAt} >= now() - interval '24 hours'`, sql`${threads.parentId} in (select id from threads where author_id = ${userId})`), offset));
-  }
-  if (method === "GET" && path[0] === "threads" && !id) {
+  if (method === "GET" && path[0] === "threads" && path.length === 1) {
     const feed = url.searchParams.get("feed") || "all";
+    if (!["all", "latest", "communities", "following"].includes(feed)) throw new HttpError(400, "Geçersiz akış.");
     if (feed === "all") return recommendedFeed(tx, userId, offset, url.searchParams.get("snapshot"));
+    if(feed==="following") return timeline(tx,userId,undefined,url.searchParams.get("snapshot"),url.searchParams.get("cursor"));
     return page(await listPosts(tx, userId, and(isNull(threads.parentId),
       sql`not exists(select 1 from feed_feedback f where f.thread_id = ${threads.id} and f.user_id = ${userId})`,
       feed === "communities" ? sql`${threads.communityId} in (select community_id from community_members where user_id = ${userId})` : undefined), offset));
   }
-  if (path[0] === "threads" && id && path[2] === "dismiss") {
+  if (path[0] === "threads" && id && path.length === 3 && path[2] === "dismiss") {
     if (method === "POST") {
       await tx.insert(feedFeedback).values({ userId, threadId: id }).onConflictDoNothing();
       return { success: true };
@@ -120,13 +170,14 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
       return { success: true };
     }
   }
-  if (method === "GET" && path[0] === "threads" && id) {
+  if (method === "GET" && path[0] === "threads" && id && path.length === 2) {
     const [post] = await listPosts(tx, userId, eq(threads.id, id));
     if (!post) throw new HttpError(404, "Gönderi bulunamadı.");
     const replies = await listPosts(tx, userId, eq(threads.parentId, id), offset);
     return { post, replies: replies.slice(0, 20), hasMore: replies.length > 20 };
   }
-  if (method === "POST" && path[0] === "threads" && !id) {
+  if (method === "POST" && path[0] === "threads" && path.length === 1) {
+    const media = imageReferences(body.media, userId);
     let communityId = body.communityId ? uuid(body.communityId) : null;
     const parentId = body.parentId ? uuid(body.parentId) : null;
     if (parentId) {
@@ -134,15 +185,16 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
       if (!parent) throw new HttpError(404, "Gönderi bulunamadı.");
       communityId = parent.communityId;
     }
-    const [row] = await tx.insert(threads).values({ text: text(body.text, 1, parentId ? 350 : 550), authorId: userId, communityId, parentId }).returning();
+    const [row] = await tx.insert(threads).values({ text: text(body.text ?? "", media.length ? 0 : 1, parentId ? 350 : 550), authorId: userId, communityId, parentId }).returning();
+    await attachImages(tx, userId, row.id, media);
     return row;
   }
-  if (method === "DELETE" && path[0] === "threads" && id) {
+  if (method === "DELETE" && path[0] === "threads" && id && path.length === 2) {
     const deleted = await tx.delete(threads).where(and(eq(threads.id, id), eq(threads.authorId, userId))).returning();
     if (!deleted.length) throw new HttpError(404, "Gönderi bulunamadı veya sana ait değil.");
     return { success: true };
   }
-  if (method === "POST" && path[0] === "threads" && id && path[2] === "like") {
+  if (method === "POST" && path[0] === "threads" && id && path.length === 3 && path[2] === "like") {
     const result = await tx.execute(sql`select public.toggle_thread_like(${id}::uuid) as result`);
     return (Array.isArray(result) ? result : (result as unknown as { rows: { result: unknown }[] }).rows)[0].result;
   }

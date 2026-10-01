@@ -1,8 +1,9 @@
 import { relations, sql } from "drizzle-orm";
-import { pgTable, pgSchema, uuid, text, boolean, timestamp, integer, primaryKey, index, check, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, pgSchema, uuid, text, boolean, timestamp, integer, primaryKey, index, uniqueIndex, check, type AnyPgColumn } from "drizzle-orm/pg-core";
 
 // Supabase owns auth.users. App migrations must never create or modify it.
 const authUsers = pgSchema("auth").table("users", { id: uuid().primaryKey() });
+const storageObjects = pgSchema("storage").table("objects", { id: uuid().primaryKey() });
 export const profiles = pgTable("profiles", {
   id: uuid().primaryKey().references(() => authUsers.id, { onDelete: "cascade" }),
   username: text().unique(),
@@ -52,10 +53,66 @@ export const likes = pgTable("thread_likes", {
   threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
 }, t => [primaryKey({ columns: [t.threadId, t.userId] }), index("likes_user_idx").on(t.userId)]);
+export const bookmarks = pgTable("thread_bookmarks", {
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [primaryKey({ columns: [t.userId, t.threadId] }), index("bookmarks_user_created_idx").on(t.userId, t.createdAt.desc(), t.threadId.desc())]);
 export const threadRelations = relations(threads, ({ one }) => ({
   author: one(profiles, { fields: [threads.authorId], references: [profiles.id] }),
   community: one(communities, { fields: [threads.communityId], references: [communities.id] }),
 }));
+export const follows = pgTable("profile_follows", {
+  followerId: uuid("follower_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  followedId: uuid("followed_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [
+  primaryKey({ columns: [t.followerId, t.followedId] }),
+  check("profile_follows_no_self", sql`${t.followerId} <> ${t.followedId}`),
+  index("follows_follower_created_idx").on(t.followerId, t.createdAt.desc(), t.followedId.desc()),
+  index("follows_followed_created_idx").on(t.followedId, t.createdAt.desc(), t.followerId.desc()),
+]);
+export const notificationRows = pgTable("notifications", {
+  id: uuid().primaryKey().defaultRandom(),
+  recipientId: uuid("recipient_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  actorId: uuid("actor_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  kind: text({ enum: ["reply", "like", "follow"] }).notNull(),
+  threadId: uuid("thread_id").references(() => threads.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  readAt: timestamp("read_at", { withTimezone: true, mode: "string" }),
+}, t => [
+  check("notifications_kind_check", sql`${t.kind} in ('reply', 'like', 'follow')`),
+  check("notifications_target_check", sql`(${t.kind} = 'follow') = (${t.threadId} is null)`),
+  check("notifications_no_self", sql`${t.recipientId} <> ${t.actorId}`),
+  index("notifications_recipient_created_idx").on(t.recipientId, t.createdAt.desc(), t.id.desc()),
+  index("notifications_unread_idx").on(t.recipientId).where(sql`${t.readAt} is null`),
+  uniqueIndex("notifications_thread_source_idx").on(t.kind, t.actorId, t.threadId).where(sql`${t.threadId} is not null`),
+  uniqueIndex("notifications_follow_source_idx").on(t.recipientId, t.actorId).where(sql`${t.kind} = 'follow'`),
+]);
+export const mediaUploads = pgTable("media_uploads", {
+  objectPath: text("object_path").primaryKey(),
+  ownerId: uuid("owner_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  storageObjectId: uuid("storage_object_id").references(() => storageObjects.id, { onDelete: "restrict" }),
+  mimeType: text("mime_type", { enum: ["image/jpeg", "image/png", "image/webp"] }).notNull(),
+  byteSize: integer("byte_size").notNull(), width: integer().notNull(), height: integer().notNull(),
+  sha256: text().notNull(),
+  cleanupPending: boolean("cleanup_pending").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [index("media_uploads_owner_created_idx").on(t.ownerId, t.createdAt)]);
+export const threadMedia = pgTable("thread_media", {
+  id: uuid().primaryKey().defaultRandom(),
+  threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
+  ownerId: uuid("owner_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  objectPath: text("object_path").notNull().references(() => mediaUploads.objectPath),
+  mimeType: text("mime_type", { enum: ["image/jpeg", "image/png", "image/webp"] }).notNull(),
+  byteSize: integer("byte_size").notNull(), width: integer().notNull(), height: integer().notNull(),
+  altText: text("alt_text").notNull().default(""), position: integer().notNull(),
+}, t => [uniqueIndex("thread_media_position_idx").on(t.threadId, t.position), index("thread_media_object_idx").on(t.objectPath)]);
+export const reposts = pgTable("thread_reposts", {
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [primaryKey({ columns: [t.userId,t.threadId] }), index("reposts_user_created_idx").on(t.userId,t.createdAt.desc(),t.threadId.desc()), index("reposts_thread_idx").on(t.threadId)]);
 // Operator-only tables. No anonymous/authenticated policies expose invite hashes.
 export const invitations = pgTable("invitations", {
   id: uuid().primaryKey().defaultRandom(),

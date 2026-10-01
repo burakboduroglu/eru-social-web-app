@@ -5,7 +5,7 @@ const root = resolve(import.meta.dir, "../dist");
 const server = Bun.serve({
   port: 3001,
   hostname: production ? "0.0.0.0" : "127.0.0.1",
-  maxRequestBodySize: 16 * 1024,
+  maxRequestBodySize: 5 * 1024 * 1024,
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) return handleApi(request);
