@@ -1,0 +1,100 @@
+# X feature and UX research for social-web
+
+Research date: 2026-10-01. Status: source-backed research and implementation recommendations; no application implementation in this document.
+
+## Evidence and scope
+
+Public official X Help and engineering documentation was searched with Brave Search (`bx`). Firecrawl read the Communities and blocking pages because search excerpts did not establish the relevant visibility rules. No X account was accessed, no authenticated browser session was inspected, and no screenshots or measurements of the current X interface were taken. Sources below describe documented behavior, not an independently observed current interface. Some Help pages contain old or mutually inconsistent instructions.
+
+Local implementation claims were checked against the current checkout, particularly `server/db/schema.ts`, `server/api.ts`, `server/repository.ts`, `src/ui.tsx`, `src/pages/social.tsx`, `src/pages/share.tsx`, `src/lib/media.ts`, and the post-media migration. Deployed database state and deployed UI behavior were not checked.
+
+The objective is to transfer useful interaction patterns to social-web while retaining its Turkish product copy, compact pixel identity, bundled Pixelarticons, lavender accent, and flat feed. Recommendations are project decisions, not claims that X implements them identically.
+
+## Officially documented patterns
+
+| Area | Verified documentation | Transferable product lesson |
+| --- | --- | --- |
+| Home | For You includes followed accounts and recommendations; Following restricts the timeline to followed accounts. X documents reopening the last selected timeline. [Timeline](https://help.x.com/en/using-x/x-timeline) | Give feed modes distinct data contracts. Preserve the selected mode and navigation context. A global newest-post feed must not be labeled Following. |
+| Feed controls | Recommendation controls include feedback and settings; the engineering article describes candidate selection, ranking, and filtering. [Recommendations](https://help.x.com/en/rules-and-policies/recommendations), [2023 engineering article](https://blog.x.com/engineering/en_us/topics/open-source/2023/twitter-recommendation-algorithm) | Apply eligibility and safety consistently, then rank. Preserve dismissal with undo and explain feed modes. |
+| Composer | Posts can contain text, links, photos, GIFs, and video. X documents shortcuts including new post, search, and modifier+Enter to submit. [How to post](https://help.x.com/en/using-x/how-to-post) | Keep primary composition simple; disclose attachment tools progressively. Submission needs visible pending/error feedback and preservation of unsent content. |
+| Drafts and threads | The thread guide describes connected posts, adding entries before publishing, a Post all action, and saving thread drafts. Mobile-specific guides describe draft access and local-loss conditions. [Threads](https://help.x.com/en/using-x/create-a-thread), [iOS](https://help.x.com/en/using-x/x-ios-app), [Android](https://help.x.com/en/using-x/x-for-android) | Protect unsent work. Treat a publishable multi-post thread as a separate capability from the existing parent/reply relationship. Current web draft synchronization and retention were not established. |
+| Repost and quote | A repost shares an existing post; a quote creates a post with commentary referencing the original. Undo repost and delete quote are different actions. The original author is not automatically included when someone replies to a quote. [Reposting](https://help.x.com/en/using-x/how-to-repost) | Model repost membership and quote content separately. Keep original attribution and define unavailable-original behavior. |
+| Bookmarks | A user can save posts to a dedicated timeline and remove saved items. X states that bookmarks are private to that account. [Bookmarks](https://help.x.com/en/using-x/bookmarks) | A private, persistent save action is a useful early addition with a small relational footprint. |
+| Replies and mentions | Replies respond to a post; mentions reference usernames in post text. Both can produce notifications, while merely visiting a profile does not show every post mentioning that account. X also documents leaving a mentioned conversation. [Replies and mentions](https://help.x.com/en/using-x/mentions-and-replies) | Persist mention references if they produce notifications. Distinguish author history from posts mentioning the author. |
+| Profiles and follow | X documents following from posts or profiles and approval requirements for protected accounts. Its mobile guides describe editable profile imagery and metadata. [Follow](https://help.x.com/en/using-x/how-to-follow-someone-on-x), [Profile editing](https://help.x.com/en/using-x/x-ios-app) | Introduce a real follow relation before follower counts or Following feeds. Profile expansion should serve identity and relationship decisions. |
+| Search and Explore | Search supports keywords, hashtags, account results, and filtered post results. Top is relevance-oriented; Latest orders matching posts by recency. Safe-search settings can exclude muted/blocked accounts. Exact tab labels differ between official pages. [Search](https://help.x.com/en/using-x/x-search), [Search FAQ](https://help.x.com/en/using-x/top-search-results-faqs) | Preserve query and filter in the URL. Add meaningful ordering and pagination before expanding the number of tabs. |
+| Notifications | X documents account activity including likes, reposts, followers, and mentions, with All/Mentions/Verified views and quality/advanced filters. [Notifications](https://help.x.com/en/managing-your-account/understanding-the-notifications-timeline) | Build a durable activity inbox with unread state. A verification-specific tab has no value without a verification product. |
+| Communities | Documentation describes audience selection, open or requested membership, community feeds, rules, and moderation roles. It also contains contradictory member/non-member participation descriptions. [Communities](https://help.x.com/en/using-x/communities) | Make audience and membership requirements explicit. Choose and document social-web rules instead of inheriting ambiguous X wording. |
+| Community moderation | Moderators review reported posts and can keep or hide them; admins manage the community and assign moderators. Rule feedback accompanies hiding. [Moderator playbook](https://help.x.com/en/using-x/communities-moderator-playbook) | Reports require an actual review workflow, permissions, reasons, and audit history. A report toast alone is incomplete. |
+| Mute | Muting hides an account from the timeline without unfollowing or blocking; the muted person is not informed. X exposes a list for reversing the action. [Mute](https://help.x.com/en/using-x/x-mute) | Distinguish personal filtering from interaction restrictions and moderation reports. Provide a management screen. |
+| Block | X states that blocked accounts can still view public posts but cannot engage or follow; blocking removes existing follow relationships. Protected-post visibility differs. [Block](https://help.x.com/en/using-x/blocking-and-unblocking-accounts) | Explicitly decide social-web visibility semantics. Never claim that hiding a card in the client enforces a block. |
+| Reporting | The Communities workflow distinguishes reports to community moderators from platform-level reports and requests context. [Community reports](https://help.x.com/en/using-x/communities#help-e1ba1728e58f) | Route reports to an accountable reviewer with a defined outcome; keep report content private. |
+| Accessibility | X documents adding per-image descriptions and reading them through an ALT badge. Its mobile guide documents font/display settings. [Image descriptions](https://help.x.com/en/using-x/add-image-descriptions), [Display settings](https://help.x.com/en/using-x/x-ios-app) | Attach alt text to structured media and make it editable before publishing. Audit keyboard, focus, contrast, text zoom, and motion behavior across new UI. |
+
+## Source limitations that affect decisions
+
+- The 2023 engineering article is historical architecture evidence. Its model sizes, candidate counts, weights, traffic, and latency numbers must not be presented as current X production behavior or as social-web performance targets. The local ranking system remains a project heuristic.
+- Media documentation differs: [How to post](https://help.x.com/en/using-x/how-to-post) describes mixed media, while [Photos and GIFs](https://help.x.com/en/using-x/posting-gifs-and-pictures) contains a single-GIF/no-multiple-images rule. Do not infer a universal current compatibility matrix from these pages.
+- Long-post limits differ between [How to post](https://help.x.com/en/using-x/how-to-post) and [Post types](https://help.x.com/en/using-x/types-of-posts). Preserve social-web's current limits unless a separate product change explicitly replaces them.
+- The [Communities page](https://help.x.com/en/using-x/communities) opens with member-only engagement but later allows non-member replies with moderator restrictions. Its membership/discovery paragraphs also contain older language. Public visibility and audience selection are useful patterns; exact current participation rules remain unresolved.
+- The two search pages expose different tab sets. Do not write an exact-X navigation specification from that evidence.
+- Mobile draft and display instructions do not establish desktop parity. Cross-device draft sync, precise current web settings, autoplay behavior, and reduced-motion controls remain unverified.
+- No live evidence establishes current X column widths, breakpoints, spacing, animation durations, sticky offsets, scroll restoration, loading spinners, composer persistence, or optimistic update behavior. Any such requirements below are project recommendations.
+
+## Local implementation gap matrix
+
+| Capability | Current checkout evidence | Gap and recommended scope |
+| --- | --- | --- |
+| Feed modes | `src/pages/social.tsx` exposes Senin için and Toplulukların. `server/api.ts` uses ranked `feed=all`, membership-filtered community posts, and a chronological fallback for other values. `server/feed.ts` supplies ranked snapshots. | Preserve both existing modes. Formalize a Latest mode if surfaced. Add Following only after follows exist. Validate allowed feed values explicitly. |
+| Saved posts | `server/db/schema.ts` has no bookmark relation; post actions in `src/ui.tsx` expose reply, like, and share. | Add private saved relation, idempotent save/remove endpoints, saved list, per-viewer state, and deletion handling. |
+| Draft persistence | `Composer` in `src/ui.tsx` holds text/target in component state; selected GIF URLs are inserted into the text. | Add account-scoped draft persistence keyed by composer context. Restore text and target safely; clear on successful publish. State local-device limitations in user copy. |
+| Follow graph | Profiles exist; no follows relation or follow API exists. Profile lists use posts/replies. | Add follow/unfollow, relationship state, counts/lists, then Following. Keep self-follow impossible and mutation behavior deterministic. |
+| Activity | `/api/notifications` returns replies to the viewer's posts from the last 24 hours. The UI says so. | Replace with durable event records, cursor pagination, unread/read state, deduplication, actor/target display, and retention rules. Do not badge all existing replies as new. |
+| Structured media | The `threads` table stores text, not attachments. `src/lib/media.ts` infers embeddable content from URLs. `post-media` is public and GIF-only, with a 5 MiB migration limit. | General image upload requires attachment metadata, alt text, ownership checks, file validation, storage policy changes, lifecycle cleanup, and unpublished-object privacy decisions. A file picker alone is insufficient. |
+| Repost/quote | No repost relation or quote reference exists. The share route offers copied links, WhatsApp, native share, and an Instagram homepage link. | Model repost as one relation per viewer/post and quote as authored content with an original reference. Keep external sharing distinct. Review the Instagram action because opening a homepage does not share the post. |
+| Thread publishing | `parentId` supports replies; API limits roots to 550 characters and replies to 350. The database allows text up to 550. Parent deletion cascades to replies. | Preserve limits during early work. Multi-post publishing needs atomic/retry semantics and a product decision about deletion of dependent content. |
+| Search | `/api/search` searches posts, people, and communities; UI has those three tabs and suggestions. Current results are bounded and shown without further pagination. | Add cursor pagination and explicit Latest/Top semantics when warranted. Preserve existing community discovery; do not fabricate trends from a small dataset. |
+| Communities | Membership, member list, create flow, and owner bio editing exist. The schema has no moderator roles, rules, reports, or review queue. | Expand only with an explicit owner/moderator/member contract, server-side checks, rule descriptions, report review, and member removal behavior. |
+| Safety | Feed dismissal exists as `feed_feedback`; mute/block/report relations and enforcement are absent. | Treat these as distinct capabilities. Apply safety filters to feed, search, detail, replies, profile, counts, notifications, and mutations as required by the chosen contract. |
+| Accessibility and states | Existing code includes labels, pressed states, pending buttons, error notices, toasts, picker Escape handling, focus restoration, and optimistic likes with rollback. | Extend and verify these patterns. Their presence does not prove full keyboard/screen-reader conformance. New media needs descriptive alternatives. |
+
+## Recommended UX contracts
+
+These are proposed social-web requirements, not observed X behavior.
+
+1. Keep navigation, feed controls, composer text, and scroll context stable while the affected content area loads. Preserve state on back navigation and filter changes; avoid resetting a draft because a list refreshes.
+2. Use consistent PostCard actions across feed, profile, search, saved posts, and detail. Optimistic actions must roll back on failure, expose pending state, and avoid duplicate writes. A slow request must not produce double counts.
+3. Make audience visible before publishing. Changing audience must not silently discard text. A draft whose community becomes unavailable needs an explicit resolution state.
+4. Separate empty, loading, failed, and unavailable states. A deleted or inaccessible quoted original needs a tombstone. A zero-result search should preserve the query and offer a useful next step.
+5. Keep overflow menus within the viewport, restore focus on dismissal, and support keyboard navigation. Adopt existing bundled icons and visual tokens instead of introducing a second icon style.
+6. Add controls progressively: save and relationship controls first; attachment editing when structured media exists; moderation controls only for roles backed by server authorization.
+7. Use mobile layouts that preserve the primary task. Check 320, 375, 768, 1024, 1055, and 1440 CSS-pixel widths, long Turkish text, text zoom, short viewports, and software-keyboard space. These widths are local validation targets, not X breakpoints.
+8. Define unread state explicitly. Event creation, read markers, badge counts, and grouped activities must agree after refresh and across sessions. A user action must not notify its own actor unnecessarily.
+9. Scope private records and caches by authenticated account. Switching accounts must not reveal drafts, bookmarks, activity, or relationship state from the previous account.
+
+## Phased recommendation and model boundaries
+
+| Phase | Deliverable | Dependency and completion boundary |
+| --- | --- | --- |
+| 1: Save and resume | Bookmarks, saved page, account-scoped local drafts, consistent post menu and action feedback. | Bookmark schema/API/RLS first. Draft persistence defines context keys, successful-submit cleanup, logout behavior, and stale target handling. Verify privacy and failure recovery. |
+| 2: Social graph and activity | Follow/unfollow, Following feed, durable notifications, then mentions. Minimum mute/block enforcement accompanies relationship/activity expansion. | Freeze relationship, visibility, event, and pagination contracts before UI work. Verify consistency across feed/search/detail/profile/notifications and blocked mutations. Mentions need username parsing and stable recipient references. |
+| 3: Rich publishing | Structured image attachments with alt text; repost and quote; multi-post threads only after retry/deletion rules are defined. | Resolve storage visibility, file validation, attachment lifecycle, original-post deletion, and concurrent writes. Keep text limits unchanged unless separately approved in the implementation spec. |
+| 4: Discovery and moderation | Search pagination/order, better discovery, community rules/roles/report review, safety management screens. | Reports need a real review destination and permission model. Analytics must support any claimed ranking improvements. |
+
+Accessibility, responsive checks, privacy enforcement, and failure recovery are completion criteria in every phase; they are not deferred to the final phase. Minimum safety enforcement belongs with Phase 2; richer moderation tools can follow in Phase 4.
+
+- **gpt-6.1-sol:** Own schema/migrations/RLS, API contracts and shared types, feed/query semantics, auth and privacy, concurrency/idempotency, notification lifecycle, storage policies, integration, and meaningful backend tests. Own changes to central files such as `server/api.ts`, `shared/types.ts`, `src/router.tsx`, and shared data loaders unless another owner is explicitly assigned.
+- **gpt-6-luna:** After contracts stabilize, own bounded UI tasks such as saved-page states, relationship controls, notification rows, attachment-preview/alt-text dialogs, and responsive styling. Work within existing design tokens and icon imports. Each assignment should have concrete props/API contracts, acceptance states, and exclusive file ownership.
+- **Integration owner:** Sequence migrations and UI wiring, review cross-surface behavior, run project checks, and perform desktop/mobile/keyboard verification. Avoid concurrent edits to `src/ui.tsx` and `src/pages/social.tsx`; extracting components first can create safe independent work boundaries.
+
+Do not parallelize the same unresolved data contract across models. Suitable later parallel work is independent presentation components after shared types and endpoints are agreed. This research does not start implementation, commit, push, deployment, or remote schema changes.
+
+## Acceptance evidence for the later implementation spec
+
+- Permission-focused tests prove private bookmarks/drafts/notifications and actor-scoped mutations cannot cross accounts.
+- Domain tests cover duplicate save/follow/repost requests, counts after rollback, repeated events, deleted targets, stale pagination, blocked interactions, and attachment validation where applicable.
+- UI verification covers every new control's pending/error/empty/success state, keyboard focus, overflow, state restoration, and narrow-width layout.
+- Run repository-prescribed checks with Bun and `git diff --check`; measure feed performance only when feed/query behavior changes and report the actual measurement setup.
+- Document unverified external behavior plainly. A source-backed workflow review must not be reported as a live visual audit of x.com.
+
+All linked external sources were retrieved on 2026-10-01. Search snippets were sufficient except where Firecrawl reads are identified above; X Help publication/update dates were not consistently available. Official documentation is the source of feature claims, while local source inspection is the source of implementation-gap claims.

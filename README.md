@@ -31,8 +31,8 @@ Supabase Postgres. Auth and file storage live in the same Supabase project.
 ## What it is
 
 Join with an **invitation code**, confirm your email and complete your profile.
-Share a post with text, emoji or a GIF, reply to a conversation, and find people
-through user search. Community feeds keep related conversations together.
+Share text, emoji, a GIF or up to four images, reply to a conversation, save posts
+and follow people through user search. Community feeds keep related conversations together.
 
 The interface uses a **flat feed, neutral dividers and responsive navigation**.
 Tabs update their content without remounting the composer or navigation. Page
@@ -51,10 +51,12 @@ temporary service limits.
 | | Feature | How it works |
 | --- | --- | --- |
 | 🔒 | **Invitation-only registration** | An Auth database trigger validates and consumes a hashed invitation atomically, including direct Auth API calls. |
-| 💬 | **Conversations** | Paginated feeds, replies, likes, share links and recent reply notifications. |
+| 💬 | **Conversations** | Paginated feeds, replies, likes, private bookmarks and distinct repost/share actions. |
 | 👥 | **Communities** | Create a community, join one, publish to its feed and browse its members. Owners can edit its description. |
-| 🪪 | **Profiles** | Onboarding, avatar upload, searchable names, biographies and separate posts/replies tabs. |
-| 🎞️ | **Rich posts** | Searchable emoji, 14 bundled animated reaction GIFs, personal uploads, readable links, automatic page previews and YouTube/Spotify embeds. No GIF provider API key. |
+| 🪪 | **Profiles** | Onboarding, avatars, searchable profiles, follow counts/lists, and posts/replies tabs. |
+| 🎞️ | **Rich posts** | Searchable emoji, 14 bundled animated reaction GIFs, personal uploads, four-image attachments with alt text and a keyboard viewer, readable links, automatic page previews and YouTube/Spotify embeds. No GIF provider API key. |
+| 🔔 | **Activity** | Durable reply, like and follow notifications, category filters, explicit read controls and an unread badge. |
+| 🔁 | **Following** | Chronological personal originals and attributed reposts, with stable snapshot/cursor pagination. |
 | 🛡️ | **Database-enforced ownership** | Verified Auth identities and transaction-local roles preserve RLS through the Drizzle connection. |
 | 📱 | **One responsive layout** | Three columns on desktop, compact navigation on smaller screens and a mobile bottom bar. |
 | 🖼️ | **Useful error states** | Themed illustrations, retry actions and `Retry-After` countdowns for rate limits and service failures. |
@@ -182,12 +184,25 @@ migrations and place the Bun server behind HTTPS. See
 
 Legacy accounts and posts are not imported. Password recovery, OAuth, private
 messages and email/password editing are not implemented. Community member lists
-currently show up to 100 people; notifications cover replies from the last 24 hours.
+currently show up to 100 people. Activity has no historical backfill or browser push.
+Unsent drafts live only in memory and clear on account change or reload.
 The GIF picker searches a small bundled reaction catalog and your own uploads;
 it does not search the wider internet. Page previews depend on publicly reachable
 HTTP pages with usable metadata and may fall back to a plain link. Their bounded,
 cached fetches validate public addresses and redirects; preview images are fetched
 by the server rather than loaded from unverified third-party URLs in the browser.
+
+Image attachments use a separate public `post-images` bucket. Unpublished images
+are accessible to anyone with their URL. Each JPEG/PNG/WebP is limited to 5 MiB;
+server validation checks container structure, dimensions and stored-byte checksum,
+but does not fully decode compressed pixels. Published images cannot be replaced
+or deleted while referenced. `POST /api/media/images/cleanup` with `{}` retries up
+to 20 of the caller's unreferenced uploads older than 24 hours, plus pending failed
+cleanup attempts. This is an explicit operation, without an automatic scheduler.
+
+The October 1 features require all five `20261001` migrations before deployment.
+See the [implementation specification](docs/specs/2026-10-01-x-inspired-social-experience.md)
+and [validation record](docs/design/2026-10-01-implementation-review.md).
 
 ## License
 
