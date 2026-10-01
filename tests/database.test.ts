@@ -36,6 +36,9 @@ beforeAll(async () => {
   await db.exec(await readFile(new URL("../supabase/migrations/202610010003_notifications.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202610010004_post_images.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202610010005_thread_reposts.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010006_private_account_lists.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010007_saved_searches.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010008_community_reposts.sql", import.meta.url), "utf8"));
   await db.query("insert into auth.users(id) values ($1), ($2)", [alice, bob]);
 }, 30000);
 afterAll(async () => { await db.close(); });

@@ -113,6 +113,35 @@ export const reposts = pgTable("thread_reposts", {
   threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 }, t => [primaryKey({ columns: [t.userId,t.threadId] }), index("reposts_user_created_idx").on(t.userId,t.createdAt.desc(),t.threadId.desc()), index("reposts_thread_idx").on(t.threadId)]);
+export const accountLists = pgTable("account_lists", {
+  id: uuid().primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  name: text().notNull(), description: text().notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [
+  check("account_lists_name_check", sql`length(trim(${t.name})) between 1 and 80 and length(${t.name}) <= 80`),
+  check("account_lists_description_check", sql`length(${t.description}) <= 350`),
+  index("lists_owner_created_idx").on(t.ownerId, t.createdAt.desc(), t.id.desc()),
+]);
+export const accountListMembers = pgTable("account_list_members", {
+  listId: uuid("list_id").notNull().references(() => accountLists.id, { onDelete: "cascade" }),
+  profileId: uuid("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [primaryKey({ columns: [t.listId, t.profileId] }), index("list_members_created_idx").on(t.listId, t.createdAt.desc(), t.profileId.desc()), index("list_members_profile_idx").on(t.profileId)]);
+export const savedSearches = pgTable("saved_searches", {
+  id: uuid().primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  query: text().notNull(),
+  normalizedQuery: text("normalized_query").generatedAlwaysAs(sql`lower(public.normalize_saved_query(query))`),
+  tab: text({ enum: ["posts", "people", "communities"] }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, t => [
+  check("saved_searches_query_check", sql`length(public.normalize_saved_query(${t.query})) between 2 and 80`),
+  check("saved_searches_tab_check", sql`${t.tab} in ('posts','people','communities')`),
+  uniqueIndex("saved_searches_owner_query_tab_key").on(t.ownerId, t.normalizedQuery, t.tab),
+  index("saved_searches_owner_created_idx").on(t.ownerId, t.createdAt.desc(), t.id.desc()),
+]);
 // Operator-only tables. No anonymous/authenticated policies expose invite hashes.
 export const invitations = pgTable("invitations", {
   id: uuid().primaryKey().defaultRandom(),
@@ -134,3 +163,19 @@ export const feedFeedback = pgTable("feed_feedback", {
   threadId: uuid("thread_id").notNull().references(() => threads.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 }, t => [primaryKey({ columns: [t.userId, t.threadId] })]);
+
+export const jobs = pgTable("jobs", {
+ id: uuid().primaryKey().defaultRandom(), ownerId: uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),
+ title: text().notNull(), company: text().notNull(),location:text().notNull().default(""),description:text().notNull(),
+ workMode:text("work_mode",{enum:["onsite","remote","hybrid"]}).notNull(),employmentType:text("employment_type",{enum:["full-time","part-time","contract","internship"]}).notNull(),
+ status:text({enum:["draft","published","closed"]}).notNull().default("draft"),applicationUrl:text("application_url").notNull(),deadline:timestamp({withTimezone:true,mode:"string"}),
+ version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),
+});
+export const jobSaves=pgTable("job_saves",{userId:uuid("user_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),jobId:uuid("job_id").notNull().references(()=>jobs.id,{onDelete:"cascade"}),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()},t=>[primaryKey({columns:[t.userId,t.jobId]})]);
+export const articles=pgTable("articles",{
+ id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),title:text().notNull(),summary:text().notNull().default(""),body:text().notNull(),status:text({enum:["draft","published"]}).notNull().default("draft"),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),
+});
+export const textDrafts=pgTable("text_drafts",{id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),context:text({enum:["personal","community","reply"]}).notNull(),targetId:uuid("target_id"),text:text().notNull(),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()});
+export const accountPreferences=pgTable("account_preferences",{ownerId:uuid("owner_id").primaryKey().references(()=>profiles.id,{onDelete:"cascade"}),reducedMotion:boolean("reduced_motion").notNull().default(false),defaultFeed:text("default_feed",{enum:["all","latest","following","communities"]}).notNull().default("all"),notificationKind:text("notification_kind",{enum:["all","reply","like","follow"]}).notNull().default("all")});
+export const communityEvents=pgTable("community_events",{id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),communityId:uuid("community_id").notNull().references(()=>communities.id,{onDelete:"cascade"}),title:text().notNull(),description:text().notNull().default(""),startsAt:timestamp("starts_at",{withTimezone:true,mode:"string"}).notNull(),endsAt:timestamp("ends_at",{withTimezone:true,mode:"string"}),meetingUrl:text("meeting_url").notNull().default(""),status:text({enum:["active","cancelled"]}).notNull().default("active"),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()});
+export const eventRsvps=pgTable("event_rsvps",{eventId:uuid("event_id").notNull().references(()=>communityEvents.id,{onDelete:"cascade"}),userId:uuid("user_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()},t=>[primaryKey({columns:[t.eventId,t.userId]})]);

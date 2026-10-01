@@ -1,9 +1,10 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { follows, profiles, reposts, threads } from "./db/schema";
+import { accountListMembers, follows, members as communityMembers, profiles, reposts, threads } from "./db/schema";
 import type { Transaction } from "./db/client";
 import type { TimelineEntry, TimelinePage } from "../shared/types";
 import { listPosts, profile } from "./repository";
 import { HttpError } from "./validation";
+import { accountList } from "./lists";
 
 type Activity = { threadId: string; actorId: string; createdAt: string; kind: "original" | "repost" };
 type Snapshot = { userId: string; scope: string; activities: Activity[]; expires: number };
@@ -33,8 +34,10 @@ export async function timeline(
   targetId: string | undefined,
   token: string | null,
   cursor: string | null,
+  listId?: string,
 ): Promise<TimelinePage> {
-  const scope = targetId ? `profile:${targetId}` : "following";
+  const scope = listId ? `list:${listId}` : targetId ? `profile:${targetId}` : "following";
+  if (listId) await accountList(tx, userId, listId);
   if (targetId && !(await profile(tx, targetId)).onboarded) throw new HttpError(404, "Profil bulunamadı.");
   const now = Date.now();
   for (const [key, value] of snapshots) {
@@ -46,10 +49,18 @@ export async function timeline(
   }
   if (cursor && !token) throw new HttpError(400, "Sayfa imleci için akış kimliği gerekli.");
   if (!snapshot) {
-    const audience = targetId
+    const audience = listId
+      ? sql`exists(select 1 from account_list_members m where m.list_id=${listId}::uuid and m.profile_id=a.id)`
+      : targetId
       ? sql`a.id=${targetId}::uuid`
       : sql`exists(select 1 from profile_follows f where f.follower_id=${userId} and f.followed_id=a.id) and a.id<>${userId}::uuid`;
-    const personal = targetId ? sql`true` : sql`t.community_id is null`;
+    const personal = targetId && !listId ? sql`true` : sql`t.community_id is null`;
+    const repostScope = targetId && !listId
+      ? sql`(t.community_id is null or (
+          exists(select 1 from community_members m where m.community_id=t.community_id and m.user_id=${userId})
+          and exists(select 1 from community_members m where m.community_id=t.community_id and m.user_id=r.user_id)
+        ))`
+      : sql`t.community_id is null`;
     const result = await tx.execute(sql`
       select source.thread_id as "threadId",source.actor_id as "actorId",source.kind,
         to_char(source.created_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as "createdAt"
@@ -58,7 +69,7 @@ export async function timeline(
         where t.parent_id is null and ${personal} and a.onboarded and ${audience}
         union all
         select t.id,r.user_id,r.created_at,'repost' as kind from thread_reposts r join threads t on t.id=r.thread_id join profiles a on a.id=r.user_id
-        where t.parent_id is null and t.community_id is null and a.onboarded and ${audience}
+        where t.parent_id is null and ${repostScope} and a.onboarded and ${audience}
       ) source order by source.created_at desc,source.actor_id desc,source.thread_id desc,source.kind desc
     `);
     const rows = (Array.isArray(result) ? result : (result as unknown as { rows: Activity[] }).rows) as Activity[];
@@ -90,8 +101,9 @@ export async function timeline(
     ? await tx.select().from(profiles).where(and(inArray(profiles.id, actorIds), eq(profiles.onboarded, true)))
     : [];
   const actorById = new Map(actors.map(actor => [actor.id, actor]));
-  const edges = targetId ? [] : await tx.select().from(follows).where(eq(follows.followerId, userId));
-  const followed = new Set(edges.map(edge => edge.followedId));
+  const edges = targetId || listId ? [] : await tx.select().from(follows).where(eq(follows.followerId, userId));
+  const members = listId ? await tx.select().from(accountListMembers).where(eq(accountListMembers.listId, listId)) : [];
+  const audience = new Set(listId ? members.map(member => member.profileId) : edges.map(edge => edge.followedId));
   const activeReposts = ids.length
     ? await tx.select({
       threadId: reposts.threadId,
@@ -99,16 +111,27 @@ export async function timeline(
       createdAt: sql<string>`to_char(${reposts.createdAt} at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
     }).from(reposts).where(inArray(reposts.threadId, ids))
     : [];
+  const communityIds = [...new Set(posts.flatMap(post => post.communityId ? [post.communityId] : []))];
+  const memberships = targetId && !listId && communityIds.length
+    ? await tx.select().from(communityMembers).where(and(
+      inArray(communityMembers.communityId, communityIds),
+      inArray(communityMembers.userId, [...new Set([userId, ...actorIds])]),
+    ))
+    : [];
+  const isCommunityMember = (communityId: string, memberId: string) => memberships.some(member =>
+    member.communityId === communityId && member.userId === memberId
+  );
   const entries = slots.flatMap<TimelineEntry>(row => {
     const post = byId.get(row.threadId), actor = actorById.get(row.actorId);
-    if (!post || !actor || (!targetId && !followed.has(actor.id))) return [];
+    if (!post || !actor || ((!targetId || listId) && !audience.has(actor.id))) return [];
     if (row.kind === "repost") {
-      if (post.parentId || post.communityId || !activeReposts.some(repost =>
+      if (post.parentId || (post.communityId && (!targetId || listId
+        || !isCommunityMember(post.communityId, userId) || !isCommunityMember(post.communityId, actor.id))) || !activeReposts.some(repost =>
         repost.threadId === post.id && repost.userId === actor.id && repost.createdAt === row.createdAt
       )) return [];
       return [{ post, repost: { actor, createdAt: row.createdAt } }];
     }
-    if (post.authorId !== actor.id || post.parentId || (!targetId && post.communityId)) return [];
+    if (post.authorId !== actor.id || post.parentId || ((!targetId || listId) && post.communityId)) return [];
     return [{ post, repost: null }];
   });
   return {
@@ -117,6 +140,6 @@ export async function timeline(
     nextCursor: offset + 20 < snapshot.activities.length
       ? Buffer.from(JSON.stringify({ offset: offset + 20, snapshot: token })).toString("base64url")
       : null,
-    ...(!targetId ? { followingCount: edges.length } : {}),
+    ...(!targetId && !listId ? { followingCount: edges.length } : {}),
   };
 }

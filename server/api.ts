@@ -1,3 +1,11 @@
+import { listEvents, readEvent, saveEvent, deleteEvent, setEventRsvp } from "./events";
+import { creatorAnalytics } from "./analytics";
+import { readPreferences, savePreferences } from "./preferences";
+import { listTextDrafts, readTextDraft, saveTextDraft, deleteTextDraft, publishingDraft } from "./text-drafts";
+import { textDrafts } from "./db/schema";
+import { listArticles, readArticle, saveArticle, deleteArticle } from "./articles";
+import { listJobs, readJob, saveJob, deleteJob, setJobSave } from "./jobs";
+import { explorePage } from "./explore";
 import { ServerTiming } from "./timing";
 import { listBookmarks, setBookmark } from "./bookmarks";
 import { followState, listFollows, setFollow } from "./follows";
@@ -6,6 +14,8 @@ import { attachImages, cleanupOldImages, imageReferences, imageStorage, ingestIm
 import { MAX_IMAGE_BYTES } from "./image-validation";
 import { setRepost } from "./reposts";
 import { timeline } from "./timeline";
+import { accountList, deleteAccountList, listAccountLists, listAccountMembers, saveAccountList, setAccountMember } from "./lists";
+import { deleteSavedSearch, listSavedSearches, saveSearch } from "./saved-searches";
 import { recommendedFeed } from "./feed";
 import { feedFeedback } from "./db/schema";
 import { getLinkPreview } from "./link-preview";
@@ -23,6 +33,18 @@ export function publicConfig() {
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
 let authClient: ReturnType<typeof createClient> | undefined;
 let authConfigKey = "";
+function privateRoute(url: URL, method: string): string[] | undefined {
+  const path = url.pathname.slice(4);
+  if (!/^\/(lists|saved-searches)(\/|$)/.test(path)) return undefined;
+  const parts = path.split("/").slice(1);
+  const collection = parts.length === 1 && (method === "GET" || method === "POST");
+  const resource = parts.length === 2 && !!parts[1] && (parts[0] === "lists"
+    ? ["GET", "PATCH", "DELETE"].includes(method) : method === "DELETE");
+  const content = parts[0] === "lists" && parts.length === 3 && !!parts[1] && ["members", "timeline"].includes(parts[2]) && method === "GET";
+  const member = parts[0] === "lists" && parts.length === 4 && !!parts[1] && parts[2] === "members" && !!parts[3] && (method === "PUT" || method === "DELETE");
+  if (!collection && !resource && !content && !member) throw new HttpError(404, "İşlem bulunamadı.");
+  return parts;
+}
 export async function handleApi(request: Request) {
   const timing = new ServerTiming();
   const send = (value: unknown, status = 200) => {
@@ -65,12 +87,13 @@ export async function handleApi(request: Request) {
       throw new HttpError(404, "İşlem bulunamadı.");
     }
     if (request.method === "GET" && url.pathname === "/api/link-preview") return send({ preview: await timing.measure("preview", () => getLinkPreview(url.searchParams.get("url") || "")) });
+    privateRoute(url, request.method);
     let body: Record<string, unknown> = {};
     if (["POST", "PATCH", "PUT"].includes(request.method)) {
       try {
         const raw = await request.text();
-        if (Buffer.byteLength(raw) > 16 * 1024) throw new Error();
-        body = raw ? object(JSON.parse(raw)) : request.method === "PUT" && /^\/api\/(threads\/[^/]+\/(bookmark|repost)|profiles\/[^/]+\/follow)$/.test(url.pathname) ? {} : object(null);
+        if (Buffer.byteLength(raw) > (url.pathname.startsWith("/api/articles") ? 220 * 1024 : url.pathname.startsWith("/api/jobs") ? 100 * 1024 : 16 * 1024)) throw new Error();
+        body = raw ? object(JSON.parse(raw)) : request.method === "PUT" && /^\/api\/(events\/[^/]+\/rsvp|jobs\/[^/]+\/save|threads\/[^/]+\/(bookmark|repost)|profiles\/[^/]+\/follow)$/.test(url.pathname) ? {} : object(null);
       } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }
     }
     return send(await timing.measure("database", () => withUser(userId, tx => dispatch(tx, userId, request.method, url, body, config.url))));
@@ -88,6 +111,80 @@ export async function handleApi(request: Request) {
 }
 
 export async function dispatch(tx: Transaction, userId: string, method: string, url: URL, body: Record<string, unknown>, supabaseUrl: string): Promise<unknown> {
+  const resourcePath = url.pathname.slice(4);
+  if (/^\/jobs(\/|$)/.test(resourcePath)) {
+    const match = /^\/jobs(?:\/([^/]+)(?:\/(save))?)?$/.exec(resourcePath);
+    if (!match) throw new HttpError(404,"İşlem bulunamadı.");
+    const id=match[1] ? uuid(match[1]) : undefined;
+    if (!id && method==="GET") return listJobs(tx,userId,url.searchParams);
+    if (!id && method==="POST") return saveJob(tx,userId,body);
+    if (id && !match[2] && method==="GET") return readJob(tx,userId,id);
+    if (id && !match[2] && method==="PATCH") return saveJob(tx,userId,body,id);
+    if (id && !match[2] && method==="DELETE") return deleteJob(tx,userId,id);
+    if (id && match[2] && ["PUT","DELETE"].includes(method)) return setJobSave(tx,userId,id,method==="PUT");
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  if (/^\/articles(\/|$)/.test(resourcePath)) {
+    const match=/^\/articles(?:\/([^/]+))?$/.exec(resourcePath);if(!match)throw new HttpError(404,"İşlem bulunamadı.");const id=match[1]?uuid(match[1]):undefined;
+    if(!id&&method==="GET")return listArticles(tx,userId,url.searchParams);
+    if(!id&&method==="POST")return saveArticle(tx,userId,body);
+    if(id&&method==="GET")return readArticle(tx,id);
+    if(id&&method==="PATCH")return saveArticle(tx,userId,body,id);
+    if(id&&method==="DELETE")return deleteArticle(tx,userId,id);
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  if (/^\/drafts(\/|$)/.test(resourcePath)) {
+    const match=/^\/drafts(?:\/([^/]+))?$/.exec(resourcePath);if(!match)throw new HttpError(404,"İşlem bulunamadı.");const id=match[1]?uuid(match[1]):undefined;
+    if(!id&&method==="GET")return listTextDrafts(tx,userId,url.searchParams);
+    if(!id&&method==="POST")return saveTextDraft(tx,userId,body);
+    if(id&&method==="GET")return readTextDraft(tx,userId,id);
+    if(id&&method==="PATCH")return saveTextDraft(tx,userId,body,id);
+    if(id&&method==="DELETE")return deleteTextDraft(tx,userId,id);
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  if(resourcePath==="/analytics"&&method==="GET") return creatorAnalytics(tx,userId,url.searchParams);
+  if(resourcePath==="/preferences") {
+    if(method==="GET")return readPreferences(tx,userId);
+    if(method==="PATCH")return savePreferences(tx,userId,body);
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  if (/^\/events(\/|$)/.test(resourcePath)) {
+    const match=/^\/events(?:\/([^/]+)(?:\/(rsvp))?)?$/.exec(resourcePath);if(!match)throw new HttpError(404,"İşlem bulunamadı.");const id=match[1]?uuid(match[1]):undefined;
+    if(!id&&method==="GET")return listEvents(tx,userId,url.searchParams);
+    if(!id&&method==="POST")return saveEvent(tx,userId,body);
+    if(id&&!match[2]&&method==="GET")return readEvent(tx,userId,id);
+    if(id&&!match[2]&&method==="PATCH")return saveEvent(tx,userId,body,id);
+    if(id&&!match[2]&&method==="DELETE")return deleteEvent(tx,userId,id);
+    if(id&&match[2]&&["PUT","DELETE"].includes(method))return setEventRsvp(tx,userId,id,method==="PUT");
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  // Match private resources against the unfiltered path so extra or empty segments cannot become valid routes.
+  const privateParts = privateRoute(url, method);
+  if (privateParts) {
+    const parts = privateParts;
+    if (parts[0] === "lists") {
+      if (parts.length === 1 && method === "GET") return listAccountLists(tx, userId, url.searchParams.get("cursor"));
+      if (parts.length === 1 && method === "POST") return saveAccountList(tx, userId, body);
+      if (parts.length === 2 && parts[1] && ["GET", "PATCH", "DELETE"].includes(method)) {
+        const listId = uuid(parts[1]);
+        if (method === "GET") return accountList(tx, userId, listId);
+        if (method === "PATCH") return saveAccountList(tx, userId, body, listId);
+        return deleteAccountList(tx, userId, listId);
+      }
+      if (parts.length === 3 && parts[1] && method === "GET") {
+        if (parts[2] === "members") return listAccountMembers(tx, userId, uuid(parts[1]), url.searchParams.get("cursor"));
+        if (parts[2] === "timeline") return timeline(tx, userId, undefined, url.searchParams.get("snapshot"), url.searchParams.get("cursor"), uuid(parts[1]));
+      }
+      if (parts.length === 4 && parts[1] && parts[2] === "members" && parts[3] && (method === "PUT" || method === "DELETE")) {
+        return setAccountMember(tx, userId, uuid(parts[1]), uuid(parts[3]), method === "PUT");
+      }
+    } else {
+      if (parts.length === 1 && method === "GET") return listSavedSearches(tx, userId, url.searchParams.get("cursor"));
+      if (parts.length === 1 && method === "POST") return saveSearch(tx, userId, body);
+      if (parts.length === 2 && parts[1] && method === "DELETE") return deleteSavedSearch(tx, userId, uuid(parts[1]));
+    }
+    throw new HttpError(404, "İşlem bulunamadı.");
+  }
   const path = url.pathname.slice(4).split("/").filter(Boolean);
   const offset = pageOffset(url.searchParams.get("page"));
   const id = path[1] && ["threads", "profiles", "communities"].includes(path[0]) ? uuid(path[1]) : undefined;
@@ -126,6 +223,7 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
     if (!updated) throw new HttpError(404, "Profil bulunamadı.");
     return updated;
   }
+  if (method === "GET" && path.length === 1 && path[0] === "explore") return explorePage(tx, userId, url.searchParams);
   if (method === "GET" && path[0] === "search") {
     const query = (url.searchParams.get("q") || "").trim().slice(0, 80).replace(/[\\%_]/g, "");
     if (!query) {
@@ -185,8 +283,10 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
       if (!parent) throw new HttpError(404, "Gönderi bulunamadı.");
       communityId = parent.communityId;
     }
+    const savedDraft = await publishingDraft(tx,userId,body,communityId,parentId);
     const [row] = await tx.insert(threads).values({ text: text(body.text ?? "", media.length ? 0 : 1, parentId ? 350 : 550), authorId: userId, communityId, parentId }).returning();
     await attachImages(tx, userId, row.id, media);
+    if(savedDraft) await tx.delete(textDrafts).where(and(eq(textDrafts.id,savedDraft.id),eq(textDrafts.ownerId,userId),eq(textDrafts.version,savedDraft.version)));
     return row;
   }
   if (method === "DELETE" && path[0] === "threads" && id && path.length === 2) {

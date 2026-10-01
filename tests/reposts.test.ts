@@ -32,7 +32,7 @@ beforeAll(async()=>{
     create function storage.foldername(text) returns text[] language sql immutable as $$ select string_to_array($1,'/') $$;
     grant usage on schema public,auth,storage to anon,authenticated;
   `);
-  for(const migration of ["202609300001_social_web.sql","202609300004_feed_feedback.sql","202610010001_thread_bookmarks.sql","202610010002_profile_follows.sql","202610010003_notifications.sql","202610010004_post_images.sql","202610010005_thread_reposts.sql"]) {
+  for(const migration of ["202609300001_social_web.sql","202609300004_feed_feedback.sql","202610010001_thread_bookmarks.sql","202610010002_profile_follows.sql","202610010003_notifications.sql","202610010004_post_images.sql","202610010005_thread_reposts.sql", "202610010006_private_account_lists.sql", "202610010007_saved_searches.sql", "202610010008_community_reposts.sql"]) {
     await engine.exec(await readFile(new URL(`../supabase/migrations/${migration}`,import.meta.url),"utf8"));
   }
   await engine.query("insert into auth.users values($1),($2),($3)",[alice,bob,carol]);
@@ -59,14 +59,17 @@ test("reposts are idempotent, own actor state is hydrated, and forged mutations 
   expect(await call(alice,"DELETE",`/threads/${original.id}/repost`)).toEqual({reposted:false,repostCount:0});
 });
 
-test("reply and community reposts are rejected via API and direct RLS",async()=>{
+test("reply reposts are rejected and community roots require membership via API and direct RLS",async()=>{
   const original=await post(bob); const reply=await post(bob,{parentId:original.id});
   const community=await call(bob,"POST","/communities",{name:"Repost test",username:"repost_test"}) as {id:string};
   const scoped=await post(bob,{communityId:community.id});
-  for(const target of [reply.id,scoped.id]) {
-    await expect(call(alice,"PUT",`/threads/${target}/repost`)).rejects.toMatchObject({status:400});
-    await expect(asUser(alice,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[alice,target])).rejects.toThrow();
-  }
+  await expect(call(alice,"PUT",`/threads/${reply.id}/repost`)).rejects.toMatchObject({status:400});
+  await expect(call(alice,"PUT",`/threads/${scoped.id}/repost`)).rejects.toMatchObject({status:403});
+  for(const target of [reply.id,scoped.id]) await expect(asUser(alice,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[alice,target])).rejects.toThrow();
+  await call(alice,"POST",`/communities/${community.id}/membership`);
+  const scopedReply=await post(alice,{parentId:scoped.id});
+  await expect(call(alice,"PUT",`/threads/${scopedReply.id}/repost`)).rejects.toMatchObject({status:400});
+  await expect(asUser(alice,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[alice,scopedReply.id])).rejects.toThrow();
   await expect(call(alice,"PUT",`/threads/${missing}/repost`)).rejects.toMatchObject({status:404});
   for(const [method,suffix] of [["GET","repost"],["POST","repost"],["DELETE","repost/extra"]]) await expect(call(bob,method,`/threads/${original.id}/${suffix}`)).rejects.toMatchObject({status:404});
   expect((await call(bob,"GET",`/threads/${original.id}`) as ThreadPage).post.id).toBe(original.id);
@@ -142,4 +145,85 @@ test("profile timelines include community originals; inaccessible originals and 
   await call(alice,"DELETE",`/threads/${original.id}`);
   expect((await engine.query("select * from thread_reposts")).rows).toEqual([]);
   expect((await call(alice,"GET",`/profiles/${bob}/timeline?snapshot=${profile.snapshot}`) as TimelinePage).entries.map(item=>item.post.id)).toEqual([scoped.id]);
+});
+
+test("community reposts are idempotent, membership-bound, privately undoable and cascade with their source",async()=>{
+  const community=await call(bob,"POST","/communities",{name:"Repost members",username:"repost_members"}) as {id:string};
+  const scoped=await post(bob,{communityId:community.id});
+  await call(alice,"POST",`/communities/${community.id}/membership`);
+  await call(carol,"POST",`/communities/${community.id}/membership`);
+  expect(await call(alice,"PUT",`/threads/${scoped.id}/repost`,{userId:carol})).toEqual({reposted:true,repostCount:1});
+  const first=await engine.query("select created_at::text from thread_reposts where user_id=$1",[alice]);
+  expect(await call(alice,"PUT",`/threads/${scoped.id}/repost`)).toEqual({reposted:true,repostCount:1});
+  expect((await engine.query("select created_at::text from thread_reposts where user_id=$1",[alice])).rows).toEqual(first.rows);
+  await asUser(carol,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[carol,scoped.id]);
+  await expect(asUser(alice,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[bob,scoped.id])).rejects.toThrow();
+  const hydrated=(await call(alice,"GET",`/threads/${scoped.id}`) as ThreadPage).post;
+  expect(hydrated).toMatchObject({reposted:true,repostCount:2,communityId:community.id,community:{id:community.id},authorId:bob});
+  expect((await call(alice,"GET","/threads?feed=communities") as FeedPage).posts[0]).toMatchObject({id:scoped.id,reposted:true,repostCount:2});
+  expect((await call(alice,"GET","/threads") as FeedPage).posts[0]).toMatchObject({id:scoped.id,reposted:true,repostCount:2});
+  await call(alice,"DELETE",`/communities/${community.id}/membership`);
+  await expect(call(alice,"PUT",`/threads/${scoped.id}/repost`)).rejects.toMatchObject({status:403});
+  await expect(asUser(alice,"insert into thread_reposts(user_id,thread_id) values($1,$2) on conflict do nothing",[alice,scoped.id])).rejects.toThrow();
+  expect(await call(alice,"DELETE",`/threads/${scoped.id}/repost`)).toEqual({reposted:false,repostCount:1});
+  expect(await call(alice,"DELETE",`/threads/${scoped.id}/repost`)).toEqual({reposted:false,repostCount:1});
+  await call(bob,"DELETE",`/threads/${scoped.id}`);
+  expect((await engine.query("select * from thread_reposts")).rows).toEqual([]);
+});
+
+test("community repost profiles require viewer and actor membership while Following and Lists remain personal",async()=>{
+  const community=await call(bob,"POST","/communities",{name:"Scoped profile",username:"scoped_profile"}) as {id:string};
+  const scoped=await post(bob,{communityId:community.id});
+  await call(carol,"POST",`/communities/${community.id}/membership`);
+  await call(carol,"PUT",`/threads/${scoped.id}/repost`);
+  const read=(query="")=>call(alice,"GET",`/profiles/${carol}/timeline${query}`) as Promise<TimelinePage>;
+  expect((await read()).entries).toEqual([]);
+  await call(alice,"POST",`/communities/${community.id}/membership`);
+  const joined=await read();
+  expect(joined.entries).toHaveLength(1);
+  expect(joined.entries[0]).toMatchObject({post:{id:scoped.id,communityId:community.id,community:{id:community.id},authorId:bob},repost:{actor:{id:carol}}});
+  await call(alice,"PUT",`/profiles/${carol}/follow`);
+  expect((await following(alice)).entries).toEqual([]);
+  const list=await call(alice,"POST","/lists",{name:"Community actor"}) as {id:string};
+  await call(alice,"PUT",`/lists/${list.id}/members/${carol}`);
+  expect((await call(alice,"GET",`/lists/${list.id}/timeline`) as TimelinePage).entries).toEqual([]);
+  await call(alice,"DELETE",`/communities/${community.id}/membership`);
+  expect((await read(`?snapshot=${joined.snapshot}`)).entries).toEqual([]);
+  await call(alice,"POST",`/communities/${community.id}/membership`);
+  await call(carol,"DELETE",`/communities/${community.id}/membership`);
+  expect((await read(`?snapshot=${joined.snapshot}`)).entries).toEqual([]);
+  expect((await read()).entries).toEqual([]);
+});
+
+test("source visibility is rechecked for community reposts and hidden sources can be undone without leaking counts",async()=>{
+  const community=await call(bob,"POST","/communities",{name:"Hidden source",username:"hidden_source"}) as {id:string};
+  const scoped=await post(bob,{communityId:community.id});
+  for(const user of [alice,carol]) {
+    await call(user,"POST",`/communities/${community.id}/membership`);
+    await call(user,"PUT",`/threads/${scoped.id}/repost`);
+  }
+  const profile=await call(alice,"GET",`/profiles/${carol}/timeline`) as TimelinePage;
+  await engine.exec(`create policy hidden_repost_target on threads as restrictive for select to authenticated using(id<>'${scoped.id}'::uuid)`);
+  expect((await call(alice,"GET",`/profiles/${carol}/timeline?snapshot=${profile.snapshot}`) as TimelinePage).entries).toEqual([]);
+  await expect(call(alice,"PUT",`/threads/${scoped.id}/repost`)).rejects.toMatchObject({status:404});
+  await expect(asUser(bob,"insert into thread_reposts(user_id,thread_id) values($1,$2)",[bob,scoped.id])).rejects.toThrow();
+  expect((await asUser(bob,"select * from thread_reposts")).rows).toEqual([]);
+  expect((await asUser(alice,"select user_id from thread_reposts")).rows).toEqual([{user_id:alice}]);
+  expect(await call(alice,"DELETE",`/threads/${scoped.id}/repost`)).toEqual({reposted:false,repostCount:0});
+  expect((await engine.query("select user_id from thread_reposts")).rows).toEqual([{user_id:carol}]);
+  expect(await call(alice,"DELETE",`/threads/${scoped.id}/repost`)).toEqual({reposted:false,repostCount:0});
+  expect((await call(alice,"GET",`/profiles/${carol}/timeline?snapshot=${profile.snapshot}`) as TimelinePage).entries).toEqual([]);
+});
+
+test("undo and repost again do not revive frozen community activities",async()=>{
+  const community=await call(bob,"POST","/communities",{name:"Frozen source",username:"frozen_source"}) as {id:string};
+  const scoped=await post(bob,{communityId:community.id});
+  for(const user of [alice,carol]) await call(user,"POST",`/communities/${community.id}/membership`);
+  await call(carol,"PUT",`/threads/${scoped.id}/repost`);
+  const before=await call(alice,"GET",`/profiles/${carol}/timeline`) as TimelinePage;
+  await call(carol,"DELETE",`/threads/${scoped.id}/repost`);
+  expect((await call(alice,"GET",`/profiles/${carol}/timeline?snapshot=${before.snapshot}`) as TimelinePage).entries).toEqual([]);
+  await call(carol,"PUT",`/threads/${scoped.id}/repost`);
+  expect((await call(alice,"GET",`/profiles/${carol}/timeline?snapshot=${before.snapshot}`) as TimelinePage).entries).toEqual([]);
+  expect((await call(alice,"GET",`/profiles/${carol}/timeline`) as TimelinePage).entries[0].repost?.actor.id).toBe(carol);
 });

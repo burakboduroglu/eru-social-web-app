@@ -31,3 +31,16 @@ export type NotificationPage = { notifications: Notification[]; nextCursor: stri
 export type RepostState = { reposted: boolean; repostCount: number };
 export type TimelineEntry = { post: Post; repost: { actor: Profile; createdAt: string } | null };
 export type TimelinePage = { entries: TimelineEntry[]; nextCursor: string | null; snapshot: string; followingCount?: number };
+export type AccountList = { id: string; ownerId: string; name: string; description: string; createdAt: string; updatedAt: string; memberCount: number };
+export type AccountListsPage = { lists: AccountList[]; nextCursor: string | null };
+export type SavedSearch = { id: string; ownerId: string; query: string; tab: "posts" | "people" | "communities"; createdAt: string };
+export type SavedSearchesPage = { searches: SavedSearch[]; nextCursor: string | null };
+
+export type ExplorePage = SearchResults & { tab: "posts" | "people" | "communities"; nextCursor: string | null };
+export type ResourcePage<T> = { items: T[]; nextCursor: string | null };
+export type Job = typeof import("../server/db/schema").jobs.$inferSelect & { publisher: Profile; saved: boolean };
+export type Article = typeof import("../server/db/schema").articles.$inferSelect & { publisher: Profile };
+export type TextDraft = typeof import("../server/db/schema").textDrafts.$inferSelect & { available: boolean; unavailableReason: string | null };
+export type Preferences = { reducedMotion: boolean; defaultFeed: "all" | "latest" | "following" | "communities"; notificationKind: "all" | "reply" | "like" | "follow" };
+export type CreatorAnalytics = { postCount: number; likesReceived: number; repliesReceived: number; repostsReceived: number; followerCount: number; from: string | null; to: string | null };
+export type CommunityEvent = typeof import("../server/db/schema").communityEvents.$inferSelect & { publisher: Profile; community: Community; rsvped: boolean };

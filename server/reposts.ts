@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { reposts, threads } from "./db/schema";
+import { members, reposts, threads } from "./db/schema";
 import type { Transaction } from "./db/client";
 import { HttpError } from "./validation";
 import type { RepostState } from "../shared/types";
@@ -11,9 +11,14 @@ export async function setRepost(
   reposted: boolean,
 ): Promise<RepostState> {
   const [post] = await tx.select().from(threads).where(eq(threads.id, threadId));
-  if (!post) throw new HttpError(404, "Gönderi bulunamadı.");
-  if (post.parentId || post.communityId) {
-    throw new HttpError(400, "Yalnızca kişisel gönderiler yeniden paylaşılabilir.");
+  if (!post && reposted) throw new HttpError(404, "Gönderi bulunamadı.");
+  if (post?.parentId) {
+    throw new HttpError(400, "Yanıtlar yeniden paylaşılamaz.");
+  }
+  if (reposted && post?.communityId) {
+    const [membership] = await tx.select({ userId: members.userId }).from(members)
+      .where(and(eq(members.communityId, post.communityId), eq(members.userId, userId)));
+    if (!membership) throw new HttpError(403, "Yeniden paylaşmak için topluluğa katılmalısın.");
   }
   if (reposted) {
     try {
@@ -28,6 +33,8 @@ export async function setRepost(
   } else {
     await tx.delete(reposts).where(and(eq(reposts.userId, userId), eq(reposts.threadId, threadId)));
   }
+  // Undo remains available after membership or source visibility is revoked.
+  // RLS protects the count when the original is no longer readable.
   const [count] = await tx.select({ repostCount: sql<number>`count(*)::int` })
     .from(reposts)
     .where(eq(reposts.threadId, threadId));

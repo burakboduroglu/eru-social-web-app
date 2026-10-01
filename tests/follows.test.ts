@@ -35,7 +35,7 @@ beforeAll(async () => {
     create function storage.foldername(text) returns text[] language sql immutable as $$ select string_to_array($1, '/') $$;
     grant usage on schema public,auth,storage to anon,authenticated;
   `);
-  for (const migration of ["202609300001_social_web.sql", "202609300004_feed_feedback.sql", "202610010001_thread_bookmarks.sql", "202610010002_profile_follows.sql", "202610010003_notifications.sql", "202610010004_post_images.sql", "202610010005_thread_reposts.sql"]) {
+  for (const migration of ["202609300001_social_web.sql", "202609300004_feed_feedback.sql", "202610010001_thread_bookmarks.sql", "202610010002_profile_follows.sql", "202610010003_notifications.sql", "202610010004_post_images.sql", "202610010005_thread_reposts.sql", "202610010006_private_account_lists.sql", "202610010007_saved_searches.sql", "202610010008_community_reposts.sql"]) {
     await engine.exec(await readFile(new URL(`../supabase/migrations/${migration}`, import.meta.url), "utf8"));
   }
   await engine.query("insert into auth.users values ($1), ($2), ($3)", [alice, bob, carol]);
