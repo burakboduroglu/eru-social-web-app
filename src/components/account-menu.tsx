@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./icon";
+import { Link } from "@tanstack/react-router";
 
 export function AccountMenu({ onSignOut }: { onSignOut: () => Promise<void> }) {
   const menu = useRef<HTMLDetailsElement>(null);
@@ -19,17 +20,25 @@ export function AccountMenu({ onSignOut }: { onSignOut: () => Promise<void> }) {
   }, []);
   return <details ref={menu} className="account-menu" onToggle={event => {
     setOpen(event.currentTarget.open);
-    if (event.currentTarget.open) menu.current?.querySelector("button")?.focus();
+    if (event.currentTarget.open) menu.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
   }} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) close(); }} onKeyDown={event => {
     if (event.key === "Escape") { event.preventDefault(); close(true); }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (menu.current) menu.current.open = true;
-      menu.current?.querySelector("button")?.focus();
+      const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not(:disabled)') ?? [])];
+      const index = items.indexOf(document.activeElement as HTMLElement);
+      const next = index < 0 ? (event.key === "ArrowDown" ? 0 : items.length - 1) : (index + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length;
+      items[next]?.focus();
+    } else if (event.key === "Home" || event.key === "End") {
+      event.preventDefault();
+      const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not(:disabled)') ?? [])];
+      (event.key === "Home" ? items[0] : items.at(-1))?.focus();
     }
   }}>
     <summary aria-label="Hesap seçenekleri" aria-haspopup="menu" aria-expanded={open}><Icon name="menu" size={20} /></summary>
     <div className="account-menu-items" role="menu" aria-label="Hesap seçenekleri">
+      <Link to="/bookmarks" role="menuitem" onClick={() => close()}><Icon name="bookmark" size={18} /><span>Kaydedilenler</span></Link>
       <button type="button" role="menuitem" disabled={busy} onClick={async () => {
         setBusy(true);
         close(true);

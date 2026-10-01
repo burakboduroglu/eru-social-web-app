@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { ApiError, describePageError } from "../lib/errors";
 import { Illustration, type IllustrationName } from "./illustration";
+import { invalidateApiCache } from "../lib/api";
 import { Button } from "./ui/button";
 
 export function StatePanel({ title, description, kind = "empty", eyebrow, action, pageHeading = false }: {
@@ -40,7 +41,13 @@ export function ErrorScreen({ error, retry, home, back }: { error: unknown; retr
 }
 export function RouteError({ error, reset }: { error: unknown; reset?: () => void }) {
   const router = useRouter();
-  return <ErrorScreen error={error} retry={async () => { await router.invalidate(); reset?.(); }}
+  return <ErrorScreen error={error} retry={async () => {
+    invalidateApiCache();
+    if (error instanceof ApiError && error.status === 410) {
+      await router.navigate({ to: router.state.location.pathname, search: { ...router.state.location.search, page: 0, cursor: "", cursorHistory: [], snapshot: "" } as never, replace: true });
+    } else await router.invalidate();
+    reset?.();
+  }}
     back={() => router.history.length > 1 ? router.history.back() : router.navigate({ to: "/" })}
     home={<Button variant="outline" asChild><Link to={error instanceof ApiError && error.status === 401 ? "/sign-in" : "/"}>{error instanceof ApiError && error.status === 401 ? "Giriş yap" : "Ana sayfaya dön"}</Link></Button>} />;
 }

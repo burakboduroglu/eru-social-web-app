@@ -12,6 +12,7 @@ import type {
   CommunityPage as CommunityData,
   CommunitySummary,
   FeedPage,
+  TimelinePage,
   Profile,
   ProfilePage as ProfileData,
   SearchResults,
@@ -19,6 +20,8 @@ import type {
 } from "../../shared/types";
 import { api, invalidateApiCache } from "../lib/api";
 import { uploadAvatar } from "../lib/supabase";
+import { TimelineList } from "../components/timeline-list";
+import { FollowButton, useFollowSnapshot } from "../components/follow-button";
 import {
   Avatar,
   Icon,
@@ -250,18 +253,18 @@ function AccountRow({ profile, detail }: { profile: Profile; detail?: string }) 
   );
 }
 export function HomePage() {
-  const data = useLoaderData({ strict: false }) as FeedPage;
+  const data = useLoaderData({ strict: false }) as FeedPage | TimelinePage;
   const me = useMe();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
-  const search = useRouterState({ select: state => state.location.search }) as { feed?: string; snapshot?: string; page?: number };
+  const search = useRouterState({ select: state => state.location.search }) as { feed?: string; snapshot?: string; cursor?: string; page?: number };
   const navigate = useNavigate();
 
   async function refresh() {
     invalidateApiCache();
     setRefreshing(true);
     try {
-      if (search.snapshot || search.page) await navigate({ to: "/", search: { feed: search.feed || "all", page: 0, snapshot: "" } as never, resetScroll: false });
+      if (search.snapshot || search.page || search.cursor) await navigate({ to: "/", search: { feed: search.feed || "all", page: 0, snapshot: "" } as never, resetScroll: false });
       else await router.invalidate();
     } finally {
       setRefreshing(false);
@@ -271,13 +274,14 @@ export function HomePage() {
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col">
       <h1 className="sr-only">Ana Sayfa</h1>
-      <nav className="x-feed-tabs" aria-label="Akış seçimi">
-        <button className={search.feed !== "communities" ? "active" : ""} aria-pressed={search.feed !== "communities"} onClick={() => navigate({ to: "/", search: { feed: "all", page: 0 } as never, resetScroll: false })}>Senin için</button>
+      <nav className="x-feed-tabs x-home-feed-tabs" aria-label="Akış seçimi">
+        <button className={!search.feed || search.feed === "all" || search.feed === "latest" ? "active" : ""} aria-pressed={!search.feed || search.feed === "all" || search.feed === "latest"} onClick={() => navigate({ to: "/", search: { feed: "all", page: 0 } as never, resetScroll: false })}>Senin için</button>
+        <button className={search.feed === "following" ? "active" : ""} aria-pressed={search.feed === "following"} onClick={() => navigate({ to: "/", search: { feed: "following", page: 0 } as never, resetScroll: false })}>Takip edilenler</button>
         <button className={search.feed === "communities" ? "active" : ""} aria-pressed={search.feed === "communities"} onClick={() => navigate({ to: "/", search: { feed: "communities", page: 0 } as never, resetScroll: false })}>Toplulukların</button>
         <button className="x-feed-refresh" aria-label="Akışı yenile" disabled={refreshing} onClick={refresh}><Icon name="refresh" size={20} /></button>
       </nav>
       <Composer communities={me.communities} />
-      <PostList {...data} />
+      {"entries" in data ? <TimelineList data={data} following /> : <PostList {...data} />}
     </section>
   );
 }
@@ -315,8 +319,9 @@ export function ThreadPageView() {
 }
 
 export function ProfilePageView() {
-  const data = useLoaderData({ strict: false }) as ProfileData;
+  const data = useLoaderData({ strict: false }) as ProfileData & { timeline?: TimelinePage };
   const me = useMe();
+  const follow = useFollowSnapshot({ profileId: data.profile.id, following: data.following, followerCount: data.followerCount, followingCount: data.followingCount, serverSource: data });
   const search = useRouterState({ select: state => state.location.search }) as {
     tab?: string;
     page?: number;
@@ -326,7 +331,7 @@ export function ProfilePageView() {
 
   function selectTab(tab: string) {
     void navigate({
-      search: { ...search, tab, page: 0 } as never,
+      search: { tab, page: 0, cursor: "", cursorHistory: [], snapshot: "" } as never,
       resetScroll: false,
     });
   }
@@ -341,18 +346,20 @@ export function ProfilePageView() {
       <div className="x-profile-actions">
         <Avatar src={data.profile.image} name={data.profile.name} username={data.profile.username} large />
         {data.profile.id === me.profile.id && <Link to="/profile/edit" className="x-pill-outline">Profili düzenle</Link>}
+        <FollowButton profileId={data.profile.id} following={data.following} followerCount={data.followerCount} followingCount={data.followingCount} serverSource={data} />
       </div>
       <div className="x-profile-copy">
         <h2>{data.profile.name}</h2>
         <p>@{data.profile.username}</p>
         {data.profile.bio && <p className="bio">{data.profile.bio}</p>}
         <p className="x-joined"><Icon name="calendar" size={14} /><span>{joinedLabel(data.profile.createdAt)} tarihinde katıldı</span></p>
+        <div className="profile-follow-counts"><Link to={`/profile/${data.profile.id}/following`}><strong>{follow.followingCount}</strong> Takip edilen</Link><Link to={`/profile/${data.profile.id}/followers`}><strong>{follow.followerCount}</strong> Takipçi</Link></div>
       </div>
       <nav className="x-feed-tabs" aria-label="Profil sekmeleri">
         <button type="button" className={selectedTab === "posts" ? "active" : ""} aria-pressed={selectedTab === "posts"} onClick={() => selectTab("posts")}>Gönderiler</button>
         <button type="button" className={selectedTab === "replies" ? "active" : ""} aria-pressed={selectedTab === "replies"} onClick={() => selectTab("replies")}>Yanıtlar</button>
       </nav>
-      <PostList posts={data.posts} hasMore={data.hasMore} />
+      {selectedTab === "posts" && data.timeline ? <TimelineList data={data.timeline} /> : <PostList posts={data.posts} hasMore={data.hasMore} />}
     </section>
   );
 }
@@ -654,24 +661,6 @@ export function CommunityPageView() {
         </>
       )}
       {membersOpen && community.memberCount > data.members.length && <p className="x-field-note">İlk {data.members.length} üye gösteriliyor.</p>}
-    </section>
-  );
-}
-
-export function NotificationsPage() {
-  const data = useLoaderData({ strict: false }) as FeedPage;
-  return (
-    <section className="mx-auto flex w-full max-w-2xl flex-col">
-      <header className="x-feed-heading">
-        <h1>Bildirimler</h1>
-        <p className="muted">Son 24 saatte gönderilerine gelen yanıtlar.</p>
-      </header>
-      {data.posts.length ? (
-        <PostList {...data} />
-      ) : (
-        <Empty>Yeni bildirim yok.</Empty>
-      )}
-      {!data.posts.length && <Pagination hasMore={data.hasMore} />}
     </section>
   );
 }

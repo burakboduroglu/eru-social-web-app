@@ -206,10 +206,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .thread-reply-length {
+  margin-left: auto;
   color: var(--x-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -217,7 +219,9 @@
 
 .thread-reply-controls > .thread-reply-submit {
   height: auto;
-  min-height: 32px;
+  min-height: 44px;
+  margin-left: auto;
+  flex: none;
   border-radius: 999px;
   background: var(--x-blue);
   padding: 6px 16px;
@@ -258,4 +262,27 @@
   .thread-page .thread-main .post-body .post-text {
     font-size: 19px;
   }
+}
+
+/* Attachment content follows the textarea gutter instead of the avatar column. */
+.thread-reply-form > :is(.media-attachments, .composer-link-preview, .media-selection-error) {
+  grid-column: 2;
+  min-width: 0;
+  width: 100%;
+}
+
+.thread-reply-controls > .thread-reply-media {
+  min-height: 44px;
+  flex: none;
+  padding: 4px 6px;
+  color: var(--x-blue);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.thread-reply-media > svg { flex: none; }
+.thread-reply-media:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+
+@media (max-width: 400px) {
+  .thread-reply-form .staged-image-grid { grid-template-columns: minmax(0, 1fr); }
 }

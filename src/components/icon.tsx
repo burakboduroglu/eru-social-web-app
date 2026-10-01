@@ -19,12 +19,14 @@ import check from "pixelarticons/svg/check.svg?raw";
 import copy from "pixelarticons/svg/copy.svg?raw";
 import hide from "pixelarticons/svg/eye-off.svg?raw";
 import remove from "pixelarticons/svg/trash.svg?raw";
+import bookmark from "pixelarticons/svg/bookmark.svg?raw";
+import repost from "pixelarticons/svg/repeat.svg?raw";
 
 const libraryIcons: Record<string, string> = {
   home, search, notification: bell, community: users, user, calendar, reply,
   "heart-gray": heart, share, emoji: smile,
   menu: more, refresh, close, back, camera, logout, chevron, check,
-  copy, hide, delete: remove,
+  copy, hide, delete: remove, bookmark, repost,
 };
 
 const filledHeart = '<path d="M5 2h4v2H5zM15 2h4v2h-4zM3 4h8v2H3zM13 4h8v2h-8zM1 6h22v6H1zM3 12h18v2H3zM5 14h14v2H5zM7 16h10v2H7zM9 18h6v2H9zM11 20h2v2h-2z"/>';

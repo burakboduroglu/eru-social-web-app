@@ -54,3 +54,9 @@ describe("parseRetryAfter", () => {
     expect(parseRetryAfter("-3")).toBeNull();
   });
 });
+
+test("expired timeline errors offer a fresh start", () => {
+  const result = describePageError(new ApiError(410, "Expired timeline"));
+  expect(result.kind).toBe("expired");
+  expect(result.retryable).toBe(true);
+});

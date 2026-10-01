@@ -28,7 +28,7 @@ function renderText(text: string): ReactNode[] {
   return nodes;
 }
 
-export function PostContent({ text, postId, truncate = false }: { text: string; postId: string; truncate?: boolean }) {
+export function PostContent({ text, postId, truncate = false, hasAttachments = false }: { text: string; postId: string; truncate?: boolean; hasAttachments?: boolean }) {
   const isTruncated = truncate && text.length > 250;
   const cutoff = detectLinks(text).find(link => link.start < 250 && link.end > 250)?.start ?? 250;
   const visibleText = isTruncated ? `${text.slice(0, cutoff).replace(/\s+$/, "")}…` : text;
@@ -36,6 +36,6 @@ export function PostContent({ text, postId, truncate = false }: { text: string; 
   return <div className="post-text text-[15px] text-white">
     {renderText(visibleText)}
     {isTruncated && <> <Link to={`/thread/${postId}`}>devamını oku</Link></>}
-    {previewUrl && <LinkPreview url={previewUrl} />}
+    {previewUrl && !hasAttachments && <LinkPreview url={previewUrl} />}
   </div>;
 }

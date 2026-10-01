@@ -1,0 +1,19 @@
+.nav-icon { position: relative; display: inline-flex; flex: none; }
+.nav-icon .notification-badge { top: -6px; right: -7px; }
+.x-nav > a > .nav-icon { width: 27px; height: 27px; }
+.x-mobile-nav > a > .nav-icon { width: 25px; height: 25px; }
+.follow-list-row-copy { overflow-wrap: anywhere; }
+.follow-list-row-copy strong, .follow-list-row-copy small { white-space: nowrap; }
+.bookmarks-pagination button, .activity-pagination button { min-height: 44px; }
+.post-feedback > button { color: var(--x-blue); text-decoration: underline; }
+.post-image-grid { position: relative; z-index: 1; }
+@media (max-width: 700px) {
+  .bookmarks-heading, .follow-list-heading, .activity-heading { top: 54px; }
+  .activity-tabs { top: 110px; }
+  .x-feed-tabs > button { min-width: 0; font-size: 13px; }
+  .post-menu-items button { min-height: 44px; }
+}
+
+.x-home-feed-tabs { padding-right: 44px; }
+.x-home-feed-tabs > .x-feed-refresh { top: 4px; right: 0; width: 44px; height: 44px; }
+.post-actions-row .post-action { min-width: 44px; }

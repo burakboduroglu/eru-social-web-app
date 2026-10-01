@@ -6,6 +6,10 @@ import { router } from "./router";
 import { LoadingSpinner } from "./components/loading";
 import { ErrorScreen } from "./components/page-state";
 import { ToastViewport } from "./components/toast";
+import { clearBookmarkState } from "./lib/bookmark-state";
+import { clearComposerDraftsForAccount } from "./lib/composer-draft";
+import { clearFollowState } from "./lib/follow-state";
+import { clearRepostState } from "./lib/repost-state";
 import "./legacy.css";
 import "./styles.css";
 import "./components/menus.css";
@@ -22,13 +26,25 @@ import "./components/input-focus.css";
 import "./components/thread-detail.css";
 import "./components/link-preview.css";
 import "./components/toast.css";
+import "./components/social-experience.css";
+import "./components/reposts.css";
 
 const root = createRoot(document.getElementById("root")!);
 root.render(<LoadingSpinner label="Uygulama yükleniyor" />);
 try {
   await initializeAuth();
-  supabase.auth.onAuthStateChange(event => {
-    if (event === "SIGNED_OUT") { invalidateApiCache(true); router.navigate({ to: "/sign-in" }); }
+  let previousAccountId: string | undefined;
+  supabase.auth.onAuthStateChange((event, session) => {
+    const accountId = session?.user.id;
+    if (event === "SIGNED_OUT" || (previousAccountId && previousAccountId !== accountId)) {
+      if (previousAccountId) clearComposerDraftsForAccount(previousAccountId);
+      clearBookmarkState();
+      clearFollowState();
+      clearRepostState();
+      invalidateApiCache(true);
+    }
+    previousAccountId = accountId;
+    if (event === "SIGNED_OUT") { void router.navigate({ to: "/sign-in" }); }
   });
   root.render(<><RouterProvider router={router} /><ToastViewport /></>);
 } catch (error) {

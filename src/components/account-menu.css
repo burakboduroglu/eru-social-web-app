@@ -5,7 +5,13 @@
 .account-menu-items { position: absolute; z-index: 40; right: 0; width: 180px; max-width: calc(100vw - 24px); padding: 6px; border: 1px solid var(--x-border); border-radius: 8px; background: #101215; box-shadow: 0 8px 24px #0008; }
 .x-account .account-menu-items { bottom: calc(100% + 8px); }
 .x-topbar .account-menu-items { top: calc(100% + 8px); }
-.account-menu-items > button { display: flex; align-items: center; width: 100%; min-height: 38px; gap: 9px; padding: 8px 10px; border-radius: 5px; color: #e7e9ea; text-align: left; font-size: 13px; line-height: 1.4; }
-.account-menu-items > button:hover { background: #202327; }
-.account-menu-items > button > span { min-width: 0; }
-.account-menu > summary:focus-visible, .account-menu-items > button:focus-visible { outline: 2px solid var(--x-blue); outline-offset: -2px; }
+.account-menu-items > [role="menuitem"] { display: flex; align-items: center; width: 100%; min-height: 44px; gap: 9px; padding: 8px 10px; border-radius: 5px; color: #e7e9ea; text-align: left; font-size: 13px; line-height: 1.4; }
+.account-menu-items > [role="menuitem"]:hover { background: #202327; }
+.account-menu-items > [role="menuitem"] > span { min-width: 0; }
+.account-menu > summary:focus-visible, .account-menu-items > [role="menuitem"]:focus-visible { outline: 2px solid var(--x-blue); outline-offset: -2px; }
+
+.profile-follow-counts { display: flex; flex-wrap: wrap; gap: 16px; color: var(--x-muted); font-size: 14px; }
+.profile-follow-counts strong { color: var(--x-text); }
+.profile-follow-counts a { display: inline-flex; min-height: 32px; align-items: center; gap: 4px; }
+.profile-follow-counts a:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+@media (max-width: 700px) { .profile-follow-counts a { min-height: 44px; } }

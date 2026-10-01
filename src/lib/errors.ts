@@ -24,6 +24,7 @@ export function parseRetryAfter(header: string | null, now = Date.now()): number
 }
 
 export type PageErrorKind =
+  | "expired"
   | "not-found"
   | "forbidden"
   | "unavailable"
@@ -43,6 +44,12 @@ export type PageErrorDescription = {
 };
 
 const descriptions: Record<PageErrorKind, Omit<PageErrorDescription, "kind">> = {
+  expired: {
+    title: "Akışın süresi doldu",
+    description: "Güncel gönderilerle ilk sayfadan devam etmek için tekrar dene.",
+    eyebrow: "Akışı yenile",
+    retryable: true,
+  },
   "not-found": {
     title: "Sayfa bulunamadı",
     description: "Aradığın içerik kaldırılmış veya bağlantı değişmiş olabilir.",
@@ -103,7 +110,8 @@ export function describePageError(error: unknown, online = true): PageErrorDescr
   let kind: PageErrorKind = "unexpected";
 
   if (error instanceof ApiError) {
-    if (error.status === 404) kind = "not-found";
+    if (error.status === 410) kind = "expired";
+    else if (error.status === 404) kind = "not-found";
     else if (error.status === 403) kind = "forbidden";
     else if (error.status === 401) kind = "unauthorized";
     else if (error.status === 429) kind = "rate-limit";
