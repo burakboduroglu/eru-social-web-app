@@ -1,0 +1,260 @@
+.feature-page {
+  padding: 24px;
+  min-width: 0
+}
+
+.feature-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px
+}
+
+.feature-heading h1 {
+  font-size: 24px;
+  font-weight: 800
+}
+
+.feature-heading p,.feature-note {
+  color: var(--x-muted);
+  font-size: 13px;
+  margin-top: 6px
+}
+
+.feature-form {
+  display: grid;
+  gap: 16px
+}
+
+.feature-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 14px
+}
+
+.feature-form input,.feature-form textarea,.feature-form select,.feature-filters input,.feature-filters select {
+  width: 100%;
+  min-width: 0;
+  background: var(--x-surface);
+  color: inherit;
+  border: 1px solid var(--x-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font: inherit
+}
+
+.feature-form textarea {
+  resize: vertical
+}
+
+.feature-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px
+}
+
+.feature-actions,.feature-pagination,.feature-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center
+}
+
+.feature-actions {
+  margin-top: 18px
+}
+
+.feature-pagination {
+  justify-content: space-between;
+  margin-top: 24px
+}
+
+.feature-filters {
+  padding-bottom: 18px
+}
+
+.feature-filters>* {
+  flex: 1 1 145px
+}
+
+.feature-filters button {
+  flex: 0 0 auto
+}
+
+.feature-list {
+  display: grid;
+  gap: 12px
+}
+
+.feature-card {
+  padding: 18px;
+  border: 1px solid var(--x-border);
+  border-radius: 8px;
+  min-width: 0
+}
+
+.feature-card h2 {
+  font-weight: 750;
+  font-size: 18px
+}
+
+.feature-card p {
+  margin-top: 8px;
+  font-size: 14px
+}
+
+.feature-meta {
+  font-size: 12px;
+  color: var(--x-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px
+}
+
+.feature-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 20px
+}
+
+.feature-error {
+  border: 1px solid #f88;
+  padding: 12px;
+  border-radius: 6px;
+  color: #ba2525;
+  margin: 12px 0
+}
+
+.feature-empty {
+  padding: 32px 16px;
+  border: 1px dashed var(--x-border);
+  text-align: center;
+  font-size: 14px
+}
+
+.feature-status {
+  font-size: 12px;
+  padding: 3px 7px;
+  background: var(--x-surface);
+  border-radius: 4px
+}
+
+.feature-preview {
+  padding: 18px;
+  border: 1px dashed var(--x-border);
+  border-radius: 8px
+}
+
+.feature-stats {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px
+}
+
+.feature-stat {
+  padding: 22px;
+  border: 1px solid var(--x-border);
+  border-radius: 8px
+}
+
+.feature-stat strong {
+  display: block;
+  font-size: 30px;
+  margin-top: 8px
+}
+
+.feature-stat span {
+  font-size: 13px
+}
+
+.feature-page a {
+  overflow-wrap: anywhere
+}
+
+.feature-form button:disabled {
+  opacity: .5
+}
+
+.feature-form input[type=checkbox] {
+  width: auto
+}
+
+.feature-toggle {
+  display: flex!important;
+  align-items: center;
+  gap: 10px!important
+}
+
+.feature-card .feature-actions {
+  margin-top: 12px
+}
+
+@media(max-width:620px) {
+
+.feature-page {
+  padding: 18px 14px
+}
+
+.feature-heading {
+  flex-wrap: wrap
+}
+
+.feature-heading h1 {
+  font-size: 22px
+}
+
+.feature-form-grid {
+  grid-template-columns: 1fr
+}
+
+.feature-filters>* {
+  flex-basis: 100%
+}
+
+.feature-actions>* {
+  max-width: 100%
+}
+
+.feature-stat {
+  padding: 14px
+}
+}
+
+html[data-reduced-motion=true] *,html[data-reduced-motion=true] *::before,html[data-reduced-motion=true] *::after {
+  animation-duration: 0.01ms!important;
+  animation-iteration-count: 1!important;
+  transition-duration: 0.01ms!important;
+  scroll-behavior: auto!important
+}
+
+.feature-page {
+  color: var(--x-text)
+}
+
+.feature-page button,.feature-actions>a,.feature-filters select,.feature-filters input {
+  min-height: 44px
+}
+
+.feature-actions>a {
+  display: inline-flex;
+  align-items: center
+}
+
+.feature-error {
+  border-color: #7f1d1d;
+  color: #f87171;
+  background: rgba(127,29,29,.12)
+}
+
+.feature-stats,.feature-list {
+  margin-top: 18px
+}
+
+.feature-preview {
+  margin-top: 20px
+}

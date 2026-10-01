@@ -1,23 +1,34 @@
+import { SidebarNavigation } from "./components/sidebar-navigation";
+import { mobileNavigation } from "./components/navigation-config";
+import { EventsPage, EventFormPage, EventDetailPage, loadEvents } from "./pages/events";
+import { AnalyticsPage } from "./pages/analytics";
+import { SettingsPage } from "./pages/settings";
+import { defaultPreferences, effectiveFeed, effectiveNotificationKind } from "../shared/preferences";
+import { DraftsPage, loadDrafts } from "./pages/drafts";
+import { ArticlesPage, ArticleFormPage, ArticleDetailPage, loadArticles } from "./pages/articles";
+import { JobsPage, JobFormPage, JobDetailPage, loadJobs, jobSearch } from "./pages/jobs";
 import { LoadingSpinner, usePageTransition, useDelayedLoading } from "./components/loading";
 import { RouteError, NotFoundPage } from "./components/page-state";
 import { Brand } from "./brand";
+import { MoreNavigation } from "./components/more-navigation";
 import { AccountMenu } from "./components/account-menu";
 import { DiscoverySidebar } from "./components/discovery-sidebar";
 import { BookmarksPage, loadBookmarks } from "./pages/bookmarks";
+import { ListsPage, ListFormPage, ListDetailPage, loadLists, loadList, loadListContent } from "./pages/lists";
+import { SavedSearchesPageView, loadSavedSearches } from "./pages/saved-searches";
 import { clearComposerDraftsForAccount, hasComposerDraftsForAccount } from "./lib/composer-draft";
 import { FollowListPage } from "./components/follow-list";
 import { useContentLoading } from "./components/loading";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createRootRoute, createRoute, createRouter, Outlet, Link, redirect, useRouter, useRouterState } from "@tanstack/react-router";
 import { api } from "./lib/api";
 import { supabase } from "./lib/supabase";
-import type { Me, ProfileListPage, ProfilePage, TimelinePage } from "../shared/types";
+import type { Preferences, Me, ProfileListPage, ProfilePage, TimelinePage } from "../shared/types";
 import { useLoaderData, useParams } from "@tanstack/react-router";
 import { ActivityPage, loadActivity } from "./pages/activity";
 import { NotificationBadge } from "./components/notification-badge";
 import { AuthPage, ConfirmPage } from "./pages/auth";
 import { HomePage, ThreadPageView, ProfilePageView, ProfileEditor, ExplorePage, CommunitiesPage, CreateCommunityPage, CommunityPageView, SearchForm } from "./pages/social";
-import { SharePage } from "./pages/share";
 import { Avatar, ErrorNotice, Icon, useMe } from "./ui";
 
 const root = createRootRoute({ component: Outlet, pendingComponent: LoadingSpinner, pendingMs: 0, errorComponent: RouteError, notFoundComponent: NotFoundPage });
@@ -41,15 +52,11 @@ const confirmRoute = createRoute({
   },
 });
 
-const sidebarLinks = [
-  { route: "/", label: "Ana Sayfa", icon: "home" },
-  { route: "/explore", label: "Keşfet", icon: "search" },
-  { route: "/notifications", label: "Bildirimler", icon: "notification" },
-  { route: "/communities", label: "Topluluklar", icon: "community" },
-  { route: "/profile", label: "Profil", icon: "user" },
-];
+
 function Shell() {
   const { profile, communities, suggestedCommunities } = useMe();
+  const preferences=useRouterState({select:state=>(state.matches.find(match=>match.routeId==="/authenticated")?.loaderData as {preferences?:Preferences}|undefined)?.preferences||defaultPreferences});
+  useEffect(()=>{document.documentElement.dataset.reducedMotion=String(preferences.reducedMotion);return()=>{delete document.documentElement.dataset.reducedMotion;};},[preferences.reducedMotion]);
   const unreadCount = useRouterState({ select: state => (state.matches.find(match => match.routeId === "/authenticated")?.loaderData as { unreadCount?: number } | undefined)?.unreadCount ?? 0 });
   const pathname = useRouterState({ select: state => state.location.pathname });
   const exploreQuery = useRouterState({
@@ -61,7 +68,7 @@ function Shell() {
   const [error, setError] = useState("");
   const pageTransition = usePageTransition();
   const showSpinner = useDelayedLoading(pageTransition);
-  const links = sidebarLinks.map(link => ({ ...link, to: link.route === "/profile" ? `/profile/${profile.id}` : link.route }));
+  const links = mobileNavigation.map(link => ({ ...link, to: link.to === "/profile" ? `/profile/${profile.id}` : link.to }));
   const active = (to: string) => to === "/" ? pathname === to : pathname === to || pathname.startsWith(`${to}/`);
   async function signOut() {
     if (hasComposerDraftsForAccount(profile.id) && !window.confirm("Taslak silinsin ve çıkış yapılsın mı?")) return;
@@ -70,13 +77,13 @@ function Shell() {
     else { clearComposerDraftsForAccount(profile.id); window.location.assign("/sign-in"); }
   }
   return <div className="x-shell">
-    <aside className="x-sidebar"><Brand /><nav className="x-nav" aria-label="Ana menü">{links.map(link => <Link to={link.to} key={link.to} className={active(link.to) ? "active" : ""} aria-current={active(link.to) ? "page" : undefined}><span className="nav-icon"><Icon name={link.icon} size={27} />{link.route === "/notifications" && <NotificationBadge count={unreadCount} />}</span><span>{link.label}</span></Link>)}</nav>
+    <aside className="x-sidebar"><Brand /><nav className="x-nav" aria-label="Ana menü"><SidebarNavigation profileId={profile.id} unreadCount={unreadCount} /></nav>
       <Link to="/" className="x-compose-link" onClick={() => setTimeout(() => document.getElementById("compose-post")?.focus(), 100)}>Gönderi yayınla</Link>
       <div className="x-account"><Link to={`/profile/${profile.id}`} className="row"><Avatar name={profile.name} username={profile.username} src={profile.image} /><span><strong>{profile.name || "Yeni üye"}</strong><small>@{profile.username || "profilini-tamamla"}</small></span></Link><AccountMenu onSignOut={signOut} /></div><ErrorNotice message={error} />
     </aside>
-    <main className="x-main"><div className="x-topbar"><Brand /><AccountMenu onSignOut={signOut} /></div><div hidden={showSpinner} aria-busy={pageTransition}><Outlet /></div>{showSpinner && <LoadingSpinner label="Sayfa yükleniyor" />}</main>
+    <main className="x-main"><div className="x-topbar"><Brand /><div className="x-topbar-actions"><MoreNavigation compact /><AccountMenu onSignOut={signOut} /></div></div><div hidden={showSpinner} aria-busy={pageTransition}><Outlet /></div>{showSpinner && <LoadingSpinner label="Sayfa yükleniyor" />}</main>
     <aside className="x-rightbar">{pathname !== "/explore" && <SearchForm initial={exploreQuery} />}<DiscoverySidebar suggested={suggestedCommunities} joined={communities} /><footer>© {new Date().getFullYear()} social-web</footer></aside>
-    <nav className="x-mobile-nav" aria-label="Mobil menü">{links.map(link => <Link to={link.to} key={link.to} aria-label={link.route === "/notifications" && unreadCount ? `${link.label}, ${unreadCount} okunmamış bildirim` : link.label} aria-current={active(link.to) ? "page" : undefined} className={active(link.to) ? "active" : ""}><span className="nav-icon"><Icon name={link.icon} size={25} />{link.route === "/notifications" && <NotificationBadge count={unreadCount} />}</span></Link>)}</nav>
+    <nav className="x-mobile-nav" aria-label="Mobil menü">{links.map(link => <Link to={link.to} key={link.to} aria-label={link.to === "/notifications" && unreadCount ? `${link.label}, ${unreadCount} okunmamış bildirim` : link.label} aria-current={active(link.to) ? "page" : undefined} className={active(link.to) ? "active" : ""}><span className="nav-icon"><Icon name={link.icon} size={25} />{link.to === "/notifications" && <NotificationBadge count={unreadCount} />}</span></Link>)}</nav>
   </div>;
 }
 
@@ -89,9 +96,9 @@ const authenticated = createRoute({
   // Parent and child loaders run together, so the profile request no longer
   // blocks the feed request on every navigation.
   loader: async ({ location }) => {
-    const [me, activity] = await Promise.all([api<Me>("/me"), api<{ unreadCount: number }>("/notifications/unread").catch(() => ({ unreadCount: 0 }))]);
+    const [me, activity, preferences] = await Promise.all([api<Me>("/me"), api<{ unreadCount: number }>("/notifications/unread").catch(() => ({ unreadCount: 0 })), api<Preferences>("/preferences").catch(()=>defaultPreferences)]);
     if (!me.profile.onboarded && !["/onboarding", "/profile/edit"].includes(location.pathname)) throw redirect({ to: "/onboarding" });
-    return { me, unreadCount: activity.unreadCount };
+    return { me, unreadCount: activity.unreadCount, preferences };
   },
 });
 function pagination(search: Record<string, unknown>) {
@@ -104,11 +111,42 @@ export function cursorSearch(search: Record<string, unknown>) {
   return { cursor, cursorHistory };
 }
 const bookmarksRoute = createRoute({ getParentRoute: () => authenticated, path: "/bookmarks", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ deps }) => loadBookmarks(deps.cursor), component: BookmarksPage });
+const listsRoute = createRoute({ getParentRoute: () => authenticated, path: "/lists", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ deps }) => loadLists(deps.cursor), component: ListsPage });
+const createListRoute = createRoute({ getParentRoute: () => authenticated, path: "/lists/new", component: () => <ListFormPage mode="create" /> });
+const editListRoute = createRoute({ getParentRoute: () => authenticated, path: "/lists/$id/edit", loader: ({ params }) => loadList(params.id), component: () => {
+  const { id } = useParams({ strict: false }) as { id: string };
+  return <ListFormPage key={id} mode="edit" />;
+} });
+const listRoute = createRoute({
+  getParentRoute: () => authenticated, path: "/lists/$id",
+  validateSearch: search => ({ ...cursorSearch(search), tab: search.tab === "members" ? "members" as const : "posts" as const, snapshot: typeof search.snapshot === "string" ? search.snapshot.slice(0, 36) : "" }),
+  loaderDeps: ({ search }) => ({ cursor: search.cursor, tab: search.tab, snapshot: search.snapshot }),
+  loader: ({ params, deps }) => loadListContent(params.id, deps), component: ListDetailPage,
+});
+const savedSearchesRoute = createRoute({ getParentRoute: () => authenticated, path: "/saved-searches", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ deps }) => loadSavedSearches(deps.cursor), component: SavedSearchesPageView });
+const jobsRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs",validateSearch:s=>({...cursorSearch(s),...jobSearch(s)}),loaderDeps:({search})=>search,loader:({deps})=>loadJobs(deps),component:JobsPage});
+const jobNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/new",component:JobFormPage});
+const jobEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id/edit",loader:({params})=>api(`/jobs/${params.id}`),component:()=> <JobFormPage edit/>});
+const jobDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id",loader:({params})=>api(`/jobs/${params.id}`),component:JobDetailPage});
+const articlesRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles",validateSearch:s=>({...cursorSearch(s),filter:s.filter==="mine"?"mine":"all"}),loaderDeps:({search})=>search,loader:({deps})=>loadArticles(deps),component:ArticlesPage});
+const articleNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/new",component:ArticleFormPage});
+const articleEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id/edit",loader:({params})=>api(`/articles/${params.id}`),component:()=> <ArticleFormPage edit/>});
+const articleDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id",loader:({params})=>api(`/articles/${params.id}`),component:ArticleDetailPage});
+const draftsRoute=createRoute({getParentRoute:()=>authenticated,path:"/drafts",validateSearch:cursorSearch,loaderDeps:({search})=>({cursor:search.cursor}),loader:({deps})=>loadDrafts(deps.cursor),component:DraftsPage});
+const eventsRoute=createRoute({getParentRoute:()=>authenticated,path:"/events",validateSearch:s=>({...cursorSearch(s),period:s.period==="past"?"past":"upcoming",communityId:typeof s.communityId==="string"?s.communityId.slice(0,36):""}),loaderDeps:({search})=>search,loader:({deps})=>loadEvents(deps),component:EventsPage});
+const eventNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/new",component:EventFormPage});
+const eventEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id/edit",loader:({params})=>api(`/events/${params.id}`),component:()=> <EventFormPage edit/>});
+const eventDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id",loader:({params})=>api(`/events/${params.id}`),component:EventDetailPage});
 const home = createRoute({
   getParentRoute: () => authenticated, path: "/",
-  validateSearch: search => ({ ...pagination(search), ...cursorSearch(search), feed: search.feed === "communities" ? "communities" : search.feed === "following" ? "following" : search.feed === "latest" ? "latest" : "all", snapshot: typeof search.snapshot === "string" ? search.snapshot.slice(0, 36) : "" }),
+  validateSearch: search => ({ ...pagination(search), ...cursorSearch(search), feed: search.feed === "communities" ? "communities" : search.feed === "following" ? "following" : search.feed === "latest" ? "latest" : search.feed==="all"?"all":"", snapshot: typeof search.snapshot === "string" ? search.snapshot.slice(0, 36) : "" }),
   loaderDeps: ({ search }) => ({ page: search.page, feed: search.feed, snapshot: search.snapshot, cursor: search.cursor }),
-  loader: ({ deps }) => api(`/threads?page=${deps.page}&feed=${deps.feed}${deps.snapshot ? `&snapshot=${encodeURIComponent(deps.snapshot)}` : ""}${deps.feed === "following" && deps.cursor ? `&cursor=${encodeURIComponent(deps.cursor)}` : ""}`),
+  loader: async ({ deps }) => {
+    const preferences=deps.feed?defaultPreferences:await api<Preferences>("/preferences").catch(()=>defaultPreferences);
+    const feed=effectiveFeed(deps.feed,preferences);
+    const result=await api<Record<string,unknown>>(`/threads?page=${deps.page}&feed=${feed}${deps.snapshot ? `&snapshot=${encodeURIComponent(deps.snapshot)}` : ""}${feed === "following" && deps.cursor ? `&cursor=${encodeURIComponent(deps.cursor)}` : ""}`);
+    return {...result,effectiveFeed:feed};
+  },
   component: HomePage,
 });
 const onboarding = createRoute({ getParentRoute: () => authenticated, path: "/onboarding", component: ProfileEditor });
@@ -135,10 +173,12 @@ function FollowRoutePage({ kind }: { kind: "followers" | "following" }) {
 const followersRoute = createRoute({ getParentRoute: () => authenticated, path: "/profile/$id/followers", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ params, deps }) => api(`/profiles/${params.id}/followers${deps.cursor ? `?cursor=${encodeURIComponent(deps.cursor)}` : ""}`), component: () => <FollowRoutePage kind="followers" /> });
 const followingRoute = createRoute({ getParentRoute: () => authenticated, path: "/profile/$id/following", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ params, deps }) => api(`/profiles/${params.id}/following${deps.cursor ? `?cursor=${encodeURIComponent(deps.cursor)}` : ""}`), component: () => <FollowRoutePage kind="following" /> });
 const thread = createRoute({ getParentRoute: () => authenticated, path: "/thread/$id", validateSearch: pagination, loaderDeps: ({ search }) => search, loader: ({ params, deps }) => api(`/threads/${params.id}?page=${deps.page}`), component: ThreadPageView });
-const share = createRoute({ getParentRoute: () => authenticated, path: "/thread/share/$id", loader: ({ params }) => api(`/threads/${params.id}?page=0`), component: SharePage });
-const explore = createRoute({ getParentRoute: () => authenticated, path: "/explore", validateSearch: search => ({ q: String(search.q || "").slice(0, 80), tab: search.tab === "people" || search.tab === "communities" ? search.tab : "posts" }), loaderDeps: ({ search }) => ({ q: search.q }), loader: ({ deps }) => api(`/search?q=${encodeURIComponent(deps.q)}`), component: ExplorePage });
+const share = createRoute({ getParentRoute: () => authenticated, path: "/thread/share/$id", beforeLoad: ({ params }) => { throw redirect({ to: "/thread/$id", params: { id: params.id }, replace: true }); } });
+const explore = createRoute({ getParentRoute: () => authenticated, path: "/explore", validateSearch: search => ({ ...cursorSearch(search), q: String(search.q || "").slice(0, 80), tab: search.tab === "people" || search.tab === "communities" ? search.tab : "posts" }), loaderDeps: ({ search }) => ({ q: search.q, tab: search.tab, cursor: search.cursor }), loader: ({ deps }) => deps.q.trim() ? api(`/explore?q=${encodeURIComponent(deps.q)}&tab=${deps.tab}${deps.cursor ? `&cursor=${encodeURIComponent(deps.cursor)}` : ""}`) : api("/search"), component: ExplorePage });
 const groups = createRoute({ getParentRoute: () => authenticated, path: "/communities", loader: () => api("/communities"), component: CommunitiesPage });
 const createGroup = createRoute({ getParentRoute: () => authenticated, path: "/communities/new", component: CreateCommunityPage });
 const group = createRoute({ getParentRoute: () => authenticated, path: "/communities/$id", validateSearch: pagination, loaderDeps: ({ search }) => search, loader: ({ params, deps }) => api(`/communities/${params.id}?page=${deps.page}`), component: CommunityPageView });
-const notifications = createRoute({ getParentRoute: () => authenticated, path: "/notifications", validateSearch: search => ({ ...cursorSearch(search), kind: (search.kind === "reply" || search.kind === "like" || search.kind === "follow" ? search.kind : "all") as "reply" | "like" | "follow" | "all" }), loaderDeps: ({ search }) => ({ kind: search.kind, cursor: search.cursor }), loader: ({ deps }) => loadActivity(deps.kind, deps.cursor), component: ActivityPage });
-export const router = createRouter({ routeTree: root.addChildren([signin, signup, confirmRoute, authenticated.addChildren([home, onboarding, edit, user, followersRoute, followingRoute, thread, share, explore, groups, createGroup, group, notifications, bookmarksRoute])]), defaultPreload: "intent", defaultPreloadDelay: 120, defaultErrorComponent: RouteError, defaultNotFoundComponent: NotFoundPage, defaultPendingComponent: LoadingSpinner, defaultPendingMs: Infinity, defaultPendingMinMs: 0 });
+const notifications = createRoute({ getParentRoute: () => authenticated, path: "/notifications", validateSearch: search => ({ ...cursorSearch(search), kind: (search.kind === "reply" || search.kind === "like" || search.kind === "follow" || search.kind==="all" ? search.kind : "") as "reply" | "like" | "follow" | "all" | "" }), loaderDeps: ({ search }) => ({ kind: search.kind, cursor: search.cursor }), loader: async ({ deps }) => { const preferences=deps.kind?defaultPreferences:await api<Preferences>("/preferences").catch(()=>defaultPreferences);const kind=effectiveNotificationKind(deps.kind,preferences);return {...await loadActivity(kind,deps.cursor),effectiveKind:kind}; }, component: ActivityPage });
+const analyticsRoute=createRoute({getParentRoute:()=>authenticated,path:"/analytics",validateSearch:s=>({from:String(s.from||"").slice(0,10),to:String(s.to||"").slice(0,10)}),loaderDeps:({search})=>search,loader:({deps})=>{const p=new URLSearchParams();if(deps.from)p.set("from",deps.from);if(deps.to)p.set("to",deps.to);return api(`/analytics${p.size?`?${p}`:""}`);},component:AnalyticsPage});
+const settingsRoute=createRoute({getParentRoute:()=>authenticated,path:"/settings",loader:()=>api<Preferences>("/preferences"),component:SettingsPage});
+export const router = createRouter({ routeTree: root.addChildren([signin, signup, confirmRoute, authenticated.addChildren([home, onboarding, edit, user, followersRoute, followingRoute, thread, share, explore, groups, createGroup, group, notifications, bookmarksRoute, listsRoute, createListRoute, editListRoute, listRoute, savedSearchesRoute,jobsRoute,jobNewRoute,jobEditRoute,jobDetailRoute,articlesRoute,articleNewRoute,articleEditRoute,articleDetailRoute,draftsRoute,settingsRoute,analyticsRoute,eventsRoute,eventNewRoute,eventEditRoute,eventDetailRoute])]), defaultPreload: "intent", defaultPreloadDelay: 120, defaultErrorComponent: RouteError, defaultNotFoundComponent: NotFoundPage, defaultPendingComponent: LoadingSpinner, defaultPendingMs: Infinity, defaultPendingMinMs: 0 });

@@ -7,7 +7,7 @@ import { api } from "../lib/api";
 import type { NotificationPage } from "../../shared/types";
 import "../components/activity.css";
 
-type ActivityPageData = NotificationPage & { loadError?: string };
+type ActivityPageData = NotificationPage & { loadError?: string; effectiveKind?: NotificationKind | "all" };
 type ActivitySearch = { kind?: NotificationKind | "all"; cursor?: string; cursorHistory?: string[] };
 const tabs: { kind: NonNullable<ActivitySearch["kind"]>; label: string }[] = [
   { kind: "all", label: "Tümü" },
@@ -23,7 +23,7 @@ export function ActivityPage() {
   const router = useRouter();
   const loading = useContentLoading();
   const showLoading = useDelayedLoading(loading);
-  const kind = tabs.some(tab => tab.kind === search.kind) ? search.kind! : "all";
+  const kind = tabs.some(tab => tab.kind === search.kind) ? search.kind! : data.effectiveKind || "all";
   const cursor = search.cursor || "";
   const history = Array.isArray(search.cursorHistory) ? search.cursorHistory.slice(-20) : [];
   const [readOverrides, setReadOverrides] = useState<Set<string>>(() => new Set());

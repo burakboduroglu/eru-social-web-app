@@ -1,3 +1,9 @@
+import analytics from "pixelarticons/svg/analytics.svg?raw";
+import settings from "pixelarticons/svg/settings-cog.svg?raw";
+import article from "pixelarticons/svg/article.svg?raw";
+import job from "pixelarticons/svg/briefcase.svg?raw";
+import list from "pixelarticons/svg/list-box.svg?raw";
+import savedSearch from "pixelarticons/svg/search.svg?raw";
 import home from "pixelarticons/svg/home.svg?raw";
 import search from "pixelarticons/svg/search.svg?raw";
 import bell from "pixelarticons/svg/bell.svg?raw";
@@ -23,7 +29,7 @@ import bookmark from "pixelarticons/svg/bookmark.svg?raw";
 import repost from "pixelarticons/svg/repeat.svg?raw";
 
 const libraryIcons: Record<string, string> = {
-  home, search, notification: bell, community: users, user, calendar, reply,
+  analytics, settings, article, job, list, "saved-search": savedSearch, home, search, notification: bell, community: users, user, calendar, reply,
   "heart-gray": heart, share, emoji: smile,
   menu: more, refresh, close, back, camera, logout, chevron, check,
   copy, hide, delete: remove, bookmark, repost,

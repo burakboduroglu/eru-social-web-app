@@ -1,0 +1,9 @@
+.share-menu-panel { position: fixed; z-index: 130; visibility: hidden; box-sizing: border-box; max-width: calc(100vw - 24px); overflow: auto; padding: 6px; border: 1px solid var(--x-border); border-radius: 6px; background: #101215; color: var(--x-text); box-shadow: 0 10px 30px #0009; }
+.share-menu-panel > button, .share-menu-panel > a { display: flex; box-sizing: border-box; width: 100%; min-height: 44px; align-items: center; gap: 10px; padding: 10px 12px; border: 0; border-radius: 3px; color: inherit; background: transparent; font: inherit; font-size: 13px; font-weight: 600; line-height: 20px; text-align: left; text-decoration: none; cursor: pointer; }
+.share-menu-panel > button:hover:not(:disabled), .share-menu-panel > a:hover { background: #202327; }
+.share-menu-panel > button:disabled { opacity: .55; cursor: wait; }
+.share-menu-panel svg { flex: none; }
+.share-menu-panel > button:focus-visible, .share-menu-panel > a:focus-visible, .share-menu-error input:focus-visible { outline: 2px solid var(--x-blue); outline-offset: -2px; }
+.share-menu-error { padding: 8px 10px; }
+.share-menu-error p { margin: 0 0 8px; color: #ff8a91; font-size: 12px; line-height: 18px; }
+.share-menu-error input { box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--x-border); border-radius: 0; background: var(--x-bg); color: var(--x-text); font: inherit; font-size: 12px; }

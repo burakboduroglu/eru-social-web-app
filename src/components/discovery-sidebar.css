@@ -24,3 +24,84 @@
 .discovery-sidebar-empty p { margin: 8px 0; color: var(--x-muted); font-size: 13px; line-height: 1.6; }
 .discovery-sidebar-empty a { color: var(--x-blue); font-size: 13px; font-weight: 600; }
 .discovery-sidebar a:focus-visible { outline: 2px solid var(--x-blue); outline-offset: -2px; }
+
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined {
+  padding: 12px;
+  border-radius: 0;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-heading {
+  min-height: 28px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-heading h2 {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+  line-height: 20px;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-heading > span {
+  flex: 0 0 auto;
+  margin-left: auto;
+  line-height: 20px;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -12px;
+  padding: 8px 12px;
+  transition: background-color 120ms ease;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row + .discovery-sidebar-row {
+  margin-top: 2px;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row > .avatar {
+  box-sizing: border-box;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row small {
+  display: block;
+  min-width: 0;
+  margin-top: 2px;
+  overflow: hidden;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row:hover {
+  background: #16181c;
+}
+.x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row:focus-visible {
+  outline: 2px solid var(--x-blue);
+  outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .x-rightbar .discovery-sidebar.discovery-sidebar-joined .discovery-sidebar-row { transition: none; }
+}

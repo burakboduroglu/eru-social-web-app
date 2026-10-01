@@ -1,3 +1,4 @@
+import type { TextDraft } from "../../shared/types";
 export type ComposerDraftScope =
   | { kind: "root" }
   | { kind: "community"; communityId: string }
@@ -11,6 +12,21 @@ export type ComposerDraft = {
 const emptyDraft: ComposerDraft = { value: "", target: "" };
 const drafts = new Map<string, ComposerDraft>();
 const attachmentDrafts = new Set<string>();
+const durableReferences = new Map<string, TextDraft>();
+export function getDurableDraftReference(accountId: string, scope: ComposerDraftScope) {
+  return durableReferences.get(composerDraftKey(accountId, scope));
+}
+export function setDurableDraftReference(accountId: string, scope: ComposerDraftScope, draft?: TextDraft) {
+  const key = composerDraftKey(accountId, scope);
+  if (draft) durableReferences.set(key, draft);
+  else durableReferences.delete(key);
+}
+export function forgetDurableDraft(accountId: string, draftId: string) {
+  const prefix = `[${JSON.stringify(accountId)},`;
+  for (const [key, draft] of durableReferences) {
+    if (key.startsWith(prefix) && draft.id === draftId) durableReferences.delete(key);
+  }
+}
 
 export function composerDraftKey(accountId: string, scope: ComposerDraftScope): string {
   return JSON.stringify([accountId, scope.kind, scope.kind === "root" ? "" : scope.kind === "community" ? scope.communityId : scope.threadId]);
@@ -31,6 +47,7 @@ export function clearComposerDraft(accountId: string, scope: ComposerDraftScope)
   const key = composerDraftKey(accountId, scope);
   drafts.delete(key);
   attachmentDrafts.delete(key);
+  durableReferences.delete(key);
 }
 
 export function setComposerAttachments(accountId: string, scope: ComposerDraftScope, dirty: boolean): void {
@@ -54,6 +71,7 @@ export function clearComposerDraftsForAccount(accountId: string): void {
     if (key.startsWith(prefix)) drafts.delete(key);
   }
   for (const key of attachmentDrafts) if (key.startsWith(prefix)) attachmentDrafts.delete(key);
+  for (const key of durableReferences.keys()) if (key.startsWith(prefix)) durableReferences.delete(key);
 }
 
 export function hasComposerDraftsForAccount(accountId: string): boolean {

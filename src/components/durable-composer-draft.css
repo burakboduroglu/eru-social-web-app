@@ -1,0 +1,7 @@
+.durable-draft-controls { font-size: 12px; padding: 4px 0; width: 100%; min-width: 0; color: var(--x-text); }
+.durable-draft-controls > div { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.durable-draft-controls button, .durable-draft-controls a { color: var(--x-blue); font-weight: 600; min-height: 44px; padding: 8px 4px; display: inline-flex; align-items: center; }
+.durable-draft-controls button:disabled, .durable-draft-controls a[aria-disabled=true] { opacity: .5; }
+.durable-draft-controls p { margin-top: 6px; color: var(--x-muted); }
+.durable-draft-controls .durable-draft-error { color: #f87171; }
+.thread-reply-form .durable-draft-controls { grid-column: 2; }

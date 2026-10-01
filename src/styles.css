@@ -126,6 +126,7 @@ a:hover {
 }
 
 .x-nav a.active {
+  background: #181818;
   font-weight: 700;
 }
 

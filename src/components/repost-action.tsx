@@ -6,12 +6,13 @@ import { showToast } from "./toast";
 import { Icon } from "./icon";
 import { useMe } from "../ui";
 
-export function RepostAction({ postId, reposted, repostCount, serverSource, compact = false }: {
+export function RepostAction({ postId, reposted, repostCount, serverSource, compact = false, canRepost = true }: {
   postId: string;
   reposted: boolean;
   repostCount: number;
   serverSource?: unknown;
   compact?: boolean;
+  canRepost?: boolean;
 }) {
   const userId = useMe().profile.id;
   const router = useRouter();
@@ -27,7 +28,7 @@ export function RepostAction({ postId, reposted, repostCount, serverSource, comp
   );
 
   async function toggle() {
-    if (entry.pending) return;
+    if (entry.pending || (!entry.reposted && !canRepost)) return;
     const next = !entry.reposted;
     const nextCount = Math.max(0, entry.repostCount + (next ? 1 : -1));
     setError("");
@@ -45,7 +46,7 @@ export function RepostAction({ postId, reposted, repostCount, serverSource, comp
   }
 
   return <div className={`repost-action-wrap${compact ? " is-compact" : ""}${entry.repostCount > 0 ? " has-count" : ""}`}>
-    <button type="button" className={`repost-action${entry.reposted ? " is-active" : ""}`} aria-label={`${entry.reposted ? "Yeniden paylaşımı geri al" : "Yeniden paylaş"}; ${entry.repostCount} yeniden paylaşım`} aria-pressed={entry.reposted} disabled={entry.pending} onClick={toggle}>
+    <button type="button" className={`repost-action${entry.reposted ? " is-active" : ""}`} aria-label={`${entry.reposted ? "Yeniden paylaşımı geri al" : "Yeniden paylaş"}; ${entry.repostCount} yeniden paylaşım`} aria-pressed={entry.reposted} disabled={entry.pending || (!entry.reposted && !canRepost)} onClick={toggle}>
       <Icon name="repost" size={19} />
       <span>{entry.reposted ? "Yeniden paylaşımı geri al" : "Yeniden paylaş"}</span>
       {entry.repostCount > 0 && <span className="repost-action-count" aria-label={`${entry.repostCount} yeniden paylaşım`}>{entry.repostCount}</span>}

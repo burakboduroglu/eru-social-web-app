@@ -4,6 +4,7 @@ export function useFloatingPicker(
   open: boolean,
   panelRef: RefObject<HTMLDivElement | null>,
   triggerRef: RefObject<HTMLButtonElement | null>,
+  maxWidth = 360,
 ) {
   useLayoutEffect(() => {
     const panel = panelRef.current;
@@ -23,7 +24,7 @@ export function useFloatingPicker(
       const minTop = viewportTop + margin;
       const maxRight = viewportLeft + viewportWidth - margin;
       const maxBottom = viewportTop + viewportHeight - margin;
-      const width = Math.max(1, Math.min(360, viewportWidth - margin * 2));
+      const width = Math.max(1, Math.min(maxWidth, viewportWidth - margin * 2));
       const fullHeight = Math.max(1, viewportHeight - margin * 2);
       const anchor = trigger.getBoundingClientRect();
       const headerHeight = panel.querySelector(".composer-picker-header")?.getBoundingClientRect().height ?? 45;
@@ -64,5 +65,5 @@ export function useFloatingPicker(
       viewport?.removeEventListener("resize", schedule);
       viewport?.removeEventListener("scroll", schedule);
     };
-  }, [open, panelRef, triggerRef]);
+  }, [open, panelRef, triggerRef, maxWidth]);
 }

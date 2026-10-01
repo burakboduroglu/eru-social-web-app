@@ -16,11 +16,13 @@ import type {
   Profile,
   ProfilePage as ProfileData,
   SearchResults,
+  ExplorePage as ExploreData,
   ThreadPage,
 } from "../../shared/types";
 import { api, invalidateApiCache } from "../lib/api";
 import { uploadAvatar } from "../lib/supabase";
 import { TimelineList } from "../components/timeline-list";
+import { SaveSearchAction } from "../components/save-search-action";
 import { FollowButton, useFollowSnapshot } from "../components/follow-button";
 import {
   Avatar,
@@ -253,18 +255,19 @@ function AccountRow({ profile, detail }: { profile: Profile; detail?: string }) 
   );
 }
 export function HomePage() {
-  const data = useLoaderData({ strict: false }) as FeedPage | TimelinePage;
+  const data = useLoaderData({ strict: false }) as (FeedPage | TimelinePage) & { effectiveFeed?: string };
   const me = useMe();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const search = useRouterState({ select: state => state.location.search }) as { feed?: string; snapshot?: string; cursor?: string; page?: number };
   const navigate = useNavigate();
+  const feed=search.feed||data.effectiveFeed||"all";
 
   async function refresh() {
     invalidateApiCache();
     setRefreshing(true);
     try {
-      if (search.snapshot || search.page || search.cursor) await navigate({ to: "/", search: { feed: search.feed || "all", page: 0, snapshot: "" } as never, resetScroll: false });
+      if (search.snapshot || search.page || search.cursor) await navigate({ to: "/", search: { feed: feed, page: 0, snapshot: "" } as never, resetScroll: false });
       else await router.invalidate();
     } finally {
       setRefreshing(false);
@@ -275,9 +278,9 @@ export function HomePage() {
     <section className="mx-auto flex w-full max-w-2xl flex-col">
       <h1 className="sr-only">Ana Sayfa</h1>
       <nav className="x-feed-tabs x-home-feed-tabs" aria-label="Akış seçimi">
-        <button className={!search.feed || search.feed === "all" || search.feed === "latest" ? "active" : ""} aria-pressed={!search.feed || search.feed === "all" || search.feed === "latest"} onClick={() => navigate({ to: "/", search: { feed: "all", page: 0 } as never, resetScroll: false })}>Senin için</button>
-        <button className={search.feed === "following" ? "active" : ""} aria-pressed={search.feed === "following"} onClick={() => navigate({ to: "/", search: { feed: "following", page: 0 } as never, resetScroll: false })}>Takip edilenler</button>
-        <button className={search.feed === "communities" ? "active" : ""} aria-pressed={search.feed === "communities"} onClick={() => navigate({ to: "/", search: { feed: "communities", page: 0 } as never, resetScroll: false })}>Toplulukların</button>
+        <button className={feed === "all" || feed === "latest" ? "active" : ""} aria-pressed={feed === "all" || feed === "latest"} onClick={() => navigate({ to: "/", search: { feed: "all", page: 0 } as never, resetScroll: false })}>Senin için</button>
+        <button className={feed === "following" ? "active" : ""} aria-pressed={feed === "following"} onClick={() => navigate({ to: "/", search: { feed: "following", page: 0 } as never, resetScroll: false })}>Takip edilenler</button>
+        <button className={feed === "communities" ? "active" : ""} aria-pressed={feed === "communities"} onClick={() => navigate({ to: "/", search: { feed: "communities", page: 0 } as never, resetScroll: false })}>Toplulukların</button>
         <button className="x-feed-refresh" aria-label="Akışı yenile" disabled={refreshing} onClick={refresh}><Icon name="refresh" size={20} /></button>
       </nav>
       <Composer communities={me.communities} />
@@ -455,14 +458,14 @@ export function ProfileEditor() {
 }
 
 export function ExplorePage() {
-  const results = useLoaderData({ strict: false }) as SearchResults;
+  const results = useLoaderData({ strict: false }) as ExploreData;
   const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as { q?: string; tab?: string };
+  const search = useSearch({ strict: false }) as { q?: string; tab?: string; cursor?: string; cursorHistory?: string[] };
   const tab = search.tab === "people" || search.tab === "communities" ? search.tab : "posts";
   const query = results.query;
 
   function selectTab(next: string) {
-    void navigate({ search: { q: query, tab: next } as never, resetScroll: false });
+    void navigate({ search: { q: search.q || "", tab: next, cursor: "", cursorHistory: [] } as never, resetScroll: false });
   }
 
   return (
@@ -478,9 +481,11 @@ export function ExplorePage() {
             <button type="button" className={tab === "people" ? "active" : ""} aria-pressed={tab === "people"} onClick={() => selectTab("people")}>Kişiler</button>
             <button type="button" className={tab === "communities" ? "active" : ""} aria-pressed={tab === "communities"} onClick={() => selectTab("communities")}>Topluluklar</button>
           </nav>
+          <SaveSearchAction query={search.q || ""} tab={tab} />
           {tab === "posts" && (results.posts.length ? <PostList posts={results.posts} hasMore={false} /> : <Empty kind="search">{`“${query}” için gönderi yok.`}</Empty>)}
           {tab === "people" && (results.people.length ? results.people.map(person => <AccountRow key={person.id} profile={person} detail={person.bio} />) : <Empty kind="search">{`“${query}” için kişi yok.`}</Empty>)}
           {tab === "communities" && (results.communities.length ? results.communities.map(community => <CommunityRow key={community.id} community={community} />) : <Empty kind="search">{`“${query}” için topluluk yok.`}</Empty>)}
+          {(search.cursor || results.nextCursor) && <nav className="activity-pagination" aria-label="Arama sayfaları"><button type="button" disabled={!search.cursor} onClick={() => navigate({ search: { ...search, cursor: search.cursorHistory?.at(-1) || "", cursorHistory: search.cursorHistory?.slice(0,-1) || [] } as never })}>Önceki</button><button type="button" disabled={!results.nextCursor} onClick={() => navigate({ search: { ...search, cursor: results.nextCursor || "", cursorHistory: [...(search.cursorHistory || []), search.cursor || ""].slice(-20) } as never })}>Sonraki</button></nav>}
         </>
       ) : (
         <>

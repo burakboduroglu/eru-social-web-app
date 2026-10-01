@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./icon";
-import { Link } from "@tanstack/react-router";
 
 export function AccountMenu({ onSignOut }: { onSignOut: () => Promise<void> }) {
   const menu = useRef<HTMLDetailsElement>(null);
@@ -38,7 +37,6 @@ export function AccountMenu({ onSignOut }: { onSignOut: () => Promise<void> }) {
   }}>
     <summary aria-label="Hesap seçenekleri" aria-haspopup="menu" aria-expanded={open}><Icon name="menu" size={20} /></summary>
     <div className="account-menu-items" role="menu" aria-label="Hesap seçenekleri">
-      <Link to="/bookmarks" role="menuitem" onClick={() => close()}><Icon name="bookmark" size={18} /><span>Kaydedilenler</span></Link>
       <button type="button" role="menuitem" disabled={busy} onClick={async () => {
         setBusy(true);
         close(true);
