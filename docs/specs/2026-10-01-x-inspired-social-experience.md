@@ -133,6 +133,7 @@ Each slice is independently reviewable. P1 and P2 can use separate migrations an
 
 - Add a unique actor/original repost relation with creation time and cascading references. `PUT /api/threads/:id/repost` and `DELETE` return `{ reposted, repostCount }` idempotently.
 - Version one permits top-level personal originals; no reply or community reposts until their audience rules are specified. Reposting never widens underlying authorization.
+- Community-root eligibility is extended by the [community repost contract](2026-10-01-community-reposts.md): joined-member mutations and source-scoped profile activities; Following/Lists remain personal. Migration 008 is locally validated and has not been applied remotely.
 - Introduce a typed timeline entry with the original post and optional repost attribution. Following now uses a viewer-scoped activity snapshot and cursor envelope `{ entries, nextCursor, snapshot }`; update its router/loader explicitly rather than treating the old offset `FeedPage` as interchangeable. Freeze qualifying activity IDs and attribution with timestamp/ID ordering, then hydrate originals under current authorization on each page. Expired or foreign snapshot tokens return a recoverable 410, as in the existing recommended feed.
 - In Following, a post reached through multiple followed actors appears once, using the newest qualifying activity and deterministic actor/ID tie-breakers at snapshot creation. Ordinary post state remains keyed by original ID. Removed/restricted activity is omitted during hydration and traversal still advances. New activity waits for refresh; a removed repost can reveal an older qualifying original/activity in the new snapshot.
 - Keep recommended-feed repost ranking unchanged until an explicit decision; do not silently mix event IDs with the existing original-ID snapshot algorithm. Expose reposts first on profiles and Following. Add repost notifications only after event generation is ready.
@@ -202,8 +203,10 @@ P5 supersedes P2's temporary offset envelope: Following returns `TimelinePage`
 with `entries`, `nextCursor`, `snapshot` and `followingCount`. Profile Posts loads
 `/profiles/:id/timeline`; profile metadata and Replies retain their existing API.
 Both timeline scopes reset cursor/history/snapshot when changing tabs and recover
-from 410 by starting fresh. Reposts are personal roots only, with no repost events
-or recommended-feed ranking change.
+from 410 by starting fresh. Reposts support personal roots and the separately
+specified [community roots](2026-10-01-community-reposts.md), with no repost
+notifications or recommended-feed ranking change. Following and Lists remain
+personal only; community repost profile activity requires current source membership.
 
 Image ingestion accepts raw authenticated binary uploads through
 `POST /api/media/images`. Trusted validation checks signatures, container structure,

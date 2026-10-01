@@ -52,11 +52,20 @@ temporary service limits.
 | --- | --- | --- |
 | 🔒 | **Invitation-only registration** | An Auth database trigger validates and consumes a hashed invitation atomically, including direct Auth API calls. |
 | 💬 | **Conversations** | Paginated feeds, replies, likes, private bookmarks and distinct repost/share actions. |
+| 🔁 | **Community reposts** | Current members can repost community roots. Profiles recheck viewer/actor membership and source visibility; owners can undo after leaving. Replies are excluded. |
 | 👥 | **Communities** | Create a community, join one, publish to its feed and browse its members. Owners can edit its description. |
 | 🪪 | **Profiles** | Onboarding, avatars, searchable profiles, follow counts/lists, and posts/replies tabs. |
 | 🎞️ | **Rich posts** | Searchable emoji, 14 bundled animated reaction GIFs, personal uploads, four-image attachments with alt text and a keyboard viewer, readable links, automatic page previews and YouTube/Spotify embeds. No GIF provider API key. |
 | 🔔 | **Activity** | Durable reply, like and follow notifications, category filters, explicit read controls and an unread badge. |
 | 🔁 | **Following** | Chronological personal originals and attributed reposts, with stable snapshot/cursor pagination. |
+| 📋 | **Private Lists** | Curate accounts independently of following, manage members and browse their personal posts/reposts in a private paginated timeline. |
+| 🔎 | **Saved Searches** | Save a query with its Posts, People or Communities tab, rerun it from More, and remove it. Case/whitespace duplicates share one record per owner/tab. |
+| 💼 | **Jobs** | Owner draft/publish/edit/close flows, search/filter pages, private saves and HTTPS application links to external sites. |
+| 📝 | **Articles** | Private text drafts, preview, publish and versioned editing with stable reader URLs. |
+| 📄 | **Text drafts** | Explicitly save composer text, resume from a private library, and clear the saved draft only after successful publication. Attachments remain session-only. |
+| ⚙️ | **Preferences** | Private reduced-motion, default feed and notification category settings; explicit URL filters take precedence. |
+| 📊 | **Creator analytics** | Counts from recorded owned posts, likes, replies, reposts and current followers, with optional post-date filtering. |
+| 📅 | **Community events** | Current members browse events and external meeting links, set private RSVP, and manage their own events. |
 | 🛡️ | **Database-enforced ownership** | Verified Auth identities and transaction-local roles preserve RLS through the Drizzle connection. |
 | 📱 | **One responsive layout** | Three columns on desktop, compact navigation on smaller screens and a mobile bottom bar. |
 | 🖼️ | **Useful error states** | Themed illustrations, retry actions and `Retry-After` countdowns for rate limits and service failures. |
@@ -168,7 +177,7 @@ bun run typecheck
 bun test             # PGlite database/RLS/API tests and UI helper tests
 bun run build
 bun run start        # Production server at http://127.0.0.1:3001
-bun run db:check      # Live Drizzle connection and schema check
+bun run db:check      # Live feature-table, RLS/policy and read-grant check
 bun run db:studio    # Operator database inspection
 ```
 
@@ -185,7 +194,8 @@ migrations and place the Bun server behind HTTPS. See
 Legacy accounts and posts are not imported. Password recovery, OAuth, private
 messages and email/password editing are not implemented. Community member lists
 currently show up to 100 people. Activity has no historical backfill or browser push.
-Unsent drafts live only in memory and clear on account change or reload.
+Unsent composer text stays transient unless explicitly saved to the private
+draft library. Saved drafts persist across sessions; images are not included.
 The GIF picker searches a small bundled reaction catalog and your own uploads;
 it does not search the wider internet. Page previews depend on publicly reachable
 HTTP pages with usable metadata and may fall back to a plain link. Their bounded,
@@ -200,9 +210,22 @@ or deleted while referenced. `POST /api/media/images/cleanup` with `{}` retries 
 to 20 of the caller's unreferenced uploads older than 24 hours, plus pending failed
 cleanup attempts. This is an explicit operation, without an automatic scheduler.
 
-The October 1 features require all five `20261001` migrations before deployment.
+The October 1 features require all thirteen `20261001` migrations before deployment.
+Private Lists and Saved Searches add `202610010006` and `202610010007`; apply
+these before visiting their new routes. Lists are owner-only, without sharing,
+subscriptions or Home pins. Saved searches rerun on demand without alerts.
+Community reposts add `202610010008`; see the [audience contract](docs/specs/2026-10-01-community-reposts.md).
+Jobs, Articles, text drafts, preferences and events add migrations `009`–`013`.
+Jobs and Articles are direct desktop destinations; the mobile More menu keeps
+them accessible alongside the other tools. Native job applications, rich article
+media, scheduled publication and native audio remain outside this release.
+See the [medium feature specification](docs/specs/2026-10-01-medium-features.md),
+[integration validation](docs/design/2026-10-01-medium-features-review.md), and
+[deferred costly features](docs/specs/2026-10-01-deferred-costly-features.md).
 See the [implementation specification](docs/specs/2026-10-01-x-inspired-social-experience.md)
 and [validation record](docs/design/2026-10-01-implementation-review.md).
+The sidebar expansion is described in the [feature plan](docs/plans/2026-10-01-lists-and-saved-searches.md)
+and [validation record](docs/design/2026-10-01-sidebar-expansion-review.md).
 
 ## License
 
