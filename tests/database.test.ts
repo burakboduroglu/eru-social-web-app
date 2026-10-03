@@ -31,6 +31,9 @@ beforeAll(async () => {
   await db.exec(await readFile(new URL("../supabase/migrations/202609300001_social_web.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202609300003_post_media.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202609300004_feed_feedback.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010009_jobs.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610010011_text_drafts.sql", import.meta.url), "utf8"));
+  await db.exec(await readFile(new URL("../supabase/migrations/202610030002_job_shares.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202610010001_thread_bookmarks.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202610010002_profile_follows.sql", import.meta.url), "utf8"));
   await db.exec(await readFile(new URL("../supabase/migrations/202610010003_notifications.sql", import.meta.url), "utf8"));

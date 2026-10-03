@@ -45,7 +45,7 @@ beforeAll(async () => {
     grant select,insert,update,delete on storage.objects to authenticated;
     create policy broad_fixture_update on storage.objects for update to authenticated using (true);
   `);
-  for (const migration of ["202609300001_social_web.sql","202609300003_post_media.sql","202609300004_feed_feedback.sql","202610010001_thread_bookmarks.sql","202610010002_profile_follows.sql","202610010003_notifications.sql","202610010004_post_images.sql","202610010005_thread_reposts.sql", "202610010006_private_account_lists.sql", "202610010007_saved_searches.sql", "202610010008_community_reposts.sql"]) {
+  for (const migration of ["202609300001_social_web.sql","202609300003_post_media.sql","202609300004_feed_feedback.sql","202610010001_thread_bookmarks.sql","202610010002_profile_follows.sql","202610010003_notifications.sql","202610010004_post_images.sql","202610010005_thread_reposts.sql", "202610010006_private_account_lists.sql", "202610010007_saved_searches.sql", "202610010008_community_reposts.sql","202610010009_jobs.sql","202610010010_articles.sql","202610010011_text_drafts.sql","202610010012_account_preferences.sql","202610010013_community_events.sql","202610030001_discussions.sql","202610030002_job_shares.sql"]) {
     await engine.exec(await readFile(new URL(`../supabase/migrations/${migration}`, import.meta.url),"utf8"));
   }
   await engine.query("insert into auth.users values ($1),($2)",[alice,bob]);
