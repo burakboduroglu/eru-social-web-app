@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState, type ReactNode, type FormEvent } fr
 import { createPortal } from "react-dom";
 import { Link, useRouter, useSearch, useNavigate, useRouterState } from "@tanstack/react-router";
 import { api } from "./lib/api";
-import type { Me, Post, CommunitySummary } from "../shared/types";
+import type { Me, Post, CommunitySummary, TimelineEntry } from "../shared/types";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
@@ -22,7 +22,7 @@ import { MediaAttachments, PostImages } from "./components/media-attachments";
 import { useImageAttachments } from "./components/use-image-attachments";
 import { detectLinks } from "../shared/link-preview";
 import { parseMediaUrl } from "./lib/media";
-import { RepostAction } from "./components/repost-action";
+import { RepostAction, RepostAttribution } from "./components/repost-action";
 import { ShareMenu } from "./components/share-menu";
 import { useDurableComposerDraft, DurableDraftControls } from "./components/durable-composer-draft";
 
@@ -222,7 +222,7 @@ function relativeDate(value: string) {
 function fullDate(value: string) {
   return new Date(value).toLocaleString("tr-TR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
-export function PostCard({ post, detail = false }: { post: Post; detail?: boolean }) {
+export function PostCard({ post, detail = false, repostActor }: { post: Post; detail?: boolean; repostActor?: NonNullable<TimelineEntry["repost"]>["actor"] }) {
   const { profile, communities } = useMe(); const action = useAction(); const navigate = useNavigate();
   const canRepost = !post.communityId || communities.some(community => community.id === post.communityId);
   const pathname = useRouterState({ select: state => state.location.pathname });
@@ -252,8 +252,9 @@ export function PostCard({ post, detail = false }: { post: Post; detail?: boolea
   }
   if (dismissed) return <div className="dismissed-post" role="status"><span>Bu gönderi akışından kaldırıldı.</span><button type="button" onClick={() => dismiss(true)}>Geri al</button></div>;
   const detailPath = `/thread/${post.id}`;
-  return <article className={`x-post${detail ? " thread-main" : ""}${post.community ? " post-has-community" : ""}`}>
+  return <article className={`x-post${detail ? " thread-main" : ""}${post.community ? " post-has-community" : ""}${repostActor ? " post-has-repost" : ""}`}>
     {pathname !== detailPath && <Link to={detailPath} className="post-detail-link" aria-label={`${post.author.name} gönderisinin detayını aç`} />}
+    {repostActor && <RepostAttribution actor={repostActor} />}
     <Link to={`/profile/${post.author.id}`} className="post-avatar-link"><Avatar src={post.author.image} name={post.author.name} username={post.author.username} /></Link>
     <div className="post-body">
       {post.community && <Link to={`/communities/${post.community.id}`} className="post-community"><Icon name="community" size={16} /><span>{post.community.name}</span></Link>}

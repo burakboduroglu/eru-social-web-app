@@ -1,6 +1,13 @@
+:root {
+  --x-topbar-height: 54px;
+  --x-pagebar-height: 56px;
+  --x-bottom-nav-height: 58px;
+  --x-control-height: 44px;
+}
+
 .x-bar {
   box-sizing: border-box;
-  min-height: 56px;
+  min-height: var(--x-pagebar-height);
   gap: 12px;
   border-bottom: 1px solid var(--x-border);
   padding-inline: 16px;
@@ -25,16 +32,16 @@
 .x-bar > .x-pill-outline {
   box-sizing: border-box;
   align-self: center;
-  min-height: 32px;
+  min-height: var(--x-control-height);
   flex: 0 0 auto;
-  padding: 7px 13px;
+  padding: 10px 13px;
   font-size: 13px;
   line-height: 18px;
   white-space: nowrap;
 }
 
 .x-bar ~ .x-feed-tabs {
-  top: 56px;
+  top: var(--x-pagebar-height);
 }
 
 .x-profile-copy .x-joined {

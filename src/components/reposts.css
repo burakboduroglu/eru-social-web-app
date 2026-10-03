@@ -25,15 +25,36 @@
 .repost-action-count { flex: 0 0 auto; color: inherit; font-variant-numeric: tabular-nums; }
 .repost-action-error { max-width: min(280px, calc(100vw - 24px)); padding: 0 8px 4px; color: #ff8a91; font-size: 11px; line-height: 15px; }
 .repost-action-wrap.is-compact .repost-action > span:first-of-type { display: none; }
+.repost-action-wrap.is-compact .repost-action { font-size: 13px; line-height: 20px; }
 .repost-action-wrap.is-compact:not(.has-count) .repost-action { width: 44px; padding-inline: 4px; }
-.repost-attribution { display: flex; min-width: 0; align-items: center; gap: 6px; padding: 0 0 5px 48px; color: var(--x-muted); font-size: 12px; line-height: 16px; }
-.repost-attribution > svg { flex: 0 0 auto; color: #00ba7c; }
-.repost-attribution-link { overflow: hidden; color: inherit; font-weight: 600; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.x-post.post-has-repost:not(.thread-main) { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 8px; row-gap: 0; }
+.post-has-repost > .repost-attribution { grid-column: 2; grid-row: 1; margin-bottom: 5px; }
+.post-has-repost:not(.thread-main) > .post-avatar-link { grid-column: 1; grid-row: 2; align-self: start; }
+.post-has-repost:not(.thread-main) > .post-body { grid-column: 2; grid-row: 2; }
+/* Context text shares the author column; its icon occupies the avatar gutter. */
+.repost-attribution { position: relative; z-index: 1; min-width: 0; padding-right: 44px; color: var(--x-muted); font-size: 12px; line-height: 16px; }
+.repost-attribution > svg { position: absolute; top: 1px; right: calc(100% + 6px); color: #00ba7c; }
+.repost-attribution-link { display: block; overflow: hidden; color: inherit; font-weight: 600; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .repost-attribution-link:hover { color: #00ba7c; text-decoration: underline; }
 .repost-attribution-link:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
 
-@media (max-width: 620px) {
-  .repost-action { min-height: 44px; }
-  .repost-action-wrap.is-compact:not(.has-count) .repost-action { width: 44px; }
-  .repost-attribution { padding-left: 42px; }
-}
+.x-post .post-community { gap: 0; padding-right: 44px; }
+.x-post .post-community > svg { position: absolute; right: calc(100% + 6px); }
+.post-heading .x-post-meta { flex-wrap: nowrap; align-items: baseline; }
+.post-heading .x-post-meta > :first-child { min-width: 0; }
+.post-heading .x-post-meta > span:first-of-type { flex-shrink: 1; }
+.post-heading .x-post-meta > span:not(:first-of-type) { flex: none; }
+.post-actions-row { align-items: flex-start; }
+.post-actions-row .post-action { min-height: 44px; line-height: 20px; }
+.post-actions-row .post-action > span { font-variant-numeric: tabular-nums; }
+.post-actions-row .post-action > svg, .repost-action > svg { flex: none; }
+.x-post:not(.thread-main) .post-menu { width: 44px; height: 22px; }
+.x-post:not(.thread-main) .post-menu summary { position: absolute; top: -11px; right: 0; width: 44px; height: 44px; }
+.x-post:not(.thread-main) .post-menu-items { top: 33px; }
+.post-heading { align-items: flex-start; }
+/* Focused posts keep their full-width content below the author row. */
+.thread-main.post-has-repost > .post-avatar-link,
+.thread-main.post-has-repost > .post-body > .post-heading { grid-row: 2; }
+.thread-main.post-has-repost.post-has-community > .post-avatar-link,
+.thread-main.post-has-repost.post-has-community > .post-body > .post-heading { grid-row: 3; }
+.thread-main.post-has-repost > .post-body > .post-community { grid-row: 2; }

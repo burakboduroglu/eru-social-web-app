@@ -15,20 +15,21 @@
   flex: 1 1 0%;
 }
 
-/* Fit the three-column shell through the narrow gap before the rail hides. */
-@media (min-width: 1051px) and (max-width: 1067px) {
+/* Preserve the feed width while the right rail grows into its full track. */
+@media (min-width: 1051px) and (max-width: 1279px) {
   .x-shell {
     width: min(100%, 1068px);
-    grid-template-columns: 88px minmax(0, 1fr) 350px;
+    grid-template-columns: 88px 600px minmax(0, 1fr);
   }
 
   .x-main {
     width: 100%;
     min-width: 0;
+    max-width: 600px;
   }
 
   .x-rightbar {
-    width: 320px;
+    width: calc(100% - 30px);
     min-width: 0;
     margin-left: 30px;
   }
@@ -67,14 +68,14 @@
   .x-bar,
   .x-search-page,
   .x-feed-tabs {
-    top: 54px;
+    top: var(--x-topbar-height, 54px);
   }
 
   .x-bar ~ .x-feed-tabs {
-    top: 110px;
+    top: calc(var(--x-topbar-height, 54px) + var(--x-pagebar-height, 56px));
   }
 
   .x-search-page + .x-feed-tabs {
-    top: 104px;
+    top: calc(var(--x-topbar-height, 54px) + 50px);
   }
 }

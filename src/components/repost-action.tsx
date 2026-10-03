@@ -55,10 +55,8 @@ export function RepostAction({ postId, reposted, repostCount, serverSource, comp
   </div>;
 }
 
-export function RepostAttribution({ actor }: { actor: { id: string; name: string; username: string } }) {
-  return <div className="repost-attribution"><Icon name="repost" size={14} /><LinkProfile id={actor.id} name={actor.name} username={actor.username} /></div>;
-}
-
-function LinkProfile({ id, name, username }: { id: string; name: string; username: string }) {
-  return <Link className="repost-attribution-link" to="/profile/$id" params={{ id }} aria-label={`${name} (@${username}) tarafından yeniden paylaşıldı`}>{name || `@${username}`} yeniden paylaştı</Link>;
+export function RepostAttribution({ actor }: { actor: { id: string; name: string; username: string | null } }) {
+  const name = actor.name || (actor.username ? `@${actor.username}` : "Kullanıcı");
+  const label = `${name}${actor.username ? ` (@${actor.username})` : ""} tarafından yeniden paylaşıldı`;
+  return <div className="repost-attribution"><Icon name="repost" size={14} /><Link className="repost-attribution-link" to="/profile/$id" params={{ id: actor.id }} aria-label={label} title={label}>{name} yeniden paylaştı</Link></div>;
 }

@@ -1,7 +1,6 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import type { TimelinePage } from "../../shared/types";
 import { PostCard } from "../ui";
-import { RepostAttribution } from "./repost-action";
 import { Button } from "./ui/button";
 import { LoadingSpinner, useContentLoading, useDelayedLoading } from "./loading";
 
@@ -16,10 +15,7 @@ export function TimelineList({ data, following = false }: { data: TimelinePage; 
     void navigate({ search: { ...search, cursor: next, cursorHistory, snapshot: fresh ? "" : data.snapshot } as never });
   }
   return <>
-    {showLoading ? <LoadingSpinner /> : data.entries.length ? <div className="x-post-list">{data.entries.map(entry => <div key={entry.post.id} className="timeline-entry">
-      {entry.repost && <RepostAttribution actor={{ ...entry.repost.actor, username: entry.repost.actor.username || "" }} />}
-      <PostCard post={entry.post} />
-    </div>)}</div> : <div className="follow-list-empty">
+    {showLoading ? <LoadingSpinner /> : data.entries.length ? <div className="x-post-list">{data.entries.map(entry => <PostCard key={entry.post.id} post={entry.post} repostActor={entry.repost?.actor} />)}</div> : <div className="follow-list-empty">
       <h2>{following && data.followingCount === 0 ? "Henüz kimseyi takip etmiyorsun" : "Bu akışta henüz gönderi yok"}</h2>
       <p>{following ? "Takip ettiğin kişilerin kişisel gönderileri ve yeniden paylaşımları burada görünür. Topluluk gönderileri Toplulukların sekmesindedir." : "Gönderiler ve yeniden paylaşımlar burada görünür."}</p>
       {following && <Link className="follow-discover-link" to="/explore">Kişileri keşfet</Link>}
