@@ -25,7 +25,13 @@ The production application source was built separately using a scratch Vite conf
 
 Browser error collection was empty. The temporary Vite server and isolated browser session were closed after review.
 
-No new tests were added. No commit or push was performed.
+No new tests were added. The initial browser/build review preceded Git commits; the owner subsequently authorized local commits. No push or external mutation was performed for this UI implementation.
+
+## Implementation chronology
+
+- `786a276` — P0 shared UI geometry and repost attribution.
+- `8d0235c` — P1 Jobs workspace and feature page workflows.
+- A subsequent P1 source correction catches nonredirect list-load failures in Articles, Events, Analytics and Drafts. Each page retains its feature header and view/query controls, renders a local error with Retry, and preserves the existing filter/cursor requests. Authentication redirects still propagate. The validation tables below describe the completed review of the two commits above; follow-up correction validation is recorded separately when supplied by the integrating agent.
 
 ## Build and existing tests
 

@@ -1,7 +1,7 @@
-import { Link, useLoaderData, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
+import { isRedirect, Link, useLoaderData, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import type { Article, ResourcePage } from "../../shared/types";
-import { api } from "../lib/api";
+import { api, invalidateApiCache } from "../lib/api";
 import { Avatar, Icon, useMe } from "../ui";
 import { Button } from "../components/ui/button";
 import { ErrorMessage, FeaturePagination, useFormGuard } from "../components/feature-tools";
@@ -9,26 +9,32 @@ import { FeatureEmpty, FeatureHeader, FeatureSection } from "../components/featu
 import { LoadingSpinner, useContentLoading, useDelayedLoading } from "../components/loading";
 import "../components/reading-events.css";
 
-export function loadArticles(search: { filter?: string; cursor?: string }) {
+type ArticlesData = ResourcePage<Article> & { loadError?: string };
+export async function loadArticles(search: { filter?: string; cursor?: string }): Promise<ArticlesData> {
   const params = new URLSearchParams({ filter: search.filter || "all" });
   if (search.cursor) params.set("cursor", search.cursor);
-  return api<ResourcePage<Article>>(`/articles?${params}`);
+  try { return await api<ResourcePage<Article>>(`/articles?${params}`); }
+  catch (error) {
+    if (isRedirect(error)) throw error;
+    return { items: [], nextCursor: null, loadError: error instanceof Error ? error.message : "Yazılar yüklenemedi. Tekrar dene." };
+  }
 }
 const articleDate = (value: string) => new Date(value).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 function ArticleByline({ article }: { article: Article }) {
   return <div className="reading-byline"><Link className="reading-publisher" to={`/profile/${article.publisher.id}`}><Avatar src={article.publisher.image} name={article.publisher.name} username={article.publisher.username} /><span>{article.publisher.name}</span></Link><time dateTime={article.updatedAt} title={new Date(article.updatedAt).toLocaleString("tr-TR")}>{articleDate(article.updatedAt)}</time></div>;
 }
 export function ArticlesPage() {
-  const data = useLoaderData({ strict: false }) as ResourcePage<Article>, search = useSearch({ strict: false }) as { filter?: string };
+  const data = useLoaderData({ strict: false }) as ArticlesData, search = useSearch({ strict: false }) as { filter?: string };
+  const router = useRouter();
   const mine = search.filter === "mine", loading = useContentLoading(), showLoading = useDelayedLoading(loading);
   return <section className="feature-page reading-page">
     <FeatureHeader title="Yazılar" eyebrow="Okuma alanı" description="Topluluğun fikirleri, deneyimleri ve uzun okumalar." action={<Button asChild><Link to="/articles/new" search={search as never}>Yazı oluştur</Link></Button>} />
     <nav className="reading-view-nav" aria-label="Yazı görünümü"><Link to="/articles" search={{ filter: "all", cursor: "", cursorHistory: [] } as never} aria-current={!mine ? "page" : undefined}>Yayınlananlar</Link><Link to="/articles" search={{ filter: "mine", cursor: "", cursorHistory: [] } as never} aria-current={mine ? "page" : undefined}>Yazılarım ve taslaklarım</Link></nav>
-    <div className="reading-results" aria-busy={loading} aria-label="Yazı sonuçları">{showLoading ? <LoadingSpinner label="Yazılar yükleniyor" /> : data.items.length ? <div className="reading-list">{data.items.map(row => <article className="reading-card" key={row.id}>
+    <div className="reading-results" aria-busy={loading} aria-label="Yazı sonuçları">{showLoading ? <LoadingSpinner label="Yazılar yükleniyor" /> : data.loadError ? <FeatureSection title="Yazılar yüklenemedi"><ErrorMessage message={data.loadError} /><Button variant="outline" disabled={loading} onClick={() => { invalidateApiCache(); void router.invalidate(); }}>Tekrar dene</Button></FeatureSection> : data.items.length ? <div className="reading-list">{data.items.map(row => <article className="reading-card" key={row.id}>
       <div className="reading-card-top"><span className={`reading-status${row.status === "draft" ? " is-draft" : ""}`}>{row.status === "draft" ? "Özel taslak" : "Yayında"}</span><span className="reading-card-kind">Yazı</span></div>
       <Link className="reading-title-link" to={`/articles/${row.id}`} search={search as never}><h2>{row.title}</h2></Link><p className="reading-excerpt">{row.summary || `${row.body.slice(0, 350)}${row.body.length > 350 ? "…" : ""}`}</p><ArticleByline article={row} />
     </article>)}</div> : <FeatureEmpty icon={<Icon name="article" size={24} />} title={mine ? "Henüz bir yazın yok" : "Henüz yazı yayınlanmadı"} description={mine ? "Bir fikirle başla. Taslağını kaydedip hazır olduğunda yayınlayabilirsin." : "İlk yazını paylaşarak bu okuma alanını başlatabilirsin."} action={<Button asChild><Link to="/articles/new" search={search as never}>Yazı oluştur</Link></Button>} />}</div>
-    <FeaturePagination nextCursor={data.nextCursor} />
+    {!data.loadError && <FeaturePagination nextCursor={data.nextCursor} />}
   </section>;
 }
 export function ArticleFormPage({ edit = false }: { edit?: boolean }) {

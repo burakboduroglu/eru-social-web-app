@@ -1,7 +1,7 @@
 # Community reposts
 
 Date: 2026-10-01
-Status: Locally implemented; migration 008 awaits separately authorized application.
+Status: Implemented; migration 008 was applied and verified after owner authorization on 2026-10-02. See the [remote migration review](../design/2026-10-02-remote-migration-review.md).
 
 Joined members can repost community roots. Replies remain ineligible. The API and
 database insert policy enforce current membership and original source visibility;
@@ -20,5 +20,6 @@ after leaving the community or losing source access. Unreadable originals expose
 count. Deleting the source cascades to its reposts. Existing source/community RLS and
 original-post discovery behavior remain unchanged.
 
-Migration: `202610010008_community_reposts.sql`. No remote mutation, commit or push is
-part of local implementation and validation.
+Migration: `202610010008_community_reposts.sql`. The initial local implementation
+and validation performed no remote mutation. The separately authorized remote
+application and verification are recorded in the [2026-10-02 review](../design/2026-10-02-remote-migration-review.md); this status correction does not represent a new live verification.

@@ -1,7 +1,7 @@
 import { SidebarNavigation } from "./components/sidebar-navigation";
 import { mobileNavigation } from "./components/navigation-config";
 import { EventsPage, EventFormPage, EventDetailPage, loadEvents } from "./pages/events";
-import { AnalyticsPage } from "./pages/analytics";
+import { AnalyticsPage, loadAnalytics } from "./pages/analytics";
 import { SettingsPage } from "./pages/settings";
 import { defaultPreferences, effectiveFeed, effectiveNotificationKind } from "../shared/preferences";
 import { DraftsPage, loadDrafts } from "./pages/drafts";
@@ -187,6 +187,6 @@ const groups = createRoute({ getParentRoute: () => authenticated, path: "/commun
 const createGroup = createRoute({ getParentRoute: () => authenticated, path: "/communities/new", component: CreateCommunityPage });
 const group = createRoute({ getParentRoute: () => authenticated, path: "/communities/$id", validateSearch: pagination, loaderDeps: ({ search }) => search, loader: ({ params, deps }) => api(`/communities/${params.id}?page=${deps.page}`), component: CommunityPageView });
 const notifications = createRoute({ getParentRoute: () => authenticated, path: "/notifications", validateSearch: search => ({ ...cursorSearch(search), kind: (search.kind === "reply" || search.kind === "like" || search.kind === "follow" || search.kind==="all" ? search.kind : "") as "reply" | "like" | "follow" | "all" | "" }), loaderDeps: ({ search }) => ({ kind: search.kind, cursor: search.cursor }), loader: async ({ deps }) => { const preferences=deps.kind?defaultPreferences:await api<Preferences>("/preferences").catch(()=>defaultPreferences);const kind=effectiveNotificationKind(deps.kind,preferences);return {...await loadActivity(kind,deps.cursor),effectiveKind:kind}; }, component: ActivityPage });
-const analyticsRoute=createRoute({getParentRoute:()=>authenticated,path:"/analytics",validateSearch:s=>({from:String(s.from||"").slice(0,10),to:String(s.to||"").slice(0,10)}),loaderDeps:({search})=>search,loader:({deps})=>{const p=new URLSearchParams();if(deps.from)p.set("from",deps.from);if(deps.to)p.set("to",deps.to);return api(`/analytics${p.size?`?${p}`:""}`);},component:AnalyticsPage});
+const analyticsRoute=createRoute({getParentRoute:()=>authenticated,path:"/analytics",validateSearch:s=>({from:String(s.from||"").slice(0,10),to:String(s.to||"").slice(0,10)}),loaderDeps:({search})=>search,loader:({deps})=>loadAnalytics(deps),component:AnalyticsPage});
 const settingsRoute=createRoute({getParentRoute:()=>authenticated,path:"/settings",loader:()=>api<Preferences>("/preferences"),component:SettingsPage});
 export const router = createRouter({ routeTree: root.addChildren([signin, signup, confirmRoute, authenticated.addChildren([home, onboarding, edit, user, followersRoute, followingRoute, thread, share, explore, groups, createGroup, group, notifications, bookmarksRoute, listsRoute, createListRoute, editListRoute, listRoute, savedSearchesRoute,jobsRoute,jobNewRoute,jobEditRoute,jobDetailRoute,articlesRoute,articleNewRoute,articleEditRoute,articleDetailRoute,draftsRoute,settingsRoute,analyticsRoute,eventsRoute,eventNewRoute,eventEditRoute,eventDetailRoute])]), defaultPreload: "intent", defaultPreloadDelay: 120, defaultErrorComponent: RouteError, defaultNotFoundComponent: NotFoundPage, defaultPendingComponent: LoadingSpinner, defaultPendingMs: Infinity, defaultPendingMinMs: 0 });

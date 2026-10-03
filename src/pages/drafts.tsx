@@ -1,19 +1,24 @@
-import { Link, useLoaderData, useNavigate, useRouter } from "@tanstack/react-router";
+import { isRedirect, Link, useLoaderData, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import type { TextDraft, ResourcePage } from "../../shared/types";
-import { api } from "../lib/api";
+import { api, invalidateApiCache } from "../lib/api";
 import { useMe } from "../ui";
 import { setComposerDraft, setDurableDraftReference, forgetDurableDraft, hasUnsentComposerDraft, type ComposerDraftScope } from "../lib/composer-draft";
 import { Button } from "../components/ui/button";
 import { ErrorMessage, FeaturePagination } from "../components/feature-tools";
-import { FeatureEmpty, FeatureHeader } from "../components/feature-presentation";
+import { FeatureEmpty, FeatureHeader, FeatureSection } from "../components/feature-presentation";
 import { Icon } from "../components/icon";
 import { LoadingSpinner, useContentLoading, useDelayedLoading } from "../components/loading";
-export function loadDrafts(cursor = "") {
-    return api<ResourcePage<TextDraft>>(`/drafts${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`);
+type DraftsData = ResourcePage<TextDraft> & { loadError?: string };
+export async function loadDrafts(cursor = ""): Promise<DraftsData> {
+    try { return await api<ResourcePage<TextDraft>>(`/drafts${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`); }
+    catch (error) {
+        if (isRedirect(error)) throw error;
+        return { items: [], nextCursor: null, loadError: error instanceof Error ? error.message : "Taslaklar yüklenemedi. Tekrar dene." };
+    }
 }
 export function DraftsPage() {
-    const data = useLoaderData({ strict: false }) as ResourcePage<TextDraft>, { profile } = useMe(), navigate = useNavigate(), router = useRouter();
+    const data = useLoaderData({ strict: false }) as DraftsData, { profile } = useMe(), navigate = useNavigate(), router = useRouter();
     const [busy, setBusy] = useState(""), [error, setError] = useState("");
     const loading = useContentLoading(), showLoading = useDelayedLoading(loading);
     async function resume(id: string) {
@@ -62,13 +67,13 @@ export function DraftsPage() {
       <p className="feature-note">Görseller kalıcı metin taslağına dahil değildir. İlan ve yazı taslakları kendi sayfalarında yer alır.</p>
       <ErrorMessage message={error}/>
       <div className="feature-results" aria-busy={loading}>
-        {showLoading ? <LoadingSpinner label="Taslaklar yükleniyor" /> : data.items.length ? <div className="feature-list">{data.items.map(draft => <article className="feature-card draft-card" key={draft.id}>
+        {showLoading ? <LoadingSpinner label="Taslaklar yükleniyor" /> : data.loadError ? <FeatureSection title="Taslaklar yüklenemedi"><ErrorMessage message={data.loadError} /><Button variant="outline" disabled={loading} onClick={() => { invalidateApiCache(); void router.invalidate(); }}>Tekrar dene</Button></FeatureSection> : data.items.length ? <div className="feature-list">{data.items.map(draft => <article className="feature-card draft-card" key={draft.id}>
           <div className="draft-context-row"><span className="feature-status"><Icon name={draft.context === "personal" ? "user" : draft.context === "community" ? "community" : "reply"} size={16}/>{draft.context === "personal" ? "Kişisel gönderi" : draft.context === "community" ? "Topluluk gönderisi" : "Yanıt"}</span><time dateTime={draft.updatedAt}>Kaydedildi: {new Date(draft.updatedAt).toLocaleString("tr-TR")}</time></div>
           <p className="draft-excerpt">{draft.text}</p>
           {!draft.available && <p className="feature-error">{draft.unavailableReason || "Bu taslağın paylaşım yeri artık kullanılamıyor."}</p>}
           <div className="feature-actions"><Button disabled={loading || !!busy || !draft.available} onClick={() => resume(draft.id)}>{busy === draft.id ? "İşleniyor…" : "Devam et"}</Button><Button className="feature-danger-action" variant="ghost" disabled={loading || !!busy} onClick={() => remove(draft.id)} aria-label="Kaydedilen metin taslağını sil"><Icon name="delete" size={16}/>Sil</Button></div>
         </article>)}</div> : <FeatureEmpty title="Henüz metin taslağın yok" description="Gönderi yazarken taslak olarak kaydet. Daha sonra aynı paylaşım yerinde devam edebilirsin." icon={<Icon name="article" size={24}/>} action={<Button asChild><Link to="/">Gönderi yaz</Link></Button>}/>}
       </div>
-      <FeaturePagination nextCursor={data.nextCursor}/>
+      {!data.loadError && <FeaturePagination nextCursor={data.nextCursor}/>}
     </section>;
 }
