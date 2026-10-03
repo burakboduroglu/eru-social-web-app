@@ -6,7 +6,7 @@ import { showToast } from "./toast";
 import { useFloatingPicker } from "./use-floating-picker";
 import "./share-menu.css";
 
-export function ShareMenu({ postId }: { postId: string }) {
+export function ShareMenu({ postId, url: destination, title = "social-web gönderisi", label = "Gönderiyi paylaş", className = "" }: { postId?: string; url?: string; title?: string; label?: string; className?: string }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const pending = useRef(false);
@@ -16,14 +16,14 @@ export function ShareMenu({ postId }: { postId: string }) {
   const [error, setError] = useState("");
   const id = useId();
   const pathname = useRouterState({ select: state => state.location.pathname });
-  const url = `${location.origin}/thread/${encodeURIComponent(postId)}`;
+  const url = destination || `${location.origin}/thread/${encodeURIComponent(postId || "")}`;
   const close = useCallback((restore = false) => {
     setOpen(false);
     if (restore && trigger.current?.isConnected) trigger.current.focus();
   }, []);
   useFloatingPicker(open, panel, trigger, 264);
 
-  useEffect(() => { close(); }, [pathname, postId, close]);
+  useEffect(() => { close(); }, [pathname, url, close]);
   useEffect(() => {
     if (!open) return;
     function outside(event: PointerEvent | FocusEvent) {
@@ -61,7 +61,7 @@ export function ShareMenu({ postId }: { postId: string }) {
     pending.current = true; setBusy(true); setError("");
     try {
       if (copy) await navigator.clipboard.writeText(url);
-      else await navigator.share({ url, title: "social-web gönderisi" });
+      else await navigator.share({ url, title });
       showToast(copy ? "Bağlantı kopyalandı." : "Paylaşım tamamlandı.");
       close(true);
     } catch (cause) {
@@ -71,15 +71,15 @@ export function ShareMenu({ postId }: { postId: string }) {
   }
 
   return <>
-    <button ref={trigger} type="button" className="post-action share-menu-trigger" aria-label="Gönderiyi paylaş" aria-haspopup="menu" aria-expanded={open} aria-controls={open ? id : undefined} onKeyDown={keyDown} onClick={() => {
+    <button ref={trigger} type="button" className={`post-action share-menu-trigger ${className}`} aria-label={label} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? id : undefined} onKeyDown={keyDown} onClick={() => {
       if (open) close(true);
       else { initialFocus.current = "first"; setError(""); setOpen(true); }
     }}><Icon name="share" size={19} /></button>
-    {open && createPortal(<div ref={panel} id={id} className="share-menu-panel" role="menu" aria-label="Gönderiyi paylaş" onKeyDown={keyDown}>
+    {open && createPortal(<div ref={panel} id={id} className="share-menu-panel" role="menu" aria-label={label} onKeyDown={keyDown}>
       <button type="button" role="menuitem" disabled={busy} onClick={() => void share(true)}><Icon name="copy" size={18} /><span>{busy ? "İşleniyor…" : "Bağlantıyı kopyala"}</span></button>
       {typeof navigator.share === "function" && <button type="button" role="menuitem" disabled={busy} onClick={() => void share(false)}><Icon name="share" size={18} /><span>Şununla paylaş…</span></button>}
       <a role="menuitem" href={`https://wa.me/?text=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" onClick={() => close(true)}><Icon name="share" size={18} /><span>WhatsApp ile paylaş</span></a>
-      {error && <div className="share-menu-error"><p role="alert">{error}</p><input readOnly aria-label="Gönderi bağlantısı" value={url} onFocus={event => event.currentTarget.select()} /></div>}
+      {error && <div className="share-menu-error"><p role="alert">{error}</p><input readOnly aria-label="Paylaşım bağlantısı" value={url} onFocus={event => event.currentTarget.select()} /></div>}
     </div>, document.body)}
   </>;
 }

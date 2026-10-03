@@ -1,6 +1,7 @@
 import { useBlocker, useNavigate, useSearch } from "@tanstack/react-router";
 import { useRef } from "react";
 import { Button } from "./ui/button";
+import { useContentLoading } from "./loading";
 import "./medium-features.css";
 export function FeaturePagination({ nextCursor }: {
     nextCursor: string | null;
@@ -10,9 +11,10 @@ export function FeaturePagination({ nextCursor }: {
         cursorHistory?: string[];
     };
     const navigate = useNavigate(), history = search.cursorHistory || [];
+    const loading = useContentLoading();
     if (!search.cursor && !nextCursor)
         return null;
-    return <nav className="feature-pagination" aria-label="Sayfalar"><Button variant="outline" disabled={!search.cursor} onClick={() => navigate({ search: { ...search, cursor: history.at(-1) || "", cursorHistory: history.slice(0, -1) } as never })}>Önceki</Button><Button variant="outline" disabled={!nextCursor} onClick={() => navigate({ search: { ...search, cursor: nextCursor || "", cursorHistory: [...history, search.cursor || ""].slice(-20) } as never })}>Sonraki</Button></nav>;
+    return <nav className="feature-pagination" aria-label="Sayfalar" aria-busy={loading}><Button variant="outline" disabled={loading || !search.cursor} onClick={() => navigate({ search: { ...search, cursor: history.at(-1) || "", cursorHistory: history.slice(0, -1) } as never })}>Önceki</Button><Button variant="outline" disabled={loading || !nextCursor} onClick={() => navigate({ search: { ...search, cursor: nextCursor || "", cursorHistory: [...history, search.cursor || ""].slice(-20) } as never })}>Sonraki</Button></nav>;
 }
 export function useFormGuard(values: unknown, initial: unknown) {
     const current = useRef(values);

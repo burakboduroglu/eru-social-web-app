@@ -2,80 +2,74 @@ import { Link, useLoaderData, useNavigate, useRouter, useSearch } from "@tanstac
 import { useState, type FormEvent } from "react";
 import type { Article, ResourcePage } from "../../shared/types";
 import { api } from "../lib/api";
-import { useMe } from "../ui";
+import { Avatar, Icon, useMe } from "../ui";
 import { Button } from "../components/ui/button";
 import { ErrorMessage, FeaturePagination, useFormGuard } from "../components/feature-tools";
-export function loadArticles(s: {
-    filter?: string;
-    cursor?: string;
-}) {
-    const p = new URLSearchParams({ filter: s.filter || "all" });
-    if (s.cursor)
-        p.set("cursor", s.cursor);
-    return api<ResourcePage<Article>>(`/articles?${p}`);
+import { FeatureEmpty, FeatureHeader, FeatureSection } from "../components/feature-presentation";
+import { LoadingSpinner, useContentLoading, useDelayedLoading } from "../components/loading";
+import "../components/reading-events.css";
+
+export function loadArticles(search: { filter?: string; cursor?: string }) {
+  const params = new URLSearchParams({ filter: search.filter || "all" });
+  if (search.cursor) params.set("cursor", search.cursor);
+  return api<ResourcePage<Article>>(`/articles?${params}`);
+}
+const articleDate = (value: string) => new Date(value).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+function ArticleByline({ article }: { article: Article }) {
+  return <div className="reading-byline"><Link className="reading-publisher" to={`/profile/${article.publisher.id}`}><Avatar src={article.publisher.image} name={article.publisher.name} username={article.publisher.username} /><span>{article.publisher.name}</span></Link><time dateTime={article.updatedAt} title={new Date(article.updatedAt).toLocaleString("tr-TR")}>{articleDate(article.updatedAt)}</time></div>;
 }
 export function ArticlesPage() {
-    const data = useLoaderData({ strict: false }) as ResourcePage<Article>, s = useSearch({ strict: false }) as {
-        filter?: string;
-    };
-    return <section className="feature-page"><header className="feature-heading"><div><h1>Yazılar</h1><p>Üyelerin düz metin yazıları.</p></div><Button asChild><Link to="/articles/new">Yazı oluştur</Link></Button></header><nav className="feature-actions" aria-label="Yazı görünümü"><Button variant={s.filter === "mine" ? "outline" : "default"} asChild><Link to="/articles" search={{ filter: "all", cursor: "", cursorHistory: [] } as never}>Yayınlananlar</Link></Button><Button variant={s.filter === "mine" ? "default" : "outline"} asChild><Link to="/articles" search={{ filter: "mine", cursor: "", cursorHistory: [] } as never}>Yazılarım ve taslaklarım</Link></Button></nav><div className="feature-list">{data.items.map(row => <article className="feature-card" key={row.id}><Link to={`/articles/${row.id}`}><h2>{row.title}</h2></Link>{row.summary && <p>{row.summary}</p>}<div className="feature-meta"><span>{row.publisher.name}</span><span>{row.status === "draft" ? "Özel taslak" : "Yayında"}</span><span>{new Date(row.updatedAt).toLocaleDateString("tr-TR")}</span></div></article>)}</div>{!data.items.length && <p className="feature-empty">Henüz yazı yok.</p>}<FeaturePagination nextCursor={data.nextCursor}/></section>;
+  const data = useLoaderData({ strict: false }) as ResourcePage<Article>, search = useSearch({ strict: false }) as { filter?: string };
+  const mine = search.filter === "mine", loading = useContentLoading(), showLoading = useDelayedLoading(loading);
+  return <section className="feature-page reading-page">
+    <FeatureHeader title="Yazılar" eyebrow="Okuma alanı" description="Topluluğun fikirleri, deneyimleri ve uzun okumalar." action={<Button asChild><Link to="/articles/new" search={search as never}>Yazı oluştur</Link></Button>} />
+    <nav className="reading-view-nav" aria-label="Yazı görünümü"><Link to="/articles" search={{ filter: "all", cursor: "", cursorHistory: [] } as never} aria-current={!mine ? "page" : undefined}>Yayınlananlar</Link><Link to="/articles" search={{ filter: "mine", cursor: "", cursorHistory: [] } as never} aria-current={mine ? "page" : undefined}>Yazılarım ve taslaklarım</Link></nav>
+    <div className="reading-results" aria-busy={loading} aria-label="Yazı sonuçları">{showLoading ? <LoadingSpinner label="Yazılar yükleniyor" /> : data.items.length ? <div className="reading-list">{data.items.map(row => <article className="reading-card" key={row.id}>
+      <div className="reading-card-top"><span className={`reading-status${row.status === "draft" ? " is-draft" : ""}`}>{row.status === "draft" ? "Özel taslak" : "Yayında"}</span><span className="reading-card-kind">Yazı</span></div>
+      <Link className="reading-title-link" to={`/articles/${row.id}`} search={search as never}><h2>{row.title}</h2></Link><p className="reading-excerpt">{row.summary || `${row.body.slice(0, 350)}${row.body.length > 350 ? "…" : ""}`}</p><ArticleByline article={row} />
+    </article>)}</div> : <FeatureEmpty icon={<Icon name="article" size={24} />} title={mine ? "Henüz bir yazın yok" : "Henüz yazı yayınlanmadı"} description={mine ? "Bir fikirle başla. Taslağını kaydedip hazır olduğunda yayınlayabilirsin." : "İlk yazını paylaşarak bu okuma alanını başlatabilirsin."} action={<Button asChild><Link to="/articles/new" search={search as never}>Yazı oluştur</Link></Button>} />}</div>
+    <FeaturePagination nextCursor={data.nextCursor} />
+  </section>;
 }
-export function ArticleFormPage({ edit = false }: {
-    edit?: boolean;
-}) {
-    const data = useLoaderData({ strict: false }) as Article | undefined;
-    const { profile } = useMe();
-    if (edit && data && data.ownerId !== profile.id)
-        return <section className="feature-page"><p className="feature-empty">Bu yazıyı yalnızca yazarı düzenleyebilir.</p><Link to={`/articles/${data.id}`}>Yazıya dön</Link></section>;
-    return <ArticleEditor key={edit ? data?.id : "new"} article={edit ? data : undefined}/>;
+export function ArticleFormPage({ edit = false }: { edit?: boolean }) {
+  const data = useLoaderData({ strict: false }) as Article | undefined, { profile } = useMe(), search = useSearch({ strict: false });
+  if (edit && data && data.ownerId !== profile.id) return <section className="feature-page reading-page"><FeatureEmpty icon={<Icon name="article" size={24} />} title="Bu yazıyı yalnızca yazarı düzenleyebilir" action={<Button asChild variant="outline"><Link to={`/articles/${data.id}`} search={search as never}>Yazıya dön</Link></Button>} /></section>;
+  return <ArticleEditor key={edit ? data?.id : "new"} article={edit ? data : undefined} />;
 }
-function ArticleEditor({ article }: {
-    article?: Article;
-}) {
-    const initial = { title: article?.title || "", summary: article?.summary || "", body: article?.body || "" };
-    const [values, setValues] = useState(initial), [busy, setBusy] = useState(false), [error, setError] = useState(""), [preview, setPreview] = useState(false), guard = useFormGuard(values, initial), navigate = useNavigate();
-    const update = (key: keyof typeof values, value: string) => setValues(v => ({ ...v, [key]: value }));
-    async function save(e: FormEvent) {
-        e.preventDefault();
-        if (busy)
-            return;
-        setBusy(true);
-        setError("");
-        try {
-            const row = await api<Article>(article ? `/articles/${article.id}` : "/articles", article ? "PATCH" : "POST", { ...values, status: article?.status || "draft", version: article?.version });
-            guard.commit();
-            await navigate({ to: `/articles/${row.id}` });
-        }
-        catch (e) {
-            setError(e instanceof Error ? e.message : "Yazı kaydedilemedi.");
-        }
-        finally {
-            setBusy(false);
-        }
-    }
-    return <section className="feature-page"><header className="feature-heading"><div><h1>{article ? "Yazıyı düzenle" : "Yeni yazı"}</h1><p>Metin ve satır sonları korunur. Taslaklarını yalnızca sen görürsün.</p></div></header><form className="feature-form" onSubmit={save}><label>Başlık<input required maxLength={120} value={values.title} onChange={e => update("title", e.target.value)}/></label><label>Özet<textarea rows={3} maxLength={350} value={values.summary} onChange={e => update("summary", e.target.value)}/></label><label>Yazı<textarea required rows={20} maxLength={50000} value={values.body} onChange={e => update("body", e.target.value)}/></label><ErrorMessage message={error}/><div className="feature-actions"><Button disabled={busy}>{busy ? "Kaydediliyor…" : article ? "Değişiklikleri kaydet" : "Taslağı kaydet"}</Button><Button type="button" variant="outline" onClick={() => setPreview(v => !v)}>Önizleme</Button><Link to={article ? `/articles/${article.id}` : "/articles"}>Vazgeç</Link></div></form>{preview && <article className="feature-preview"><h2>{values.title}</h2><p>{values.summary}</p><div className="feature-body">{values.body}</div></article>}</section>;
+function ArticleEditor({ article }: { article?: Article }) {
+  const initial = { title: article?.title || "", summary: article?.summary || "", body: article?.body || "" };
+  const [values, setValues] = useState(initial), [busy, setBusy] = useState(false), [error, setError] = useState(""), [preview, setPreview] = useState(false);
+  const guard = useFormGuard(values, initial), navigate = useNavigate(), { profile } = useMe(), search = useSearch({ strict: false });
+  const update = (key: keyof typeof values, value: string) => setValues(current => ({ ...current, [key]: value }));
+  async function save(event: FormEvent) {
+    event.preventDefault(); if (busy) return; setBusy(true); setError("");
+    try {
+      const row = await api<Article>(article ? `/articles/${article.id}` : "/articles", article ? "PATCH" : "POST", { ...values, status: article?.status || "draft", version: article?.version });
+      guard.commit(); await navigate({ to: `/articles/${row.id}`, search: search as never });
+    } catch (error) { setError(error instanceof Error ? error.message : "Yazı kaydedilemedi."); }
+    finally { setBusy(false); }
+  }
+  return <section className="feature-page reading-page reading-editor"><FeatureHeader title={article ? "Yazıyı düzenle" : "Yeni yazı"} eyebrow={article?.status === "published" ? "Yayındaki yazı" : "Özel taslak"} description={article?.status === "published" ? "Kaydettiğin değişiklikler yayındaki yazıya uygulanır." : "Taslağını yalnızca sen görürsün. Kaydettikten sonra yayınlayabilirsin."} />
+    <form className="feature-form" onSubmit={save}><fieldset disabled={busy} className="reading-form-fields">
+      <FeatureSection title="Başlık ve özet" description="Başlık yazının konusu olsun; özet okura ne bulacağını anlatsın."><label>Başlık<input required maxLength={120} value={values.title} onChange={event => update("title", event.target.value)} /></label><label><span>Özet <small className="reading-optional">İsteğe bağlı</small></span><textarea rows={3} maxLength={350} value={values.summary} onChange={event => update("summary", event.target.value)} /></label></FeatureSection>
+      <FeatureSection title="Yazının metni" description="Düz metin ve satır sonları korunur."><label>Metin<textarea className="reading-body-input" required rows={16} maxLength={50000} value={values.body} onChange={event => update("body", event.target.value)} /></label></FeatureSection>
+    </fieldset><ErrorMessage message={error} /><div className="feature-actions reading-editor-actions"><Button disabled={busy}>{busy ? "Kaydediliyor…" : article ? "Değişiklikleri kaydet" : "Taslağı kaydet"}</Button><Button type="button" variant="outline" aria-pressed={preview} aria-controls="article-preview" onClick={() => setPreview(value => !value)}>{preview ? "Önizlemeyi kapat" : "Önizleme"}</Button><Button asChild variant="ghost"><Link to={article ? `/articles/${article.id}` : "/articles"} search={search as never}>Vazgeç</Link></Button></div></form>
+    {preview && <FeatureSection title="Önizleme"><article id="article-preview" className="reading-document reading-preview" aria-label="Yazı önizlemesi"><p className="reading-kicker">{profile.name} · Önizleme</p><h2>{values.title || "Yazı başlığın"}</h2>{values.summary && <p className="reading-lead">{values.summary}</p>}<div className="reading-body">{values.body || "Yazı metnin burada görünecek."}</div></article></FeatureSection>}
+  </section>;
 }
 export function ArticleDetailPage() {
-    const row = useLoaderData({ strict: false }) as Article, { profile } = useMe(), router = useRouter(), navigate = useNavigate();
-    const [busy, setBusy] = useState(false), [error, setError] = useState("");
-    async function act(remove = false) {
-        if (busy || remove && !window.confirm("Yazı kalıcı olarak silinsin mi?"))
-            return;
-        setBusy(true);
-        setError("");
-        try {
-            await api(`/articles/${row.id}`, remove ? "DELETE" : "PATCH", remove ? undefined : { ...row, status: "published", version: row.version });
-            if (remove)
-                await navigate({ to: "/articles" });
-            else
-                await router.invalidate();
-        }
-        catch (e) {
-            setError(e instanceof Error ? e.message : "İşlem tamamlanamadı.");
-        }
-        finally {
-            setBusy(false);
-        }
-    }
-    return <section className="feature-page"><header className="feature-heading"><div><h1>{row.title}</h1>{row.summary && <p>{row.summary}</p>}</div><span className="feature-status">{row.status === "draft" ? "Özel taslak / önizleme" : "Yayında"}</span></header><div className="feature-meta"><Link to={`/profile/${row.publisher.id}`}>{row.publisher.name}</Link><span>Güncellendi: {new Date(row.updatedAt).toLocaleString("tr-TR")}</span></div><article className="feature-body">{row.body}</article><ErrorMessage message={error}/>{profile.id === row.ownerId && <div className="feature-actions"><Button asChild variant="outline"><Link to={`/articles/${row.id}/edit`}>Düzenle</Link></Button>{row.status === "draft" && <Button disabled={busy} onClick={() => act()}>Yayınla</Button>}<Button variant="outline" disabled={busy} onClick={() => act(true)}>Sil</Button></div>}</section>;
+  const row = useLoaderData({ strict: false }) as Article, { profile } = useMe(), router = useRouter(), navigate = useNavigate(), search = useSearch({ strict: false });
+  const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  async function act(remove = false) {
+    if (busy || remove && !window.confirm("Yazı kalıcı olarak silinsin mi?")) return;
+    setBusy(true); setError("");
+    try {
+      await api(`/articles/${row.id}`, remove ? "DELETE" : "PATCH", remove ? undefined : { ...row, status: "published", version: row.version });
+      if (remove) await navigate({ to: "/articles", search: search as never }); else await router.invalidate();
+    } catch (error) { setError(error instanceof Error ? error.message : "İşlem tamamlanamadı."); }
+    finally { setBusy(false); }
+  }
+  return <section className="feature-page reading-page reading-detail"><Link className="reading-back" to="/articles" search={search as never}>← Yazılara dön</Link><article className="reading-document"><FeatureHeader title={row.title} eyebrow={row.status === "draft" ? "Özel taslak" : "Yayınlanan yazı"} description={row.summary || undefined} /><ArticleByline article={row} /><div className="reading-body">{row.body}</div></article>
+    {profile.id === row.ownerId && <FeatureSection className="reading-owner-tools" title="Yazıyı yönet" description={row.status === "draft" ? "Bu taslağı yalnızca sen görüyorsun. Yayınladığında diğer üyeler de okuyabilir." : "Yazının metnini düzenleyebilir veya yayından kaldırmak için silebilirsin."}><ErrorMessage message={error} /><div className="feature-actions"><Button asChild variant="outline"><Link to={`/articles/${row.id}/edit`} search={search as never}>Düzenle</Link></Button>{row.status === "draft" && <Button disabled={busy} onClick={() => act()}>{busy ? "İşleniyor…" : "Yayınla"}</Button>}<Button className="reading-danger" variant="ghost" disabled={busy} onClick={() => act(true)}>Sil</Button></div></FeatureSection>}
+  </section>;
 }

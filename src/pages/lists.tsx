@@ -9,6 +9,7 @@ import { StatePanel } from "../components/page-state";
 import { LoadingSpinner, useContentLoading, useDelayedLoading } from "../components/loading";
 import { TimelineList } from "../components/timeline-list";
 import { useBlocker } from "@tanstack/react-router";
+import { FeatureEmpty, FeatureHeader } from "../components/feature-presentation";
 import "../components/lists.css";
 
 type ListSearch = { tab?: "posts" | "members"; cursor?: string; cursorHistory?: string[]; snapshot?: string };
@@ -51,19 +52,17 @@ export function ListsPage() {
   const history = cleanHistory(search.cursorHistory);
   const goTo = (next: string, nextHistory: string[]) => void navigate({ to: "/lists", search: { cursor: next, cursorHistory: nextHistory } as never });
 
-  if (showLoading) return <main className="lists-page"><LoadingSpinner /></main>;
-  return <main className="lists-page">
-    <header className="lists-heading">
-      <div><h1>Listelerin</h1><p>Özel listelerindeki kişilerin gönderilerini tek bir akışta takip et.</p></div>
-      <Button asChild><Link to="/lists/new">Yeni liste</Link></Button>
-    </header>
+  return <main className="feature-page lists-page">
+    <FeatureHeader className="lists-heading" title="Listelerin" eyebrow="ÖZEL KÜTÜPHANE" description="Seçtiğin kişilerin gönderilerini ayrı bir akışta takip et." action={<Button asChild><Link to="/lists/new">Yeni liste</Link></Button>} />
     <p className="lists-private-note">Listelerini yalnızca sen görebilirsin. Liste üyeliği, kişiyi takip etmeni değiştirmez.</p>
-    {data.lists.length ? <div className="lists-library">{data.lists.map(list => <article className="lists-library-card" key={list.id}>
+    <div className="feature-results" aria-busy={loading}>
+    {showLoading ? <LoadingSpinner label="Listelerin yükleniyor"/> : data.lists.length ? <div className="lists-library">{data.lists.map(list => <article className="lists-library-card" key={list.id}>
       <Link className="lists-library-main" to={`/lists/${list.id}`}>
         <span className="lists-lock"><Icon name="hide" size={20} /></span><span className="lists-library-copy"><strong>{list.name}</strong><small>{list.memberCount} kişi</small>{list.description && <span>{list.description}</span>}</span>
       </Link>
       <Link className="lists-edit-link" to={`/lists/${list.id}/edit`}>Düzenle</Link>
-    </article>)}</div> : <StatePanel kind="empty" title="Henüz listen yok" description="İlgi duyduğun kişileri özel listelerde toplayabilir, gönderilerini ayrı bir akışta görebilirsin." action={<Button asChild><Link to="/lists/new">İlk listeni oluştur</Link></Button>} />}
+    </article>)}</div> : <FeatureEmpty title={cursor ? "Bu sayfada liste yok" : "Henüz listen yok"} description={cursor ? "Listelerinin ilk sayfasına dönerek kayıtlarını görüntüleyebilirsin." : "İlgi duyduğun kişileri özel listelerde toplayabilir, gönderilerini ayrı bir akışta görebilirsin."} icon={<Icon name="list" size={24}/>} action={cursor ? <Button variant="outline" disabled={loading} onClick={() => goTo("", [])}>İlk sayfaya dön</Button> : <Button asChild><Link to="/lists/new">İlk listeni oluştur</Link></Button>} />}
+    </div>
     {(cursor || data.nextCursor) && <nav className="lists-pagination" aria-label="Listeler sayfaları">
       {history.length ? <Button variant="outline" disabled={loading} onClick={() => goTo(history.at(-1) || "", history.slice(0, -1))}>Önceki</Button> : cursor ? <Button variant="outline" disabled={loading} onClick={() => goTo("", [])}>İlk sayfa</Button> : <span />}
       <Button variant="outline" disabled={loading || !data.nextCursor} onClick={() => data.nextCursor && goTo(data.nextCursor, [...history, cursor].slice(-20))}>Sonraki</Button>
@@ -138,8 +137,8 @@ function ListFormEditor({ mode, existing }: { mode: "create" | "edit"; existing:
     } finally { setBusy(false); }
   }
 
-  return <main className="lists-page lists-form-page">
-    <header className="lists-heading"><div><p className="lists-eyebrow">ÖZEL LİSTE</p><h1>{mode === "create" ? "Yeni liste oluştur" : "Listeyi düzenle"}</h1><p>Bu listeyi ve üyelerini yalnızca sen görebilirsin.</p></div></header>
+  return <main className="feature-page lists-page lists-form-page">
+    <FeatureHeader className="lists-heading" title={mode === "create" ? "Yeni liste oluştur" : "Listeyi düzenle"} eyebrow="ÖZEL LİSTE" description="Bu listeyi ve üyelerini yalnızca sen görebilirsin." />
     <form className="lists-form" onSubmit={submit}>
       <label htmlFor="list-name">Liste adı</label>
       <input id="list-name" name="name" autoComplete="off" maxLength={80} minLength={1} required value={name} onChange={event => { values.current = { ...values.current, name: event.target.value }; setName(event.target.value); }} aria-describedby="list-name-count" />
@@ -163,6 +162,8 @@ export function ListDetailPage() {
   const router = useRouter();
   const loading = useContentLoading();
   const tab: ListTab = search.tab === "members" ? "members" : "posts";
+  const tabsId = useId();
+  const tabRefs = useRef<Record<ListTab, HTMLButtonElement | null>>({ posts: null, members: null });
   const cursor = search.cursor || "";
   const history = cleanHistory(search.cursorHistory);
   const [mutationError, setMutationError] = useState("");
@@ -170,6 +171,13 @@ export function ListDetailPage() {
   const mutationLock = useRef(false);
   const goTo = (next: string, nextHistory: string[], nextTab = tab, snapshot = "") => void navigate({ to: `/lists/${id}` as never, search: { tab: nextTab, cursor: next, cursorHistory: nextHistory, snapshot } as never });
   const setTab = (nextTab: ListTab) => goTo("", [], nextTab, "");
+  function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, current: ListTab) {
+    const next: ListTab | null = event.key === "Home" ? "posts" : event.key === "End" ? "members" : ["ArrowLeft", "ArrowRight"].includes(event.key) ? current === "posts" ? "members" : "posts" : null;
+    if (!next) return;
+    event.preventDefault();
+    tabRefs.current[next]?.focus();
+    if (next !== tab) setTab(next);
+  }
 
   async function mutateMember(profileId: string, add: boolean) {
     if (mutationLock.current) return;
@@ -188,18 +196,18 @@ export function ListDetailPage() {
 
   const membersData = data.members;
   const memberIds = new Set(membersData?.profiles.map(profile => profile.id) || []);
-  return <main className="lists-page lists-detail-page">
+  return <main className="feature-page lists-page lists-detail-page">
     <Link className="lists-back-link" to="/lists">‹ Listelerin</Link>
-    <header className="lists-heading lists-detail-heading"><div><p className="lists-eyebrow">ÖZEL LİSTE · {data.list.memberCount} KİŞİ</p><h1>{data.list.name}</h1>{data.list.description && <p>{data.list.description}</p>}</div><Button variant="outline" asChild><Link to={`/lists/${id}/edit`}>Düzenle</Link></Button></header>
+    <FeatureHeader className="lists-heading lists-detail-heading" title={data.list.name} eyebrow={`ÖZEL LİSTE · ${data.list.memberCount} KİŞİ`} description={data.list.description || undefined} action={<Button variant="outline" asChild><Link to={`/lists/${id}/edit`}>Düzenle</Link></Button>}/>
     <p className="lists-private-note">Bu listeyi yalnızca sen görebilirsin. Üyelik, takip ilişkini değiştirmez.</p>
     <div className="lists-tabs" role="tablist" aria-label={`${data.list.name} listesi`}>
-      <button type="button" role="tab" aria-selected={tab === "posts"} onClick={() => setTab("posts")}>Gönderiler</button>
-      <button type="button" role="tab" aria-selected={tab === "members"} onClick={() => setTab("members")}>Üyeler <span>{data.list.memberCount}</span></button>
+      <button ref={element => { tabRefs.current.posts = element; }} id={`${tabsId}-posts`} type="button" role="tab" tabIndex={tab === "posts" ? 0 : -1} aria-controls={`${tabsId}-panel`} aria-selected={tab === "posts"} onKeyDown={event => onTabKeyDown(event, "posts")} onClick={() => setTab("posts")}>Gönderiler</button>
+      <button ref={element => { tabRefs.current.members = element; }} id={`${tabsId}-members`} type="button" role="tab" tabIndex={tab === "members" ? 0 : -1} aria-controls={`${tabsId}-panel`} aria-selected={tab === "members"} onKeyDown={event => onTabKeyDown(event, "members")} onClick={() => setTab("members")}>Üyeler <span>{data.list.memberCount}</span></button>
     </div>
-    {tab === "posts" ? <section role="tabpanel" className="lists-tab-panel">
+    {tab === "posts" ? <section id={`${tabsId}-panel`} role="tabpanel" aria-labelledby={`${tabsId}-posts`} tabIndex={0} className="lists-tab-panel" aria-busy={loading}>
       <p className="lists-context">Bu akış, listedeki kişilerin kişisel gönderilerini ve yeniden paylaşımlarını gösterir. Topluluk gönderileri ve yanıtlar bu listeye dahil değildir.</p>
       {data.timeline ? <TimelineList data={data.timeline} /> : loading ? <LoadingSpinner /> : <StatePanel kind="server-down" title="Akış yüklenemedi" description="Liste gönderilerini yeniden yükle." action={<Button variant="outline" onClick={() => void router.invalidate()}>Tekrar dene</Button>} />}
-    </section> : <section role="tabpanel" className="lists-tab-panel">
+    </section> : <section id={`${tabsId}-panel`} role="tabpanel" aria-labelledby={`${tabsId}-members`} tabIndex={0} className="lists-tab-panel" aria-busy={loading}>
       <MemberPicker onAdd={profile => void mutateMember(profile.id, true)} disabled={mutationBusy} memberIds={memberIds} />
       {mutationError && <div className="lists-member-error" role="alert"><span>{mutationError}</span><Button variant="outline" disabled={mutationBusy} onClick={() => void router.invalidate()}>Yeniden yükle</Button></div>}
       {membersData?.profiles.length ? <div className="lists-members">{membersData.profiles.map(profile => <MemberRow key={profile.id} profile={profile} pending={mutationBusy} onRemove={() => void mutateMember(profile.id, false)} />)}</div> : loading ? <LoadingSpinner /> : <StatePanel kind="empty" title={cursor ? "Bu sayfada üye yok" : "Listende henüz kimse yok"} description={cursor ? "Listenin ilk sayfasına dönerek üyeleri görüntüleyebilirsin." : "Aramayla kişi bulup listeye ekleyebilirsin. Üyelik takip ilişkini değiştirmez."} action={cursor ? <Button variant="outline" onClick={() => goTo("", [], "members")}>İlk sayfaya dön</Button> : undefined} />}

@@ -1,15 +1,17 @@
-.bookmarks-page {
+.feature-page.bookmarks-page {
   width: 100%;
   max-width: 672px;
   margin-inline: auto;
+  padding: 0;
 }
 
 .bookmarks-heading {
   position: sticky;
   z-index: 4;
   top: 0;
-  min-height: 56px;
-  padding: 9px 16px 8px;
+  min-height: var(--x-pagebar-height, 56px);
+  margin: 0;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--x-border);
   background: rgb(0 0 0 / 88%);
   backdrop-filter: blur(12px);
@@ -18,16 +20,16 @@
 .bookmarks-heading h1 {
   margin: 0;
   color: var(--x-text);
-  font-size: 19px;
+  font-size: 24px;
   font-weight: 750;
-  line-height: 24px;
+  line-height: 1.25;
 }
 
 .bookmarks-heading p {
-  margin: 2px 0 0;
-  color: var(--x-muted);
-  font-size: 12px;
-  line-height: 17px;
+  margin: 8px 0 0;
+  color: var(--feature-muted);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .bookmarks-empty {
@@ -48,7 +50,8 @@
   line-height: 17px;
 }
 
-@media (max-width: 620px) {
-  .bookmarks-heading { top: 0; }
-  .bookmarks-pagination { padding-bottom: 82px; }
+@media (max-width: 700px) {
+  .bookmarks-heading { top: var(--x-topbar-height, 54px); padding: 20px 16px; }
+  .bookmarks-heading h1 { font-size: 22px; }
+  .bookmarks-pagination { padding-bottom: 24px; }
 }

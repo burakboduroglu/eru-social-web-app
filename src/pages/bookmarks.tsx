@@ -1,6 +1,7 @@
 import { Link, useLoaderData, useNavigate, useSearch } from "@tanstack/react-router";
 import { useDelayedLoading, useContentLoading, LoadingSpinner } from "../components/loading";
-import { StatePanel } from "../components/page-state";
+import { FeatureEmpty, FeatureHeader } from "../components/feature-presentation";
+import { Icon } from "../components/icon";
 import { Button } from "../components/ui/button";
 import { api } from "../lib/api";
 import type { BookmarksPage as BookmarksPageData } from "../../shared/types";
@@ -22,20 +23,18 @@ export function BookmarksPage() {
     void navigate({ to: "/bookmarks", search: { cursor: cursorValue, cursorHistory } as never });
   }
 
-  if (showLoading) return <LoadingSpinner />;
-  return <section className="bookmarks-page">
-    <header className="bookmarks-heading">
-      <h1>Kaydedilenler</h1>
-      <p>Kaydettiğin gönderileri yalnızca sen görebilirsin.</p>
-    </header>
-    {data.posts.length ? <div className="x-post-list">{data.posts.map(post => <PostCard key={post.id} post={post} />)}</div> : !cursor && !data.nextCursor ? <div className="bookmarks-empty">
-      <StatePanel kind="empty" title="Henüz kaydedilmiş gönderi yok" description="Bir gönderinin seçeneklerinden Kaydet'i seç. Kaydettiklerin burada yalnızca sana görünür." action={<Button variant="outline" asChild><Link to="/">Ana sayfaya dön</Link></Button>} />
-    </div> : <div className="bookmarks-empty"><StatePanel kind="no-results" title="Bu sayfada gönderi yok" description="Kaydedilenler listesinin ilk sayfasına dönerek diğer gönderileri görüntüleyebilirsin." action={<Button variant="outline" onClick={() => goTo("", [])}>İlk sayfaya dön</Button>} /></div>}
+  return <section className="feature-page bookmarks-page">
+    <FeatureHeader className="bookmarks-heading" title="Kaydedilenler" eyebrow="ÖZEL KÜTÜPHANE" description="Sonra okumak istediğin gönderiler. Yalnızca sen görebilirsin." />
+    <div className="feature-results" aria-busy={loading}>
+    {showLoading ? <LoadingSpinner label="Kaydedilen gönderiler yükleniyor" /> : data.posts.length ? <div className="x-post-list">{data.posts.map(post => <PostCard key={post.id} post={post} />)}</div> : !cursor && !data.nextCursor ? <div className="bookmarks-empty">
+      <FeatureEmpty title="Henüz kaydedilmiş gönderi yok" description="Bir gönderinin seçeneklerinden Kaydet’i seç. Sonra okumak istediğin içerikleri burada bulabilirsin." icon={<Icon name="bookmark" size={24}/>} action={<Button variant="outline" asChild><Link to="/">Akışı keşfet</Link></Button>} />
+    </div> : <div className="bookmarks-empty"><FeatureEmpty title="Bu sayfada gönderi yok" description="Kaydedilenler listesinin ilk sayfasına dönerek diğer gönderileri görüntüleyebilirsin." icon={<Icon name="bookmark" size={24}/>} action={<Button variant="outline" onClick={() => goTo("", [])}>İlk sayfaya dön</Button>} /></div>}
+    </div>
     {(cursor || data.nextCursor) && <nav className="bookmarks-pagination" aria-label="Kaydedilen gönderi sayfaları">
       {history.length > 0 ? <Button variant="outline" disabled={loading} onClick={() => {
         const previous = history.at(-1) || "";
         goTo(previous, history.slice(0, -1));
-      }}>Önceki</Button> : cursor ? <Button variant="outline" onClick={() => goTo("", [])}>İlk sayfa</Button> : <span />}
+      }}>Önceki</Button> : cursor ? <Button variant="outline" disabled={loading} onClick={() => goTo("", [])}>İlk sayfa</Button> : <span />}
       <Button variant="outline" disabled={loading || !data.nextCursor} onClick={() => data.nextCursor && goTo(data.nextCursor, [...history, cursor].slice(-20))}>Sonraki</Button>
     </nav>}
   </section>;

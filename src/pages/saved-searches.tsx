@@ -4,6 +4,8 @@ import { LoadingSpinner, useContentLoading, useDelayedLoading } from "../compone
 import { Button } from "../components/ui/button";
 import { api } from "../lib/api";
 import type { SavedSearch, SavedSearchesPage } from "../../shared/types";
+import { FeatureEmpty, FeatureHeader } from "../components/feature-presentation";
+import { Icon } from "../components/icon";
 import "../components/saved-searches.css";
 
 type SavedSearchesData = SavedSearchesPage & { loadError?: string };
@@ -70,37 +72,28 @@ export function SavedSearchesPageView() {
     try { await router.invalidate(); } finally { setRetrying(false); }
   }
 
-  if (showLoading) return <LoadingSpinner label="Kaydedilen aramalar yükleniyor" />;
-  return <section className="saved-searches-page">
-    <header className="saved-searches-heading">
-      <h1>Kaydedilen aramalar</h1>
-      <p>Aramalarını yalnızca sen görebilirsin.</p>
-    </header>
+  return <section className="feature-page saved-searches-page">
+    <FeatureHeader className="saved-searches-heading" title="Kaydedilen aramalar" eyebrow="ÖZEL KÜTÜPHANE" description="Aramalarını aynı görünümde yeniden aç. Yalnızca sen görebilirsin." />
     {error && <p className="saved-searches-error" role="alert">{error}</p>}
-    {data.loadError ? <div className="saved-searches-load-error" role="alert">
+    <div className="feature-results" aria-busy={loading}>
+    {showLoading ? <LoadingSpinner label="Kaydedilen aramalar yükleniyor" /> : data.loadError ? <div className="saved-searches-load-error" role="alert">
       <p>{data.loadError}</p>
-      <Button variant="outline" disabled={retrying} onClick={() => void retryLoad()}>{retrying ? "Yeniden deneniyor…" : "Tekrar dene"}</Button>
+      <Button variant="outline" disabled={retrying || loading} onClick={() => void retryLoad()}>{retrying ? "Yeniden deneniyor…" : "Tekrar dene"}</Button>
     </div> : rows.length ? <ul className="saved-searches-list" aria-label="Kaydedilen aramalar">
       {rows.map(item => <li className="saved-search-row" key={item.id}>
+        <span className="saved-search-icon"><Icon name="search" size={20}/></span>
         <div className="saved-search-content">
           <Link className="saved-search-query" to="/explore" search={{ q: item.query, tab: item.tab } as never}>{item.query}</Link>
           <span className="saved-search-tab">{item.tab === "posts" ? "Gönderiler" : item.tab === "people" ? "Kişiler" : "Topluluklar"}</span>
         </div>
-        <Button className="saved-search-remove" variant="outline" disabled={pendingIds.has(item.id)} onClick={() => void remove(item)} aria-label={`“${item.query}” aramasını kaldır`}>
+        <Button className="saved-search-remove feature-danger-action" variant="ghost" disabled={loading || pendingIds.has(item.id)} onClick={() => void remove(item)} aria-label={`“${item.query}” aramasını kaldır`}>
           {pendingIds.has(item.id) ? "Kaldırılıyor…" : "Kaldır"}
         </Button>
       </li>)}
-    </ul> : !cursor && !data.nextCursor ? <div className="saved-searches-empty">
-      <h2>Henüz kaydedilmiş araman yok</h2>
-      <p>Keşfet’te bir arama yapıp Kaydet’i seçtiğinde burada bulabilirsin.</p>
-      <Button variant="outline" asChild><Link to="/explore">Keşfet’e git</Link></Button>
-    </div> : <div className="saved-searches-empty">
-      <h2>Bu sayfada arama yok</h2>
-      <p>Diğer sayfalara geçebilir veya ilk sayfaya dönebilirsin.</p>
-      <Button variant="outline" onClick={() => goTo("", [])}>İlk sayfaya dön</Button>
-    </div>}
+    </ul> : !cursor && !data.nextCursor ? <FeatureEmpty className="saved-searches-empty" title="Henüz kaydedilmiş araman yok" description="Keşfet’te bir arama yapıp Kaydet’i seçtiğinde burada bulabilirsin." icon={<Icon name="search" size={24}/>} action={<Button variant="outline" asChild><Link to="/explore">Keşfet’e git</Link></Button>}/> : <FeatureEmpty className="saved-searches-empty" title="Bu sayfada arama yok" description="Diğer sayfalara geçebilir veya ilk sayfaya dönebilirsin." icon={<Icon name="search" size={24}/>} action={<Button variant="outline" disabled={loading} onClick={() => goTo("", [])}>İlk sayfaya dön</Button>}/>}
+    </div>
     {!data.loadError && (cursor || data.nextCursor) && <nav className="saved-searches-pagination" aria-label="Kaydedilen arama sayfaları">
-      {history.length ? <Button variant="outline" disabled={loading} onClick={() => goTo(history.at(-1) || "", history.slice(0, -1))}>Önceki</Button> : cursor ? <Button variant="outline" onClick={() => goTo("", [])}>İlk sayfa</Button> : <span />}
+      {history.length ? <Button variant="outline" disabled={loading} onClick={() => goTo(history.at(-1) || "", history.slice(0, -1))}>Önceki</Button> : cursor ? <Button variant="outline" disabled={loading} onClick={() => goTo("", [])}>İlk sayfa</Button> : <span />}
       <Button variant="outline" disabled={loading || !data.nextCursor} onClick={() => data.nextCursor && goTo(data.nextCursor, [...history, cursor].slice(-20))}>Sonraki</Button>
     </nav>}
   </section>;

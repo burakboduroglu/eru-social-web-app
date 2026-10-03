@@ -6,13 +6,14 @@ import { SettingsPage } from "./pages/settings";
 import { defaultPreferences, effectiveFeed, effectiveNotificationKind } from "../shared/preferences";
 import { DraftsPage, loadDrafts } from "./pages/drafts";
 import { ArticlesPage, ArticleFormPage, ArticleDetailPage, loadArticles } from "./pages/articles";
-import { JobsPage, JobFormPage, JobDetailPage, loadJobs, jobSearch } from "./pages/jobs";
+import { JobsPage, JobFormPage, JobDetailPage, JobRouteError, loadJobs, loadJobDetail, jobSearch } from "./pages/jobs";
 import { LoadingSpinner, usePageTransition, useDelayedLoading } from "./components/loading";
 import { RouteError, NotFoundPage } from "./components/page-state";
 import { Brand } from "./brand";
 import { MoreNavigation } from "./components/more-navigation";
 import { AccountMenu } from "./components/account-menu";
 import { DiscoverySidebar } from "./components/discovery-sidebar";
+import { FeatureSidebar, hasFeatureSidebar } from "./components/feature-sidebar";
 import { BookmarksPage, loadBookmarks } from "./pages/bookmarks";
 import { ListsPage, ListFormPage, ListDetailPage, loadLists, loadList, loadListContent } from "./pages/lists";
 import { SavedSearchesPageView, loadSavedSearches } from "./pages/saved-searches";
@@ -59,6 +60,10 @@ function Shell() {
   useEffect(()=>{document.documentElement.dataset.reducedMotion=String(preferences.reducedMotion);return()=>{delete document.documentElement.dataset.reducedMotion;};},[preferences.reducedMotion]);
   const unreadCount = useRouterState({ select: state => (state.matches.find(match => match.routeId === "/authenticated")?.loaderData as { unreadCount?: number } | undefined)?.unreadCount ?? 0 });
   const pathname = useRouterState({ select: state => state.location.pathname });
+  const resolvedPathname = useRouterState({ select: state => state.resolvedLocation?.pathname || "" });
+  const isJobsBrowsing = (path: string) => path === "/jobs" || /^\/jobs\/[^/]+$/.test(path) && path !== "/jobs/new";
+  const jobsBrowsing = isJobsBrowsing(pathname);
+  const keepJobsContent = jobsBrowsing && isJobsBrowsing(resolvedPathname);
   const exploreQuery = useRouterState({
     select: (state): string => {
       const search = state.location.search as { q?: unknown };
@@ -67,7 +72,7 @@ function Shell() {
   });
   const [error, setError] = useState("");
   const pageTransition = usePageTransition();
-  const showSpinner = useDelayedLoading(pageTransition);
+  const showSpinner = useDelayedLoading(pageTransition && !keepJobsContent);
   const links = mobileNavigation.map(link => ({ ...link, to: link.to === "/profile" ? `/profile/${profile.id}` : link.to }));
   const active = (to: string) => to === "/" ? pathname === to : pathname === to || pathname.startsWith(`${to}/`);
   async function signOut() {
@@ -76,13 +81,13 @@ function Shell() {
     if (error) setError("Çıkış yapılamadı.");
     else { clearComposerDraftsForAccount(profile.id); window.location.assign("/sign-in"); }
   }
-  return <div className="x-shell">
+  return <div className={`x-shell${jobsBrowsing ? " x-shell-jobs" : pathname.startsWith("/jobs/") ? " x-shell-jobs-editor" : ""}`}>
     <aside className="x-sidebar"><Brand /><nav className="x-nav" aria-label="Ana menü"><SidebarNavigation profileId={profile.id} unreadCount={unreadCount} /></nav>
       <Link to="/" className="x-compose-link" onClick={() => setTimeout(() => document.getElementById("compose-post")?.focus(), 100)}>Gönderi yayınla</Link>
       <div className="x-account"><Link to={`/profile/${profile.id}`} className="row"><Avatar name={profile.name} username={profile.username} src={profile.image} /><span><strong>{profile.name || "Yeni üye"}</strong><small>@{profile.username || "profilini-tamamla"}</small></span></Link><AccountMenu onSignOut={signOut} /></div><ErrorNotice message={error} />
     </aside>
     <main className="x-main"><div className="x-topbar"><Brand /><div className="x-topbar-actions"><MoreNavigation compact /><AccountMenu onSignOut={signOut} /></div></div><div hidden={showSpinner} aria-busy={pageTransition}><Outlet /></div>{showSpinner && <LoadingSpinner label="Sayfa yükleniyor" />}</main>
-    <aside className="x-rightbar">{pathname !== "/explore" && <SearchForm initial={exploreQuery} />}<DiscoverySidebar suggested={suggestedCommunities} joined={communities} /><footer>© {new Date().getFullYear()} social-web</footer></aside>
+    <aside className="x-rightbar">{hasFeatureSidebar(pathname) ? <FeatureSidebar pathname={pathname} /> : <>{pathname !== "/explore" && <SearchForm initial={exploreQuery} />}<DiscoverySidebar suggested={suggestedCommunities} joined={communities} /></>}<footer>© {new Date().getFullYear()} social-web</footer></aside>
     <nav className="x-mobile-nav" aria-label="Mobil menü">{links.map(link => <Link to={link.to} key={link.to} aria-label={link.to === "/notifications" && unreadCount ? `${link.label}, ${unreadCount} okunmamış bildirim` : link.label} aria-current={active(link.to) ? "page" : undefined} className={active(link.to) ? "active" : ""}><span className="nav-icon"><Icon name={link.icon} size={25} />{link.to === "/notifications" && <NotificationBadge count={unreadCount} />}</span></Link>)}</nav>
   </div>;
 }
@@ -124,19 +129,22 @@ const listRoute = createRoute({
   loader: ({ params, deps }) => loadListContent(params.id, deps), component: ListDetailPage,
 });
 const savedSearchesRoute = createRoute({ getParentRoute: () => authenticated, path: "/saved-searches", validateSearch: cursorSearch, loaderDeps: ({ search }) => ({ cursor: search.cursor }), loader: ({ deps }) => loadSavedSearches(deps.cursor), component: SavedSearchesPageView });
-const jobsRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs",validateSearch:s=>({...cursorSearch(s),...jobSearch(s)}),loaderDeps:({search})=>search,loader:({deps})=>loadJobs(deps),component:JobsPage});
-const jobNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/new",component:JobFormPage});
-const jobEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id/edit",loader:({params})=>api(`/jobs/${params.id}`),component:()=> <JobFormPage edit/>});
-const jobDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id",loader:({params})=>api(`/jobs/${params.id}`),component:JobDetailPage});
-const articlesRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles",validateSearch:s=>({...cursorSearch(s),filter:s.filter==="mine"?"mine":"all"}),loaderDeps:({search})=>search,loader:({deps})=>loadArticles(deps),component:ArticlesPage});
-const articleNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/new",component:ArticleFormPage});
-const articleEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id/edit",loader:({params})=>api(`/articles/${params.id}`),component:()=> <ArticleFormPage edit/>});
-const articleDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id",loader:({params})=>api(`/articles/${params.id}`),component:ArticleDetailPage});
+const jobsSearch = (s: Record<string, unknown>) => ({ ...cursorSearch(s), ...jobSearch(s) });
+const jobsRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs",validateSearch:jobsSearch,loaderDeps:({search})=>search,loader:({deps})=>loadJobs(deps),component:JobsPage,errorComponent:JobRouteError});
+const jobNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/new",validateSearch:jobsSearch,component:JobFormPage});
+const jobEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id/edit",validateSearch:jobsSearch,loader:({params})=>api(`/jobs/${params.id}`),component:()=> <JobFormPage edit/>});
+const jobDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/jobs/$id",validateSearch:jobsSearch,loaderDeps:({search})=>search,loader:({params,deps})=>loadJobDetail(params.id,deps),component:JobDetailPage,errorComponent:JobRouteError});
+const articleSearch = (s: Record<string, unknown>) => ({ ...cursorSearch(s), filter: s.filter === "mine" ? "mine" : "all" });
+const articlesRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles",validateSearch:articleSearch,loaderDeps:({search})=>search,loader:({deps})=>loadArticles(deps),component:ArticlesPage});
+const articleNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/new",validateSearch:articleSearch,component:ArticleFormPage});
+const articleEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id/edit",validateSearch:articleSearch,loader:({params})=>api(`/articles/${params.id}`),component:()=> <ArticleFormPage edit/>});
+const articleDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/articles/$id",validateSearch:articleSearch,loader:({params})=>api(`/articles/${params.id}`),component:ArticleDetailPage});
 const draftsRoute=createRoute({getParentRoute:()=>authenticated,path:"/drafts",validateSearch:cursorSearch,loaderDeps:({search})=>({cursor:search.cursor}),loader:({deps})=>loadDrafts(deps.cursor),component:DraftsPage});
-const eventsRoute=createRoute({getParentRoute:()=>authenticated,path:"/events",validateSearch:s=>({...cursorSearch(s),period:s.period==="past"?"past":"upcoming",communityId:typeof s.communityId==="string"?s.communityId.slice(0,36):""}),loaderDeps:({search})=>search,loader:({deps})=>loadEvents(deps),component:EventsPage});
-const eventNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/new",component:EventFormPage});
-const eventEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id/edit",loader:({params})=>api(`/events/${params.id}`),component:()=> <EventFormPage edit/>});
-const eventDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id",loader:({params})=>api(`/events/${params.id}`),component:EventDetailPage});
+const eventSearch = (s: Record<string, unknown>) => ({ ...cursorSearch(s), period: s.period === "past" ? "past" : "upcoming", communityId: typeof s.communityId === "string" ? s.communityId.slice(0, 36) : "" });
+const eventsRoute=createRoute({getParentRoute:()=>authenticated,path:"/events",validateSearch:eventSearch,loaderDeps:({search})=>search,loader:({deps})=>loadEvents(deps),component:EventsPage});
+const eventNewRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/new",validateSearch:eventSearch,component:EventFormPage});
+const eventEditRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id/edit",validateSearch:eventSearch,loader:({params})=>api(`/events/${params.id}`),component:()=> <EventFormPage edit/>});
+const eventDetailRoute=createRoute({getParentRoute:()=>authenticated,path:"/events/$id",validateSearch:eventSearch,loader:({params})=>api(`/events/${params.id}`),component:EventDetailPage});
 const home = createRoute({
   getParentRoute: () => authenticated, path: "/",
   validateSearch: search => ({ ...pagination(search), ...cursorSearch(search), feed: search.feed === "communities" ? "communities" : search.feed === "following" ? "following" : search.feed === "latest" ? "latest" : search.feed==="all"?"all":"", snapshot: typeof search.snapshot === "string" ? search.snapshot.slice(0, 36) : "" }),
