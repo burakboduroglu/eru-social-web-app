@@ -4,7 +4,10 @@ export type Community = typeof communities.$inferSelect;
 export type CommunitySummary = Community & { memberCount: number; joined: boolean };
 export type UploadImageResult = { objectPath: string; url: string; mimeType: "image/jpeg" | "image/png" | "image/webp"; byteSize: number; width: number; height: number };
 export type PostMedia = UploadImageResult & { id: string; altText: string; position: number };
-export type Post = typeof threads.$inferSelect & {
+export type JobShareSummary = Pick<typeof import("../server/db/schema").jobs.$inferSelect, "id" | "title" | "company" | "location" | "workMode" | "employmentType" | "deadline"> & { status: "published" | "closed" };
+export type JobReference = { state: "available"; job: JobShareSummary } | { state: "unavailable" };
+export type Post = Omit<typeof threads.$inferSelect, "resourceKind" | "jobId"> & {
+  jobReference?: JobReference | null;
   author: Profile;
   community: Community | null;
   likeCount: number;
@@ -40,7 +43,7 @@ export type ExplorePage = SearchResults & { tab: "posts" | "people" | "communiti
 export type ResourcePage<T> = { items: T[]; nextCursor: string | null };
 export type Job = typeof import("../server/db/schema").jobs.$inferSelect & { publisher: Profile; saved: boolean };
 export type Article = typeof import("../server/db/schema").articles.$inferSelect & { publisher: Profile };
-export type TextDraft = typeof import("../server/db/schema").textDrafts.$inferSelect & { available: boolean; unavailableReason: string | null };
+export type TextDraft = Omit<typeof import("../server/db/schema").textDrafts.$inferSelect, "resourceKind" | "jobId"> & { resourceKind?: "job" | null; jobId?: string | null; jobReference?: JobReference | null; available: boolean; unavailableReason: string | null };
 export type Preferences = { reducedMotion: boolean; defaultFeed: "all" | "latest" | "following" | "communities"; notificationKind: "all" | "reply" | "like" | "follow" };
 export type CreatorAnalytics = { postCount: number; likesReceived: number; repliesReceived: number; repostsReceived: number; followerCount: number; from: string | null; to: string | null };
 export type CommunityEvent = typeof import("../server/db/schema").communityEvents.$inferSelect & { publisher: Profile; community: Community; rsvped: boolean };

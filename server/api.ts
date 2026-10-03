@@ -6,6 +6,8 @@ import { textDrafts } from "./db/schema";
 import { listArticles, readArticle, saveArticle, deleteArticle } from "./articles";
 import { listJobs, readJob, saveJob, deleteJob, setJobSave } from "./jobs";
 import { explorePage } from "./explore";
+import { publishedJobReference } from "./job-shares";
+import { listSubjects, readSubject, createOrReuseSubject, setSubjectStatus, listEntries, createEntry, deleteEntry, setSubjectFollow, setSubjectSave } from "./discussions";
 import { ServerTiming } from "./timing";
 import { listBookmarks, setBookmark } from "./bookmarks";
 import { followState, listFollows, setFollow } from "./follows";
@@ -93,7 +95,7 @@ export async function handleApi(request: Request) {
       try {
         const raw = await request.text();
         if (Buffer.byteLength(raw) > (url.pathname.startsWith("/api/articles") ? 220 * 1024 : url.pathname.startsWith("/api/jobs") ? 100 * 1024 : 16 * 1024)) throw new Error();
-        body = raw ? object(JSON.parse(raw)) : request.method === "PUT" && /^\/api\/(events\/[^/]+\/rsvp|jobs\/[^/]+\/save|threads\/[^/]+\/(bookmark|repost)|profiles\/[^/]+\/follow)$/.test(url.pathname) ? {} : object(null);
+        body = raw ? object(JSON.parse(raw)) : request.method === "PUT" && /^\/api\/(events\/[^/]+\/rsvp|subjects\/[^/]+\/(follow|save)|jobs\/[^/]+\/save|threads\/[^/]+\/(bookmark|repost)|profiles\/[^/]+\/follow)$/.test(url.pathname) ? {} : object(null);
       } catch { throw new HttpError(400, "Geçersiz istek gövdesi."); }
     }
     return send(await timing.measure("database", () => withUser(userId, tx => dispatch(tx, userId, request.method, url, body, config.url))));
@@ -156,6 +158,20 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
     if(id&&!match[2]&&method==="PATCH")return saveEvent(tx,userId,body,id);
     if(id&&!match[2]&&method==="DELETE")return deleteEvent(tx,userId,id);
     if(id&&match[2]&&["PUT","DELETE"].includes(method))return setEventRsvp(tx,userId,id,method==="PUT");
+    throw new HttpError(404,"İşlem bulunamadı.");
+  }
+  if (/^\/subjects(\/|$)/.test(resourcePath)) {
+    const match=/^\/subjects(?:\/([^/]+)(?:\/(entries|follow|save)(?:\/([^/]+))?)?)?$/.exec(resourcePath);if(!match)throw new HttpError(404,"İşlem bulunamadı.");
+    const id=match[1]?uuid(match[1]):undefined,sub=match[2],entryId=match[3]?uuid(match[3]):undefined;
+    if(!id&&method==="GET")return listSubjects(tx,userId,url.searchParams);
+    if(!id&&method==="POST")return createOrReuseSubject(tx,userId,body);
+    if(id&&!sub&&method==="GET")return readSubject(tx,userId,id);
+    if(id&&!sub&&method==="PATCH")return setSubjectStatus(tx,userId,id,body);
+    if(id&&sub==="entries"&&!entryId&&method==="GET")return listEntries(tx,userId,id,url.searchParams.get("cursor"));
+    if(id&&sub==="entries"&&!entryId&&method==="POST")return createEntry(tx,userId,id,body);
+    if(id&&sub==="entries"&&entryId&&method==="DELETE")return deleteEntry(tx,userId,id,entryId);
+    if(id&&sub==="follow"&&["PUT","DELETE"].includes(method))return setSubjectFollow(tx,userId,id,method==="PUT");
+    if(id&&sub==="save"&&["PUT","DELETE"].includes(method))return setSubjectSave(tx,userId,id,method==="PUT");
     throw new HttpError(404,"İşlem bulunamadı.");
   }
   // Match private resources against the unfiltered path so extra or empty segments cannot become valid routes.
@@ -284,7 +300,12 @@ export async function dispatch(tx: Transaction, userId: string, method: string, 
       communityId = parent.communityId;
     }
     const savedDraft = await publishingDraft(tx,userId,body,communityId,parentId);
-    const [row] = await tx.insert(threads).values({ text: text(body.text ?? "", media.length ? 0 : 1, parentId ? 350 : 550), authorId: userId, communityId, parentId }).returning();
+    const referenceValue = Object.hasOwn(body, "jobId") ? body.jobId : savedDraft?.jobId;
+    if (body.resourceKind === "job" && !referenceValue) throw new HttpError(409, "İlan artık kullanılamıyor. Metnini koruyup ilan ekini kaldır.");
+    if (parentId && (referenceValue || savedDraft?.resourceKind === "job" && !Object.hasOwn(body, "jobId"))) throw new HttpError(400, "Yanıtlara ilan eki eklenemez.");
+    if (savedDraft?.resourceKind === "job" && !referenceValue && !Object.hasOwn(body, "jobId")) throw new HttpError(409, "İlan artık kullanılamıyor. Metnini koruyup ilan ekini kaldır.");
+    const reference = await publishedJobReference(tx, referenceValue);
+    const [row] = await tx.insert(threads).values({ text: text(body.text ?? "", media.length ? 0 : 1, parentId ? 350 : 550), authorId: userId, communityId, parentId, ...reference }).returning();
     await attachImages(tx, userId, row.id, media);
     if(savedDraft) await tx.delete(textDrafts).where(and(eq(textDrafts.id,savedDraft.id),eq(textDrafts.ownerId,userId),eq(textDrafts.version,savedDraft.version)));
     return row;

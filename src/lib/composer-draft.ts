@@ -7,6 +7,7 @@ export type ComposerDraftScope =
 export type ComposerDraft = {
   value: string;
   target: string;
+  jobAttachment?: { jobId: string | null } | null;
 };
 
 const emptyDraft: ComposerDraft = { value: "", target: "" };
@@ -38,7 +39,7 @@ export function getComposerDraft(accountId: string, scope: ComposerDraftScope): 
 
 export function setComposerDraft(accountId: string, scope: ComposerDraftScope, draft: ComposerDraft): void {
   const key = composerDraftKey(accountId, scope);
-  if (isComposerDraftNonEmpty(draft)) drafts.set(key, { value: draft.value, target: draft.target });
+  if (isComposerDraftNonEmpty(draft)) drafts.set(key, { value: draft.value, target: draft.target, jobAttachment: draft.jobAttachment });
   else if (draft.target) drafts.set(key, { value: "", target: draft.target });
   else drafts.delete(key);
 }
@@ -61,7 +62,7 @@ export function hasUnsentComposerDraft(accountId: string, scope: ComposerDraftSc
 }
 
 export function isComposerDraftNonEmpty(draft: ComposerDraft): boolean {
-  return draft.value.trim().length > 0;
+  return draft.value.trim().length > 0 || !!draft.jobAttachment;
 }
 
 /** Clears the in-memory drafts for one account, for explicit session teardown. */

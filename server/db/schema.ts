@@ -41,6 +41,8 @@ export const threads = pgTable("threads", {
   authorId: uuid("author_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
   communityId: uuid("community_id").references(() => communities.id, { onDelete: "cascade" }),
   parentId: uuid("parent_id").references((): AnyPgColumn => threads.id, { onDelete: "cascade" }),
+  resourceKind: text("resource_kind", { enum: ["job"] }),
+  jobId: uuid("job_id").references((): AnyPgColumn => jobs.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 }, t => [
   check("threads_text_check", sql`length(trim(${t.text})) between 1 and 550`),
@@ -175,7 +177,24 @@ export const jobSaves=pgTable("job_saves",{userId:uuid("user_id").notNull().refe
 export const articles=pgTable("articles",{
  id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),title:text().notNull(),summary:text().notNull().default(""),body:text().notNull(),status:text({enum:["draft","published"]}).notNull().default("draft"),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),
 });
-export const textDrafts=pgTable("text_drafts",{id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),context:text({enum:["personal","community","reply"]}).notNull(),targetId:uuid("target_id"),text:text().notNull(),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()});
+export const textDrafts=pgTable("text_drafts",{id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),context:text({enum:["personal","community","reply"]}).notNull(),targetId:uuid("target_id"),resourceKind:text("resource_kind",{enum:["job"]}),jobId:uuid("job_id").references(()=>jobs.id,{onDelete:"set null"}),text:text().notNull(),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()});
 export const accountPreferences=pgTable("account_preferences",{ownerId:uuid("owner_id").primaryKey().references(()=>profiles.id,{onDelete:"cascade"}),reducedMotion:boolean("reduced_motion").notNull().default(false),defaultFeed:text("default_feed",{enum:["all","latest","following","communities"]}).notNull().default("all"),notificationKind:text("notification_kind",{enum:["all","reply","like","follow"]}).notNull().default("all")});
 export const communityEvents=pgTable("community_events",{id:uuid().primaryKey().defaultRandom(),ownerId:uuid("owner_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),communityId:uuid("community_id").notNull().references(()=>communities.id,{onDelete:"cascade"}),title:text().notNull(),description:text().notNull().default(""),startsAt:timestamp("starts_at",{withTimezone:true,mode:"string"}).notNull(),endsAt:timestamp("ends_at",{withTimezone:true,mode:"string"}),meetingUrl:text("meeting_url").notNull().default(""),status:text({enum:["active","cancelled"]}).notNull().default("active"),version:integer().notNull().default(1),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow(),updatedAt:timestamp("updated_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()});
 export const eventRsvps=pgTable("event_rsvps",{eventId:uuid("event_id").notNull().references(()=>communityEvents.id,{onDelete:"cascade"}),userId:uuid("user_id").notNull().references(()=>profiles.id,{onDelete:"cascade"}),createdAt:timestamp("created_at",{withTimezone:true,mode:"string"}).notNull().defaultNow()},t=>[primaryKey({columns:[t.eventId,t.userId]})]);
+
+export const discussionSubjects = pgTable("discussion_subjects", {
+ id: uuid().primaryKey().defaultRandom(), communityId: uuid("community_id").notNull().references(() => communities.id, { onDelete: "cascade" }),
+ title: text().notNull(), normalizedTitle: text("normalized_title").generatedAlwaysAs(sql`lower(public.normalize_subject_title(title))`),
+ createdBy: uuid("created_by").references(() => profiles.id, { onDelete: "set null" }), status: text({ enum: ["open", "locked"] }).notNull().default("open"),
+ version: integer().notNull().default(1), createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(), updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, table => [uniqueIndex("subjects_community_title_key").on(table.communityId, table.normalizedTitle), index("subjects_created_idx").on(table.createdAt.desc(), table.id.desc())]);
+export const discussionEntries = pgTable("discussion_entries", {
+ id: uuid().primaryKey().defaultRandom(), subjectId: uuid("subject_id").notNull().references(() => discussionSubjects.id, { onDelete: "cascade" }),
+ authorId: uuid("author_id").notNull().references(() => profiles.id, { onDelete: "cascade" }), body: text().notNull(), createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, table => [index("entries_subject_created_idx").on(table.subjectId, table.createdAt, table.id)]);
+export const subjectFollows = pgTable("subject_follows", {
+ userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }), subjectId: uuid("subject_id").notNull().references(() => discussionSubjects.id, { onDelete: "cascade" }), createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, table => [primaryKey({ columns: [table.userId, table.subjectId] }), index("subject_follows_user_idx").on(table.userId, table.createdAt.desc(), table.subjectId.desc())]);
+export const subjectSaves = pgTable("subject_saves", {
+ userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }), subjectId: uuid("subject_id").notNull().references(() => discussionSubjects.id, { onDelete: "cascade" }), createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, table => [primaryKey({ columns: [table.userId, table.subjectId] }), index("subject_saves_user_idx").on(table.userId, table.createdAt.desc(), table.subjectId.desc())]);

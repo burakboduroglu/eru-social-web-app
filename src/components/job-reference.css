@@ -1,0 +1,18 @@
+.job-reference { display:flex; align-items:start; gap:12px; margin-top:12px; padding:14px; border:1px solid var(--x-border); border-radius:6px; background:var(--x-surface); min-width:0; }
+.job-reference > svg { flex:0 0 24px; color:var(--x-blue); margin-top:3px; }
+.job-reference-copy { min-width:0; }
+.job-reference strong { display:block; font-size:16px; line-height:23px; overflow-wrap:anywhere; }
+.job-reference-label { display:block; font-size:12px; color:var(--feature-muted,#a1a8af); margin-bottom:6px; }
+.job-reference p { font-size:13px; line-height:20px; color:var(--feature-muted,#a1a8af); margin-top:5px; overflow-wrap:anywhere; }
+.job-reference-open { display:inline-flex; align-items:center; min-height:44px; gap:6px; color:var(--x-blue); font-size:13px; font-weight:600; margin-top:4px; }
+.job-reference.is-unavailable > svg { color:var(--feature-muted,#a1a8af); }
+.composer-job-attachment { min-width:0; }
+.composer-job-attachment-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12px; color:var(--feature-muted,#a1a8af); }
+.composer-job-attachment-heading button { display:inline-flex; align-items:center; min-height:44px; gap:6px; padding:6px 8px; }
+.composer-job-warning { font-size:13px; line-height:20px; color:#e5b879; margin-top:8px; }
+.composer-job-candidate > p { color:var(--feature-muted,#a1a8af); font-size:13px; line-height:20px; }
+.composer-job-candidate > button { margin-top:10px; }
+.compose-review-page { min-width:0; }
+.compose-review-page .feature-heading { padding:20px; margin-bottom:0; border-bottom:1px solid var(--x-border); }
+.compose-review-page .x-composer { border-bottom:0; }
+@media(max-width:400px) { .job-reference { padding:12px; gap:8px; } .job-reference strong { font-size:15px; } }

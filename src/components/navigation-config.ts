@@ -22,6 +22,7 @@ export const secondaryNavigation: NavigationDestination[] = [
   { to: "/saved-searches", label: "Kayıtlı aramalar", icon: "saved-search" },
   { to: "/drafts", label: "Taslaklar", icon: "article" },
   { to: "/events", label: "Etkinlikler", icon: "calendar" },
+  { to: "/discussions", label: "Tartışmalar", icon: "community" },
   { to: "/settings", label: "Ayarlar", icon: "settings" },
   { to: "/analytics", label: "Analizler", icon: "analytics" },
 ];

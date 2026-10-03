@@ -58,6 +58,14 @@ export function useComposerDraft(accountId: string, scope: ComposerDraftScope, o
     clearComposerDraft(accountId, scope);
     setState({ scopeKey, draft: { value: "", target: "" } });
   }, [accountId, scope, scopeKey]);
+  const setJobAttachment = useCallback((jobAttachment: { jobId: string | null } | null) => {
+    setState(current => {
+      const currentDraft = current.scopeKey === scopeKey ? current.draft : getComposerDraft(accountId, scope);
+      const nextDraft = { ...currentDraft, jobAttachment };
+      setComposerDraft(accountId, scope, nextDraft);
+      return { scopeKey, draft: nextDraft };
+    });
+  }, [accountId, scope, scopeKey]);
 
   // Read the store inside the guards so session teardown can clear the map
   // without waiting for this mounted hook to rerender first.
@@ -75,5 +83,5 @@ export function useComposerDraft(accountId: string, scope: ComposerDraftScope, o
     enableBeforeUnload: hasUnsentText,
   });
 
-  return { value: draft.value, setValue, target: draft.target, setTarget, clearDraft };
+  return { value: draft.value, setValue, target: draft.target, setTarget, clearDraft, jobAttachment: draft.jobAttachment || null, setJobAttachment };
 }

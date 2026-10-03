@@ -6,11 +6,11 @@ import { getDurableDraftReference, setDurableDraftReference, type ComposerDraftS
 import "./durable-composer-draft.css";
 
 /** Saves text explicitly; uploaded attachments retain their existing session lifecycle. */
-export function useDurableComposerDraft(accountId: string, scope: ComposerDraftScope, value: string, target: string) {
+export function useDurableComposerDraft(accountId: string, scope: ComposerDraftScope, value: string, target: string, jobAttachment?: { jobId: string | null } | null) {
   const key = JSON.stringify([accountId, scope]);
   const context = scope.kind === "reply" ? "reply" : scope.kind === "community" || target ? "community" : "personal";
   const targetId = scope.kind === "reply" ? scope.threadId : scope.kind === "community" ? scope.communityId : target || null;
-  const operationKey = JSON.stringify([key, context, targetId]);
+  const operationKey = JSON.stringify([key, context, targetId, jobAttachment]);
   const request = useRef({ key: operationKey, generation: 0, pending: false });
   if (request.current.key !== operationKey) request.current = { key: operationKey, generation: request.current.generation + 1, pending: false };
   const [state, setState] = useState(() => ({ key, draft: getDurableDraftReference(accountId, scope) }));
@@ -31,7 +31,7 @@ export function useDurableComposerDraft(accountId: string, scope: ComposerDraftS
     const current = () => request.current.key === operationKey && request.current.generation === generation;
     setStatus({ key: operationKey, busy: true, error: "", message: "" });
     try {
-      const saved = await api<TextDraft>(draft ? `/drafts/${draft.id}` : "/drafts", draft ? "PATCH" : "POST", { text: value, context, targetId, version: draft?.version });
+      const saved = await api<TextDraft>(draft ? `/drafts/${draft.id}` : "/drafts", draft ? "PATCH" : "POST", { text: value, context, targetId, jobId: jobAttachment?.jobId || null, resourceKind: jobAttachment ? "job" : null, version: draft?.version });
       // A completed old request remains in the library but must not overwrite another account/context.
       if (!current()) return;
       setDurableDraftReference(accountId, scope, saved);
@@ -58,5 +58,5 @@ export function DurableDraftControls({ draft, disabled, hasImages }: { draft: Re
   return <div className="durable-draft-controls"><div>
     <button type="button" disabled={disabled || draft.busy} onClick={() => void draft.save()}>{draft.busy ? "Taslak kaydediliyor…" : draft.saved ? "Metin taslağını güncelle" : "Metni taslak olarak kaydet"}</button>
     <Link to="/drafts" aria-disabled={draft.busy} onClick={event => { if (draft.busy) event.preventDefault(); }}>Taslaklarım</Link>
-  </div>{hasImages && <p>Yalnızca metin kaydedilir; görseller bu oturumda kalır.</p>}{draft.message && <p role="status">{draft.message}</p>}{draft.error && <p role="alert" className="durable-draft-error">{draft.error}</p>}</div>;
+  </div>{hasImages && <p>Metin ve ilan eki kaydedilir; görseller bu oturumda kalır.</p>}{draft.message && <p role="status">{draft.message}</p>}{draft.error && <p role="alert" className="durable-draft-error">{draft.error}</p>}</div>;
 }

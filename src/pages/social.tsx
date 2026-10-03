@@ -283,7 +283,7 @@ export function HomePage() {
         <button className={feed === "communities" ? "active" : ""} aria-pressed={feed === "communities"} onClick={() => navigate({ to: "/", search: { feed: "communities", page: 0 } as never, resetScroll: false })}>Toplulukların</button>
         <button className="x-feed-refresh" aria-label="Akışı yenile" disabled={refreshing} onClick={refresh}><Icon name="refresh" size={20} /></button>
       </nav>
-      <Composer communities={me.communities} />
+      <Composer communities={me.communities} requestedJobId={(search as { shareJob?: string }).shareJob || undefined} />
       {"entries" in data ? <TimelineList data={data} following /> : <PostList {...data} />}
     </section>
   );

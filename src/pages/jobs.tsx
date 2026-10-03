@@ -233,7 +233,7 @@ function JobDetail({ job, search, now }: { job: Job; search: JobsSearch; now: nu
     return <article className="job-detail"><Link to="/jobs" search={search as never} className="job-back"><Icon name="back" size={18} />İlanlara dön</Link>
         <JobSummary job={job} now={now} actions={<>
             {state.canApply && destination ? <Button asChild><a href={destination} target="_blank" rel="noopener noreferrer">Dış sitede başvur<Icon name="share" size={17} /></a></Button> : <Button disabled>{state.kind === "expired" ? "Başvuru süresi doldu" : !destination && state.canApply ? "Başvuru bağlantısı kullanılamıyor" : state.kind === "draft" ? "Henüz yayınlanmadı" : "Başvuru kapalı"}</Button>}
-            <JobSave job={job} />{job.status === "published" && <ShareMenu url={`${location.origin}/jobs/${encodeURIComponent(job.id)}`} title={`${job.title} · ${job.company}`} label="İlanı paylaş" className="job-share" />}
+            <JobSave job={job} />{job.status === "published" && <Button asChild variant="outline"><Link to="/" search={{ shareJob: job.id } as never}>Gönderi olarak paylaş</Link></Button>}{job.status === "published" && <ShareMenu url={`${location.origin}/jobs/${encodeURIComponent(job.id)}`} title={`${job.title} · ${job.company}`} label="İlanı paylaş" className="job-share" />}
         </>} />
         <section className="job-description"><h2>İlan hakkında</h2><p className="feature-body">{job.description}</p></section>
         <footer className="job-publisher"><Icon name="user" size={20} /><div><span>Üye tarafından paylaşıldı</span><Link to={`/profile/${job.publisher.id}`}>{job.publisher.name}</Link><time dateTime={job.createdAt}>Oluşturuldu: {new Date(job.createdAt).toLocaleDateString("tr-TR")}</time></div></footer>

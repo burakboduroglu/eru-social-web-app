@@ -25,6 +25,7 @@ import { parseMediaUrl } from "./lib/media";
 import { RepostAction, RepostAttribution } from "./components/repost-action";
 import { ShareMenu } from "./components/share-menu";
 import { useDurableComposerDraft, DurableDraftControls } from "./components/durable-composer-draft";
+import { ComposerJobAttachment, JobReferenceCard } from "./components/job-reference";
 
 export const errorMessage = (error: unknown) => error instanceof Error ? error.message : "İşlem tamamlanamadı. Tekrar giriş yapmayı dene.";
 export function useMe() {
@@ -72,16 +73,19 @@ export function Pagination({ hasMore, snapshot }: { hasMore: boolean; snapshot?:
   if (!current && !hasMore) return null;
   return <nav className="pagination text-light-2" aria-label="Sayfalar"><Button variant="outline" disabled={!current} onClick={() => navigate({ search: { ...search, ...(snapshot ? { snapshot } : {}), page: current - 1 } as never })}>Önceki</Button><span>{current + 1}. sayfa</span><Button variant="outline" disabled={!hasMore} onClick={() => navigate({ search: { ...search, ...(snapshot ? { snapshot } : {}), page: current + 1 } as never })}>Sonraki</Button></nav>;
 }
-export function Composer({ communities = [], communityId, parentId }: { communities?: CommunitySummary[]; communityId?: string; parentId?: string }) {
+export function Composer({ communities = [], communityId, parentId, requestedJobId }: { communities?: CommunitySummary[]; communityId?: string; parentId?: string; requestedJobId?: string }) {
   const action = useAction(); const me = useMe();
   const scope = parentId ? { kind: "reply" as const, threadId: parentId } : communityId ? { kind: "community" as const, communityId } : { kind: "root" as const };
   const images = useImageAttachments(me.profile.id, parentId ? `reply:${parentId}` : communityId ? `community:${communityId}` : "root");
-  const { value, setValue, target, setTarget, clearDraft } = useComposerDraft(me.profile.id, scope, { hasAttachments: images.items.length > 0, onDiscard: () => { void images.discard(); } });
-  const durableDraft = useDurableComposerDraft(me.profile.id, scope, value, target);
+  const { value, setValue, target, setTarget, clearDraft, jobAttachment, setJobAttachment } = useComposerDraft(me.profile.id, scope, { hasAttachments: images.items.length > 0, onDiscard: () => { void images.discard(); } });
+  const durableDraft = useDurableComposerDraft(me.profile.id, scope, value, target, jobAttachment);
+  const [jobReady, setJobReady] = useState<{ key: string; ready: boolean } | null>(null);
+  const attachmentKey = jobAttachment?.jobId || "deleted";
+  const jobBlocked = !!jobAttachment && !(jobReady?.key === attachmentKey && jobReady.ready);
   const composerBusy = action.busy || durableDraft.busy;
   const imageInput = useRef<HTMLInputElement>(null);
   const hasGif = detectLinks(value).some(link => parseMediaUrl(link.url)?.type === "gif");
-  const canPublish = images.canPublishImages && !(hasGif && images.items.length) && (!!value.trim() || images.readyMedia.length > 0);
+  const canPublish = !jobBlocked && images.canPublishImages && !(hasGif && images.items.length) && (!!value.trim() || images.readyMedia.length > 0);
   const [picker, setPicker] = useState<"emoji" | "gif" | null>(null), [message, setMessage] = useState("");
   const pickerId = useId();
   const pickerPanel = useRef<HTMLDivElement>(null);
@@ -129,7 +133,7 @@ export function Composer({ communities = [], communityId, parentId }: { communit
     if (invalidTarget || composerBusy || !canPublish) return;
     closePicker(false);
     if (targetMenu.current) targetMenu.current.open = false;
-    if (await action.run(() => api("/threads", "POST", { text: value, media: images.readyMedia, parentId, communityId: communityId || target || null, ...durableDraft.publishReference() }))) { durableDraft.published(); images.clearAfterPublish(); clearDraft(); setMessage(""); showToast(parentId ? "Yanıt paylaşıldı." : "Gönderi paylaşıldı."); }
+    if (await action.run(() => api("/threads", "POST", { text: value, media: images.readyMedia, parentId, communityId: communityId || target || null, ...(jobAttachment ? { resourceKind: "job", jobId: jobAttachment.jobId } : {}), ...durableDraft.publishReference() }))) { durableDraft.published(); images.clearAfterPublish(); clearDraft(); setMessage(""); showToast(parentId ? "Yanıt paylaşıldı." : "Gönderi paylaşıldı."); }
   }
   if (parentId) return <form className="thread-reply-form" onSubmit={submit}>
     <Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} />
@@ -196,6 +200,7 @@ export function Composer({ communities = [], communityId, parentId }: { communit
       <div className="x-composer-avatar"><Avatar src={me.profile.image} name={me.profile.name} username={me.profile.username} /></div>
       <label htmlFor="compose-post" className="sr-only">Gönderi paylaş</label><Textarea id="compose-post" value={value} disabled={composerBusy} onChange={e => { setValue(e.target.value); setMessage(""); }} placeholder="Neler oluyor?" maxLength={max} required={!images.items.length} className="no-focus max-h-[200px] resize-none border-0 bg-transparent text-[20px] text-light-1 shadow-none" />
     </div>
+    <ComposerJobAttachment accountId={me.profile.id} attachment={jobAttachment} requestedJobId={communityId ? undefined : requestedJobId} disabled={composerBusy} hasText={!!value.trim()} onChange={setJobAttachment} onSeedText={() => { if (!value.trim()) setValue("Bu ilana göz atın."); }} onReady={(key, ready) => setJobReady(current => current?.key === key && current.ready === ready ? current : { key, ready })} />
     {!images.items.length && <ComposerLinkPreview text={value} />}
     {!!images.items.length && <MediaAttachments items={images.items} disabled={composerBusy} onChange={images.setItems} onSelectFiles={images.selectFiles} onRetry={images.retry} />}
     {images.selectionError && <p className="media-selection-error" role="alert">{images.selectionError}</p>}
@@ -283,6 +288,7 @@ export function PostCard({ post, detail = false, repostActor }: { post: Post; de
       </div>
       {post.parentId && <Link className="post-context" to={`/thread/${post.parentId}`}>Yanıtlanan gönderi</Link>}
       <PostContent text={post.text} postId={post.id} truncate={pathname === "/"} hasAttachments={!!post.media?.length} />
+      <JobReferenceCard reference={post.jobReference} />
       {!!post.media?.length && <PostImages images={post.media} />}
       {detail && <div className="thread-meta"><time dateTime={post.createdAt}>{fullDate(post.createdAt)}</time></div>}
       <div className="post-actions-row">

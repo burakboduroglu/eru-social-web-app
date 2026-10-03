@@ -1,0 +1,8 @@
+.discussions-page { min-width: 0; }
+.discussion-create { margin-bottom: 20px; }
+.discussion-entries { display: grid; margin: 0; padding: 0; gap: 0; list-style: none; }
+.discussion-entry { min-width: 0; padding: 16px 0; border-bottom: 1px solid var(--x-border); }
+.discussion-entry header { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: 13px; }
+.discussion-entry header a { color: var(--x-text); font-weight: 600; text-decoration: none; }
+.discussion-entry header time { color: var(--feature-muted, #a1a8af); }
+.discussion-entry p { margin: 6px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.5; }
